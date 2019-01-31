@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1543872516909.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "665584129",
+    "id" : "10B9CFB2",
+    "lastKnownWriteTime" : 1543383570,
+    "last_content_update" : 1543383570,
+    "path" : "C:/Users/misaa/Dropbox/Matt/Fa18/Time Series/Project/barAnalysis3.R",
+    "project_path" : "barAnalysis3.R",
+    "properties" : {
+        "cursorPosition" : "49,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

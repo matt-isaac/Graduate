@@ -1,0 +1,1 @@
+"0","bar.mod <- arima(bar.sta, order = c(2, 0, 0), include.mean = FALSE, method = ""CSS-ML"")"

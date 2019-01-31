@@ -1,0 +1,104 @@
+mlr <- read.csv("mlr_ew.csv", header = FALSE) # read in data
+mlr <- ts(mlr, start = 1, frequency = 12)
+mlr.train <- mlr[1:(12*36)]
+mlr.train <- ts(mlr.train, start = 1, frequency = 12)
+mlr.test <- mlr[((12*36)+1):length(mlr)]
+mlr.test <- ts(mlr.test, start = 37, frequency = 12)
+
+plot(mlr.train) # appears stationary
+acf(mlr.train) # appears stationary
+
+acf(mlr.train, lag.max = 30) # plot ACF to determine value of q
+
+ma.19 <- arima(mlr.train - mean(mlr.train), 
+               order = c(0,0,19), 
+               method = "CSS-ML", 
+               include.mean = FALSE)
+
+round(ma.19$coef, 4)
+
+ma.19.sparse <- arima(mlr.train - mean(mlr.train), 
+                      order = c(0,0,19), 
+                      method = "CSS-ML", 
+                      fixed = c(NA, 
+                                rep(0,6), 
+                                NA, 
+                                rep(0,3),
+                                NA,
+                                rep(0,1),
+                                NA,
+                                rep(0,4),
+                                NA),
+                      include.mean = FALSE)
+
+plot(ma.19.sparse$residuals)
+# acf(ma.19$residuals)
+acf(ma.19.sparse$residuals, lag.max)
+
+preds <- ts(c(mlr.train, rep(NA, 24)), start = 1, frequency = 12)
+
+getInnovations <- function(timeSeries, coeff.index, ma.model){
+  innov <- double(length(timeSeries))
+  innov[1] <- timeSeries[1]
+  for(t in 2:length(timeSeries)){
+    Xt <- mlr[t]
+    summation <- 0
+    for(j in coeff.index){
+      if(t - j <= 0){
+        innov_tmj <- 0
+      } else {
+        innov_tmj <- innov[t - j]
+      }
+      summation <- summation + (ma.model$coef[j] * innov_tmj)
+    }
+    innov[t] <- Xt - summation
+  }
+  return(innov)
+}
+
+ci <- c(1,8,12,14,19)
+innov <- getInnovations(timeSeries = mlr.train, coeff.index = ci, ma.model = ma.19.sparse)
+innov <- ts(innov, start = 1, frequency = 12)
+plot(innov)
+
+hStepAhead <- function(h, ma.model, innov, timeseries){
+  n <- length(timeseries)
+  q <- length(ma.model$coef)
+  if(h > q){
+    return(0)
+  } else {
+    summation <- 0
+    for(j in h:q){
+      summation <- summation + (ma.model$coef[j] * innov[n + h - j])
+    }
+    return(summation)
+  }
+}
+
+innov.preds <- double(24)
+for(i in 1:length(innov.preds)){
+  innov.preds[i] <- hStepAhead(h = i, ma.model = ma.19.sparse, innov = innov, timeseries = mlr.train)
+}
+preds <- ts(innov.preds + mean(mlr.train), start = 37, frequency = 12)
+
+ts.plot(mlr.test, mlr.train, preds, gpars = list(col = c("black", "black", "red"), 
+                                                 xlim = c(37,39), main = "Log Return Forecasts"))
+legend("bottomright", col = c("black", "red"), legend = c("Actual", "Predicted"), fill = c("black", "red"))
+
+# coeff.index <- c(1,8,12,19)
+# innov[1] <- mlr[1]
+# for(t in 2:length(innov)){
+#   terms <- double(length(coeff.index))
+#   counter <- 1
+#   for(j in coeff.index){
+#     if(t - j < 0){
+#       innov_tmj <- 0
+#     } else {
+#       innov_tmj <- innov[t - j]
+#     }
+#     terms[counter] <- ma.19.sparse$coef[j] * innov_tmj
+#     counter <- counter + 1
+#   }
+#   sumterms <- sum(terms)
+#   innov[t] <- mlr[t] - sum(terms)
+# }

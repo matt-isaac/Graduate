@@ -1,0 +1,1 @@
+"0","qqnorm(bar.mod$residuals, main = ""Normal Quantile Plot of Residuals"")"

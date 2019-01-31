@@ -1,0 +1,62 @@
+---
+title: "Time Series - Homework 1"
+author: "Matt Isaac"
+date: "September 18, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## I. Data Analysis
+
+1. The data set I chose is `nhtemp`, which contains data for the average yearly temperatures in New Haven from 1912 to 1971.  
+
+* Plot the data  
+```{r}
+plot(nhtemp, xlab = "Year", ylab = "Temperature", 
+     main = "Average Yearly Temperatures in New Haven")
+```
+
+* Identify any trend or seasonality or both in your data.  
+I see a slight upward linear trend present in these data. I don't see any evidence of seasonality/period in these data. 
+
+* Transform the data into a stationary process and plot the transformed data  
+```{r}
+nhtemp_st <- diff(nhtemp, differences = 1)
+plot(nhtemp_st, xlab = "Year", ylab = "Temperature", 
+     main = "Average Yearly Temperatures in New Haven (Transformed")
+```
+
+2. Consider the Nile and the JohnsonJohnson data in R Datasets package. For each one
+of the two:  
+
+* Transform the original time series into a stationary process.  
+* Plot the original data, transformed data, and the sample ACF of the transformed
+data on one page.
+
+#### Nile data  
+* Transform into stationary process.
+* Plots  
+```{r, fig.height=10}
+Nile_st <- diff(Nile, differences = 1)
+par(mfrow = c(3,1))
+plot(Nile, main = "Yearly Flow of the River Nile", xlab = "Year", ylab = "Flow")
+plot(Nile_st, main = "Yearly Flow of the River Nile (Transformed)", xlab = "Year", ylab = "Flow")
+acf(Nile_st, main = "ACF")
+
+```
+
+#### JohnsonJohnson data  
+* Transform into stationary process.  
+* Plots  
+```{r, fig.height=10}
+par(mfrow = c(3,1))
+plot(JohnsonJohnson, main = "Quarterly Sales for Johnson and Johnson", ylab = "sales")
+lnJJ <- log(JohnsonJohnson)
+lnJJ_st1 <- diff(lnJJ, diff = 2)
+lnJJ_st2 <- diff(lnJJ_st1, lag = 4)
+plot(lnJJ_st2, main = "Quarterly Sales for Johnson and Johnson (Transformed)", ylab = "sales")
+acf(lnJJ_st2, main = "ACF")
+```

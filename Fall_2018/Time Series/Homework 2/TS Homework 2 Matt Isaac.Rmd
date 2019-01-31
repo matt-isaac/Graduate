@@ -1,0 +1,282 @@
+---
+title: "Time Series - Homework 2"
+author: "Matt Isaac"
+date: "October 02, 2018"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+## Exercise 1
+(Brockwell and Davis) 3.1 - Determine which of the following ARMA processes are causal and which of them are invertible. (In each case $\{Z_t\}$ denotes white noise.)
+
+**a. $\bf{X_t + 0.2X_{t-1} - 0.48X_{t-2} = Z_t}$**  
+
+> $\Phi(z) = 1 + 0.2z - 0.48z^2$  
+  
+> Using R to solve for the roots of $\Phi(z)$:  
+
+```{r}
+phiz <- polyroot(c(1, 0.2, -0.48))
+Mod(phiz)
+```
+> We see that the polynomial $\Phi(z)$ has roots 1.667 and 1.25, both of which are outside the unit circle. Thus, the process is causal. 
+
+> $\Theta(z) = 1$  
+
+> $\Theta(z)$ has no roots, so no roots exist inside the unit circle. Thus, the process is invertible. 
+
+> *The process is causal and invertible*
+
+**b. $\bf{X_t + 1.9X_{t-1} + 0.88X_{t-2} = Z_t + 0.2Z_{t-1} + 0.7Z_{t-2}}$**  
+
+> $\Phi(z) = 1 + 1.9z + 0.88z^2$  
+  
+> Using R to solve for the roots of $\Phi(z)$:
+
+```{r}
+phiz <- polyroot(c(1, 1.9, 0.88))
+Mod(phiz)
+```
+> The polynomial $\Phi(z)$ has roots 0.9091 and 1.25. One of these is inside the unit circle, so the process in not causal.
+
+> $\Theta(z) = 1 + 0.2z + 0.7z^2$ 
+
+> Using R to solve for the roots of $\Theta(z)$:
+
+```{r}
+thetaz <- polyroot(c(1, 0.2, 0.7))
+Mod(thetaz)
+```
+> The polynomial $\Theta(z)$ has roots 1.195 and 1.195, both of which are outisde the unit circle. The process is therefore invertible. 
+
+> *The process is not causal but is invertible*
+
+**c. $\bf{X_t + 0.6X_{t-1} = Z_t + 1.2Z_{t-1}}$**
+
+> $\Phi(z) = 1 + 0.6z$
+
+> Using R to solve for the root of $\Phi(z)$:
+
+```{r}
+phiz <- polyroot(c(1, 0.6))
+Mod(phiz)
+```
+> $\Phi(z)$ has one root, 1.667. This is outside the unit circle, so the process is causal. 
+
+> $\Theta(z) = 1 + 1.2z$
+
+> Using R to solve for the root of $\Theta(z)$:
+
+```{r}
+thetaz <- polyroot(c(1, 1.2))
+Mod(thetaz)
+```
+> The root of $\Theta(z)$, 0.833, is not outside the unit circle, so the process is not invertible. 
+
+> *The process is causal but not invertible*
+
+**d. $\bf{X_t + 1.8X_{t-1} + 0.81X_{t-2} = Z_t}$**  
+
+> $\Phi(z) = 1 + 1.8z + 0.81z^2$
+
+> Using R to solve for the roots of $\Phi(z)$:
+
+```{r}
+phiz <- polyroot(c(1, 1.8, 0.81))
+Mod(phiz)
+```
+> $\Phi(z)$ has repeated roots with a value of 1.111. Thus both roots are outside the unit circle, so the process is causal. 
+
+> $\Theta(z) = 1$
+
+> $\Theta(z)$ has no roots, and therefore no roots inside the unit circle. The process is invertible. 
+
+> *The process is causal and invertible*
+
+**e. $\bf{X_t + 1.6X_{t-1} = Z_t - 0.4Z_{t-1} + 0.04Z_{t-2}}$**
+
+>$\Phi(z) = 1 + 1.6z$
+
+> Using R to solve for the roots of $\Phi(z)$:
+```{r}
+phiz <- polyroot(c(1, 1.6))
+Mod(phiz)
+```
+> $\Phi(z)$ has one root: 0.625. This is inside the unit circle, so the process is not causal. 
+
+> $\Theta(z) = 1 - 0.4z + 0.04z^2$
+
+> Using R to solve for the roots of $\Theta(z)$
+
+```{r}
+thetaz <- polyroot(c(1, -0.4, 0.04))
+Mod(thetaz)
+```
+> $\Theta(z)$ has repeated roots, both with a value of 5. Since both roots are outside the unit circle, the process is invertible. 
+
+> *The process is not causal but is invertible*
+
+## Exercise 2
+For part (a) in the first problem, calculate $\rho(h)$ for $h = 1, 2, ..., 30$, and graph it. 
+
+> $X_t + 0.2X_{t-1} - 0.48X_{t-2} = Z_t$
+
+So, $\phi_1 = -0.2$, and $\phi_2 = 0.48$
+
+We will use the following equations:  
+For $k = 0$:  
+
+> $\gamma(0) - [\phi_1\gamma(1) + ... + \phi_p\gamma(p)] = \sigma^2$
+
+and for $k \geq 1$:  
+
+> $\gamma(k) - [\phi_1\gamma(k-1) + ... + \phi_p\gamma(k-p)] = 0$
+
+Plugging in our values of $\phi_1$ and $\phi_2$, we see that  
+
+For $k = 0$:  
+
+> $\gamma(0) - [-0.2\gamma(1) + 0.48\gamma(2)] = \sigma^2$
+
+For $k = 1$:  
+
+> $\gamma(1) - [-0.2\gamma(0) + 0.48\gamma(1)] = 0$
+
+For $k = 2$:  
+
+> $\gamma(2) - [-0.2\gamma(1) + 0.48\gamma(0)] = 0$
+
+From the above equations, we obtain the following system of linear equations:
+
+>$\gamma(0) + 0.2\gamma(1) - 0.48\gamma(2) = \sigma^2$  
+$0.2\gamma(0) + 0.52\gamma(1) + 0\gamma(2) = 0$  
+$-0.48\gamma(0) + 0.2\gamma(1) + \gamma(2) = 0$  
+
+Written in matrix form:
+
+$$
+\left[
+\begin{array}
+{rrr}
+1&0.2&-0.48\\
+0.2&0.52&0\\
+-0.48&0.2&1
+\end{array}
+\right]
+\left[
+\begin{array}{rrr}
+\gamma(0)\\
+\gamma(1)\\
+\gamma(2)
+\end{array}
+\right]
+=
+\left[
+\begin{array}{rrr}
+\sigma^2\\
+0\\
+0
+\end{array}
+\right]
+$$
+
+The following R code solves the linear system of equations for the three unknowns, $\gamma(0)$, $\gamma(1)$, and $\gamma(2)$ (letting $\sigma^2 = 1$). 
+
+```{r}
+A <- matrix(data = c(1, 0.2, -0.48, 0.2, 0.52, 0, -0.48, 0.2, 1 ), nrow = 3, byrow = TRUE)
+B <- matrix(data = c(1, 0, 0), nrow = 3, byrow = TRUE)
+
+g <- solve(a = A, b = B)
+g <- as.vector(g)
+```
+
+$\gamma(0)$, $\gamma(1)$, and $\gamma(2)$ are `r round(g, 3)` respectively. 
+
+Using the values obtained by solving the system of linear equations, we recursively solve for $\gamma(h)$ for $h = 3, 4, ..., 30$ by using the equation:  
+
+> $\gamma(k) = \phi_1\gamma(k-1) + ... + \phi_p\gamma(k-p)$
+
+```{r}
+gammas <- c(g, rep(0, 28))
+
+for(k in seq(4,31)){
+  gammas[k] <- (-0.2 * gammas[k-1]) + (0.48 * gammas[k-2])
+}
+```
+
+The values of $\gamma(h)$ for $h = 3, 4, ..., 30$ are stored in the vector `gammas`. The code below obtains the values of $\rho(h) = \frac{\gamma(h)}{\gamma(0)}$ and plots $\rho(h)$.  
+
+```{r}
+rhos <- gammas/gammas[1]
+
+acf(rhos, main = "")
+```
+
+## Exercise 3  
+a. Construct an AR model whose ACF has for form of a damped sin function, with the damping factor equal to 0.8.
+
+In the textbook, it is given that:  
+
+> $\xi_1 = r e^{i\theta}$ and $\xi_2 = r e^{-i\theta}$
+
+Choosing a damping factor of $r^{-1} = 0.8$, we have the following AR(2) process defined by  
+
+> $(1 - \xi_1^{-1}B)(1 - \xi_2^{-1}B)X_t = Z_t$  
+
+> $\implies (1 - \xi_2^{-1}B - \xi_1^{-1}B + \xi_1^{-1}\xi_2^{-1}B^2)X_t = Z_t$  
+
+> $\implies X_t - (\xi_2^{-1})X_{t-1} - (\xi_1^{-1})X_{t-1} + (\xi_1^{-1}\xi_2^{-1})X_{t-2} = Z_t$  
+
+> $\implies X_t + (- \xi_2^{-1} - \xi_1^{-1})X_{t-1} + (\xi_1^{-1}\xi_2^{-1})X_{t-2} = Z_t$  
+
+> $\implies X_t - (\xi_2^{-1} + \xi_1^{-1})X_{t-1} - (-\xi_1^{-1}\xi_2^{-1})X_{t-2} = Z_t$  
+
+Recalling the general formula for an AR(p) process:  
+
+> $X_t - \phi_1X_{t-1} - ... - \phi_pX_{t-p} = Z_t$
+
+Thus, 
+
+$\phi_1$:  
+
+$\phi_1 = \xi_2^{-1} + \xi_1^{-1}$  
+
+> $\implies \phi_1 = \frac{0.8}{e^{-i}} + \frac{0.8}{e^i}$  
+
+```{r}
+e <- exp(1)
+i <- complex(real = 0, imaginary = 1)
+phi_1 <- 0.8/(e^-i) + (0.8/(e^i))
+phi_1
+```
+
+> $\implies \phi_1 = 0.8645$ 
+  
+  
+$\phi_2$:  
+
+> $\phi_2 = -\xi_1^{-1}\xi_2^{-1}$  
+
+> $\implies \phi_2 = -\frac{0.8}{e^{-i}} * \frac{0.8}{e^i}$  
+
+```{r}
+
+phi_2 <- -0.8/(e^-i) * (0.8/(e^i))
+phi_2
+```
+> $\implies \phi_2 = -0.64$ 
+
+Thus, an AR(2) model whose ACF has a form of a damped sin function (damping factor = $0.8$) can be represented by  
+
+> $\bf{X_t - 0.8645X_{t-1} + 0.64X_{t-2} = Z_t}$.
+
+b. Simulate a realization of the model you constructed, and plots its sample ACF. Does it match your expectation?
+
+```{r, fig.height = 4}
+set.seed(123)
+ar2 <- arima.sim(model = list(ar = c(0.8644837, -0.64)), sd = 1, n = 200)
+acf(ar2)
+```
+
+Yes, we see the decaying sine function, which is what we would expect. 

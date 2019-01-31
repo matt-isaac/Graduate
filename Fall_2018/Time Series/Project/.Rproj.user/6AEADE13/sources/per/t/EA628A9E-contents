@@ -1,0 +1,940 @@
+---
+title: "Boston Armed Robberies - Time Series Analysis"
+author: "Matt Isaac"
+date: "December 10, 2018"
+output: 
+  ioslides_presentation:
+    widescreen: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r, echo=FALSE}
+library(forecast)
+library(ggplot2)
+library(gridExtra)
+library(ggfortify)
+library(knitr)
+
+bar.raw <- read.csv("bar.csv", header = TRUE)
+bar <- ts(bar.raw$armRob, frequency = 12, start = 1966)
+```
+
+## Data: Boston Armed Robberies, 1966 - 1976
+<div class = "black">
+Boston was a center of organized crime in the 1960's and 1970's. 
+
+- Raymond Patriarca (Boston Mafia)
+- Gerrano Angiulo (Boston Mafia)
+- Howard "Howie" Winter (Winter Hill Gang)
+</div>
+```{r  out.width = "75%", fig.align="center", out.align="center"}
+include_graphics("bosses.jpg") 
+```
+<font size = "2">
+Photos from https://wikipedia.com
+</font>
+
+## Data: Boston Armed Robberies, 1966 - 1976
+```{r  out.width = "90%", fig.align="center"}
+include_graphics("Timeline4.png") 
+```
+
+<font size = "2">
+Data from https://datamarket.com/data/set/22ob/monthly-boston-armed-robberies-jan1966-oct1975-deutsch-and-alt-1977#!ds=22ob&display=line
+</font>
+
+## Data: Boston Armed Robberies, 1966 - 1976
+```{r, echo = FALSE, fig.width=10, fig.height=5}
+# ts.plot(bar, 
+#         gpars = list(main = "Boston Armed Robberies\nMonthly Time Series (Jan 1966 - Oct 1975)",
+#                      ylab = "Frequency"))
+#    
+df.bar <- data.frame(ts = bar, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))                  
+
+rts.plot <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  xlab('Time') +
+  ylab('Monthly Armed Robberies') +
+  scale_y_continuous(limits = c(0, 600), breaks = seq(0, 600, by = 100)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+rts.plot
+```
+
+## Data: Boston Armed Robberies, 1966 - 1976
+```{r, echo = FALSE, fig.width=10, fig.height=5}
+rts.plot +
+  annotate("text", label = "n = 118", x = 1967, y = 565, color = "darkred", size = 5) +
+  annotate("text", label = "frequency = 12", x = 1967.4, y = 525, color = "darkred", size = 5)
+```
+
+## Research Question {.flexbox .vcenter}
+<div class="centered">
+<div class = "blue3">
+<font size="15">
+How much do we predict the number of monthly armed robberies to increase in the next 12 months?
+</font>
+</div>
+</div>
+
+## Goal: Predict 12 Steps (Months) Ahead
+```{r, echo = FALSE, fig.width=10, fig.height=5}
+rts.plot.12 <- rts.plot + 
+  geom_vline(xintercept = (1976 + (10/12)), lty = 2, size = 1, col = "red3")
+
+rts.plot.12
+```
+
+## ACF & PACF of Original Time Series
+```{r, fig.width = 10, fig.height = 5}
+par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))
+acf(bar, main = "")
+pacf(bar, main = "")
+```
+
+## Transform to Stationarity 
+
+<div class = "black">
+<font size="10">
+1. log transformation  
+2. first order differencing  
+3. de-mean  
+</font>
+</div>
+```{r}
+bar.l <- log(bar)
+bar.l.diff <- diff(bar.l, diff = 1)
+# acf(bar.l.diff, lag = 30)
+# pacf(bar.l.diff, lag = 30)
+# plot(bar.l.diff)
+
+mu <- mean(bar.l.diff)
+bar.l.diff.dm <- bar.l.diff - mu
+bar.sta <- bar.l.diff.dm
+```
+
+## Transform to Stationarity 
+```{r, echo = FALSE, fig.width=10, fig.height=5}
+df.bar.sta <- data.frame(ts = bar.sta, time = seq(1966 + (2/12), (1975 + (10/12)), by = (1/12)))
+
+ggplot() + 
+  geom_line(data = df.bar.sta, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  xlab('Time') +
+  ylab('Frequency') +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1)) +
+  scale_y_continuous(limits = c(-0.6, 0.6), breaks = round(seq(-0.6, 0.6, by = 0.2),3))
+
+# autoplot(bar.sta, ts.size = 1,
+#          main = "Boston Armed Robberies - Transformed: \nMonthly Time Series (Jan 1966 - Oct 1975)",
+#          ylab = "Frequency",
+#          xlab = "Time", 
+#         ts.colour = "navyblue")
+```
+
+## Transform to Stationarity
+```{r, fig.width = 10, fig.height = 5}
+par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))
+acf(bar.sta, main = "")
+pacf(bar.sta, main = "")
+```
+
+## Model Selection
+<div class = "black">
+The following models were considered:
+```{r}
+bar.mod.ar2 <- arima(bar.sta, order = c(2, 0, 0), include.mean = FALSE, method = "CSS-ML")
+bar.mod.ma2 <- arima(bar.sta, order = c(0, 0, 2), include.mean = FALSE, method = "CSS-ML")
+bar.mod.arma11 <- arima(bar.sta, order = c(1, 0, 1), include.mean = FALSE, method = "CSS-ML")
+bar.mod.arma12 <- arima(bar.sta, order = c(1, 0, 2), include.mean = FALSE, method = "CSS-ML")
+bar.mod.arma21 <- arima(bar.sta, order = c(2,0,1), include.mean = FALSE, method = "CSS-ML")
+bar.mod.arma22 <- arima(bar.sta, order = c(2,0,2), include.mean = FALSE, method = "CSS-ML")
+
+bar.mod <- bar.mod.arma22
+```
+ 
+Model         | $\sigma^2$ 
+------------- | ------------- 
+AR(2)         | 0.0382        
+MA(2)         | 0.0364        
+ARMA(1,1)     | 0.0357        
+ARMA(1,2)     | 0.0357        
+ARMA(2,1)     | 0.0357        
+ARMA(2,2)     | 0.0355        
+
+$\sigma^2$ is minimized for ARMA(2,2).  
+ARMA(2,2) selected. 
+
+## Model Selection: ARMA(2,2)
+Model appears to adequately  describe the data. 
+```{r, fig.width = 10, fig.height = 4.5}
+par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))
+acf(bar.mod$residuals, lag = 40, main = "")
+pacf(bar.mod$residuals, lag = 40, main = "")
+bt <- Box.test(bar.mod$residuals, lag = 40, type = "Ljung-Box")
+```
+Ljung-Box Test: p-value = `r round(bt$p.value, 3)` for first 40 lags
+
+## Model Selection: ARMA(2,2)
+```{r, fig.width = 10, fig.height = 5}
+qqnorm(bar.mod$residuals, main = "Normal Quantile Plot of Residuals")
+qqline(bar.mod$residuals)
+```
+
+## Selected Model:
+<div class = "black">
+<font size = "6.5">
+
+ARMA(2,2) is our selected model, as it has the smallest value of $\sigma^2$ and appears to adequately describes the data (according to the residuals). 
+$$
+\begin{aligned}
+X_t = &(-0.4248)X_{t-1} + (0.5598)X_{t-2} + 
+\\&Z_t + (0.0634)Z_{t-1} + (-0.8958)Z_{t-2} \\
+\end{aligned}
+$$
+$$
+\text{where } Z_t \sim WN(0,1)
+$$
+</font>
+</div>
+
+## Predictions on Stationary Time Series
+```{r, fig.width = 10, fig.height = 5}
+#Using the predict function
+bar_pred = predict(bar.mod, n.ahead=12,se.fit=T)
+pred_value = bar_pred$pred + mu
+
+pred_lower=pred_value - (1.96 * bar_pred$se)
+pred_upper=pred_value + (1.96 * bar_pred$se)
+
+# for visualization
+df.bar.sta <- data.frame(ts = bar.sta, time = seq(1966 + (2/12), (1975 + (10/12)), by = (1/12)))
+df.pred.sta <- data.frame(ts = pred_value, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.upper.sta <- data.frame(ts = pred_upper, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.lower.sta <- data.frame(ts = pred_lower, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+
+plot_sta <- ggplot() + 
+  geom_line(data = df.bar.sta, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.pred.sta, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.upper.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  geom_line(data = df.lower.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('Frequency') +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))+
+  scale_y_continuous(limits = c(-0.6, 0.6), breaks = round(seq(-0.6, 0.6, by = 0.2),3))
+
+plot_sta
+```
+
+## Predictions on Stationary Time Series
+```{r, fig.width = 10, fig.height = 5}
+#plot fitted and predicted values together with the observed data
+bar_fit_pred=ts(rep(0,118),start=1966,frequency=12)
+bar_fit_pred[2:118]=bar.sta-bar.mod$residuals + mu
+# bar_fit_pred[119:128]=pred_value
+# ts.plot(bar.sta,bar_fit_pred,gpars=list(col=c('black','red','blue','blue')))
+df.bar.fitted.sta <- data.frame(ts = bar_fit_pred, time = seq(1966 + (1/12), (1975 + (10/12)), by = (1/12)))
+
+plot_sta <- plot_sta +
+  geom_line(data = df.bar.fitted.sta, aes(x = time, y = ts), color = "red", size = 1)
+
+plot_sta
+```
+
+## Predictions with ARMA(2,2)
+
+The ARMA(2,2) model does not seem to fit the data well once it has been transformed back to the original scale. 
+```{r, fig.width = 10, fig.height = 5}
+#undo differencing
+bar_forc_back=diffinv(bar_fit_pred[2:118], differences=1, xi=log(bar[1]))
+bar_forc_lead=diffinv(pred_value, differences=1, xi=log(bar[118]))
+
+pe <- log(bar[117])
+moe <- 1.96*sqrt(bar.mod$sigma2[1])
+upper_start <- pe + moe
+lower_start <- pe - moe
+
+bar_forc_upper=diffinv(pred_upper, differences=1, xi = upper_start)
+bar_forc_lower=diffinv(pred_lower, differences=1, xi = lower_start)
+
+bar_forc_back=ts(bar_forc_back,start=1966,frequency=12)
+bar_forc_lead=ts(bar_forc_lead,start=(1975+(10/12)),frequency=12)
+bar_forc_upper=ts(bar_forc_upper,start=(1975+(10/12)),frequency=12)
+bar_forc_lower=ts(bar_forc_lower,start=(1975+(10/12)),frequency=12)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.upper <- data.frame(ts = bar_forc_upper, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.lower <- data.frame(ts = bar_forc_lower, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = log(bar), time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+par(mfrow = c(2,1))
+
+# Predictions on log scale
+plot.ls <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.forc.upper, aes(x = time, y = ts), color = "blue", size = 1) +
+  geom_line(data = df.forc.lower, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('log(Monthly Armed Robberies)') +
+  scale_y_continuous(limits = c(0, 11), breaks = seq(0, 12, by = 2)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.ls
+
+# Predictions on original scale
+bar_forc_back <- exp(bar_forc_back)
+bar_forc_lead <- exp(bar_forc_lead)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = bar, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+plot.os <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  xlab('Time') +
+  ylab('Monthly Armed Robberies') +
+  scale_y_continuous(limits = c(0, 600), breaks = seq(0, 600, by = 100)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.os
+
+grid.arrange(plot.ls, plot.os, nrow = 2)
+```
+
+## Revisit Model Selection
+The poor fit of the ARMA(2,2) model on the observed data is concerning. I will try various other models to see if any of them fit the data better when transformed back to the original scale. 
+
+The next several slides will show $\sigma^2$, ACF/PACF, the outcome of the Ljung-Box test for various models, and the fitted model values on the differenced, log, and original scales. 
+
+## ARMA(1,2)
+Model appears to adequately  describe the data. 
+```{r, fig.width = 10, fig.height = 4.5}
+## Try ARMA(1,2)
+bar.mod <- bar.mod.arma12
+
+par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))
+acf(bar.mod$residuals, lag = 40, main = "")
+pacf(bar.mod$residuals, lag = 40, main = "")
+bt <- Box.test(bar.mod$residuals, lag = 40, type = "Ljung-Box")
+```
+$\sigma^2 =$ `r round(bar.mod$sigma2, 4)`  
+Ljung-Box Test: p-value = `r round(bt$p.value, 3)` for first 40 lags
+
+## ARMA(1,2) - Differenced Scale
+```{r, fig.width = 10, fig.height = 4.5}
+
+bar_pred = predict(bar.mod, n.ahead=12,se.fit=T)
+pred_value = bar_pred$pred + mu
+
+pred_lower=pred_value - (1.96 * bar_pred$se)
+pred_upper=pred_value + (1.96 * bar_pred$se)
+
+# for visualization
+df.bar.sta <- data.frame(ts = bar.sta, time = seq(1966 + (2/12), (1975 + (10/12)), by = (1/12)))
+df.pred.sta <- data.frame(ts = pred_value, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.upper.sta <- data.frame(ts = pred_upper, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.lower.sta <- data.frame(ts = pred_lower, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+
+plot_sta <- ggplot() +
+  geom_line(data = df.bar.sta, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.pred.sta, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.upper.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  geom_line(data = df.lower.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('Frequency') +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))+
+  scale_y_continuous(limits = c(-0.6, 0.6), breaks = round(seq(-0.6, 0.6, by = 0.2),3))
+
+# plot_sta
+#plot fitted and predicted values together with the observed data
+bar_fit_pred=ts(rep(0,118),start=1966,frequency=12)
+bar_fit_pred[2:118]=bar.sta-bar.mod$residuals + mu
+# bar_fit_pred[119:128]=pred_value
+# ts.plot(bar.sta,bar_fit_pred,gpars=list(col=c('black','red','blue','blue')))
+df.bar.fitted.sta <- data.frame(ts = bar_fit_pred, time = seq(1966 + (1/12), (1975 + (10/12)), by = (1/12)))
+
+plot_sta <- plot_sta +
+  geom_line(data = df.bar.fitted.sta, aes(x = time, y = ts), color = "red", size = 1)
+ 
+plot_sta
+```
+
+## ARMA(1,2) - Log and Original Scales
+Model does not fit very well.
+```{r, fig.width = 10, fig.height = 4.5}
+
+#undo differencing
+bar_forc_back=diffinv(bar_fit_pred[2:118], differences=1, xi=log(bar[1]))
+bar_forc_lead=diffinv(pred_value, differences=1, xi=log(bar[118]))
+
+pe <- log(bar[117])
+moe <- 1.96*sqrt(bar.mod$sigma2[1])
+upper_start <- pe + moe
+lower_start <- pe - moe
+
+bar_forc_upper=diffinv(pred_upper, differences=1, xi = upper_start)
+bar_forc_lower=diffinv(pred_lower, differences=1, xi = lower_start)
+
+bar_forc_back=ts(bar_forc_back,start=1966,frequency=12)
+bar_forc_lead=ts(bar_forc_lead,start=(1975+(10/12)),frequency=12)
+bar_forc_upper=ts(bar_forc_upper,start=(1975+(10/12)),frequency=12)
+bar_forc_lower=ts(bar_forc_lower,start=(1975+(10/12)),frequency=12)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.upper <- data.frame(ts = bar_forc_upper, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.lower <- data.frame(ts = bar_forc_lower, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = log(bar), time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+
+# Predictions on log scale
+plot.ls <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.upper, aes(x = time, y = ts), color = "blue", size = 1) +
+  # geom_line(data = df.forc.lower, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('log(Monthly Armed Robberies)') +
+  scale_y_continuous(limits = c(0, 11), breaks = seq(0, 12, by = 2)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.ls
+
+# Predictions on original scale
+bar_forc_back <- exp(bar_forc_back)
+bar_forc_lead <- exp(bar_forc_lead)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = bar, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+plot.os <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  xlab('Time') +
+  ylab('Monthly Armed Robberies') +
+  scale_y_continuous(limits = c(0, 600), breaks = seq(0, 600, by = 100)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.os
+
+grid.arrange(plot.ls, plot.os, nrow = 2)
+```
+
+## ARMA(2,1)
+Model appears to adequately  describe the data. 
+```{r, fig.width = 10, fig.height = 4.5}
+bar.mod <- bar.mod.arma21
+
+par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))
+acf(bar.mod$residuals, lag = 40, main = "")
+pacf(bar.mod$residuals, lag = 40, main = "")
+bt <- Box.test(bar.mod$residuals, lag = 40, type = "Ljung-Box")
+```
+$\sigma^2 =$ `r round(bar.mod$sigma2, 4)`  
+Ljung-Box Test: p-value = `r round(bt$p.value, 3)` for first 40 lags
+
+## ARMA(2,1) - Differenced Scale
+```{r, fig.width = 10, fig.height = 4.5}
+
+bar_pred = predict(bar.mod, n.ahead=12,se.fit=T)
+pred_value = bar_pred$pred + mu
+
+pred_lower=pred_value - (1.96 * bar_pred$se)
+pred_upper=pred_value + (1.96 * bar_pred$se)
+
+# for visualization
+df.bar.sta <- data.frame(ts = bar.sta, time = seq(1966 + (2/12), (1975 + (10/12)), by = (1/12)))
+df.pred.sta <- data.frame(ts = pred_value, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.upper.sta <- data.frame(ts = pred_upper, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.lower.sta <- data.frame(ts = pred_lower, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+
+plot_sta <- ggplot() +
+  geom_line(data = df.bar.sta, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.pred.sta, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.upper.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  geom_line(data = df.lower.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('Frequency') +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))+
+  scale_y_continuous(limits = c(-0.6, 0.6), breaks = round(seq(-0.6, 0.6, by = 0.2),3))
+
+# plot_sta
+#plot fitted and predicted values together with the observed data
+bar_fit_pred=ts(rep(0,118),start=1966,frequency=12)
+bar_fit_pred[2:118]=bar.sta-bar.mod$residuals + mu
+# bar_fit_pred[119:128]=pred_value
+# ts.plot(bar.sta,bar_fit_pred,gpars=list(col=c('black','red','blue','blue')))
+df.bar.fitted.sta <- data.frame(ts = bar_fit_pred, time = seq(1966 + (1/12), (1975 + (10/12)), by = (1/12)))
+
+plot_sta <- plot_sta +
+  geom_line(data = df.bar.fitted.sta, aes(x = time, y = ts), color = "red", size = 1)
+
+plot_sta
+```
+
+## ARMA(2,1) - Log and Original Scales
+Model does not fit very well.
+```{r, fig.width = 10, fig.height = 4.5}
+
+#undo differencing
+bar_forc_back=diffinv(bar_fit_pred[2:118], differences=1, xi=log(bar[1]))
+bar_forc_lead=diffinv(pred_value, differences=1, xi=log(bar[118]))
+
+pe <- log(bar[117])
+moe <- 1.96*sqrt(bar.mod$sigma2[1])
+upper_start <- pe + moe
+lower_start <- pe - moe
+
+bar_forc_upper=diffinv(pred_upper, differences=1, xi = upper_start)
+bar_forc_lower=diffinv(pred_lower, differences=1, xi = lower_start)
+
+bar_forc_back=ts(bar_forc_back,start=1966,frequency=12)
+bar_forc_lead=ts(bar_forc_lead,start=(1975+(10/12)),frequency=12)
+bar_forc_upper=ts(bar_forc_upper,start=(1975+(10/12)),frequency=12)
+bar_forc_lower=ts(bar_forc_lower,start=(1975+(10/12)),frequency=12)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.upper <- data.frame(ts = bar_forc_upper, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.lower <- data.frame(ts = bar_forc_lower, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = log(bar), time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+
+# Predictions on log scale
+plot.ls <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.upper, aes(x = time, y = ts), color = "blue", size = 1) +
+  # geom_line(data = df.forc.lower, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('log(Monthly Armed Robberies)') +
+  scale_y_continuous(limits = c(0, 11), breaks = seq(0, 12, by = 2)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.ls
+
+# Predictions on original scale
+bar_forc_back <- exp(bar_forc_back)
+bar_forc_lead <- exp(bar_forc_lead)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = bar, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+plot.os <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  xlab('Time') +
+  ylab('Monthly Armed Robberies') +
+  scale_y_continuous(limits = c(0, 600), breaks = seq(0, 600, by = 100)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.os
+
+grid.arrange(plot.ls, plot.os, nrow = 2)
+```
+
+## ARMA(1,1)
+Model appears to adequately  describe the data. 
+```{r, fig.width = 10, fig.height = 4.5}
+## Try AR(2)
+bar.mod <- bar.mod.arma11
+
+par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))
+acf(bar.mod$residuals, lag = 40, main = "")
+pacf(bar.mod$residuals, lag = 40, main = "")
+bt <- Box.test(bar.mod$residuals, lag = 40, type = "Ljung-Box")
+```
+$\sigma^2 =$ `r round(bar.mod$sigma2, 4)`  
+Ljung-Box Test: p-value = `r round(bt$p.value, 3)` for first 40 lags
+
+## ARMA(1,1) - Differenced Scale
+```{r, fig.width = 10, fig.height = 4.5}
+
+bar_pred = predict(bar.mod, n.ahead=12,se.fit=T)
+pred_value = bar_pred$pred + mu
+
+pred_lower=pred_value - (1.96 * bar_pred$se)
+pred_upper=pred_value + (1.96 * bar_pred$se)
+
+# for visualization
+df.bar.sta <- data.frame(ts = bar.sta, time = seq(1966 + (2/12), (1975 + (10/12)), by = (1/12)))
+df.pred.sta <- data.frame(ts = pred_value, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.upper.sta <- data.frame(ts = pred_upper, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.lower.sta <- data.frame(ts = pred_lower, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+
+plot_sta <- ggplot() +
+  geom_line(data = df.bar.sta, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.pred.sta, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.upper.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  geom_line(data = df.lower.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('Frequency') +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))+
+  scale_y_continuous(limits = c(-0.6, 0.6), breaks = round(seq(-0.6, 0.6, by = 0.2),3))
+
+# plot_sta
+#plot fitted and predicted values together with the observed data
+bar_fit_pred=ts(rep(0,118),start=1966,frequency=12)
+bar_fit_pred[2:118]=bar.sta-bar.mod$residuals + mu
+# bar_fit_pred[119:128]=pred_value
+# ts.plot(bar.sta,bar_fit_pred,gpars=list(col=c('black','red','blue','blue')))
+df.bar.fitted.sta <- data.frame(ts = bar_fit_pred, time = seq(1966 + (1/12), (1975 + (10/12)), by = (1/12)))
+
+plot_sta <- plot_sta +
+  geom_line(data = df.bar.fitted.sta, aes(x = time, y = ts), color = "red", size = 1)
+
+plot_sta
+```
+
+## ARMA(1,1) - Log and Original Scales
+Model does not fit very well.
+```{r, fig.width = 10, fig.height = 4.5}
+#undo differencing
+bar_forc_back=diffinv(bar_fit_pred[2:118], differences=1, xi=log(bar[1]))
+bar_forc_lead=diffinv(pred_value, differences=1, xi=log(bar[118]))
+
+pe <- log(bar[117])
+moe <- 1.96*sqrt(bar.mod$sigma2[1])
+upper_start <- pe + moe
+lower_start <- pe - moe
+
+bar_forc_upper=diffinv(pred_upper, differences=1, xi = upper_start)
+bar_forc_lower=diffinv(pred_lower, differences=1, xi = lower_start)
+
+bar_forc_back=ts(bar_forc_back,start=1966,frequency=12)
+bar_forc_lead=ts(bar_forc_lead,start=(1975+(10/12)),frequency=12)
+bar_forc_upper=ts(bar_forc_upper,start=(1975+(10/12)),frequency=12)
+bar_forc_lower=ts(bar_forc_lower,start=(1975+(10/12)),frequency=12)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.upper <- data.frame(ts = bar_forc_upper, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.lower <- data.frame(ts = bar_forc_lower, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = log(bar), time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+
+# Predictions on log scale
+plot.ls <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.upper, aes(x = time, y = ts), color = "blue", size = 1) +
+  # geom_line(data = df.forc.lower, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('log(Monthly Armed Robberies)') +
+  scale_y_continuous(limits = c(0, 11), breaks = seq(0, 12, by = 2)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.ls
+
+# Predictions on original scale
+bar_forc_back <- exp(bar_forc_back)
+bar_forc_lead <- exp(bar_forc_lead)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = bar, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+plot.os <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  xlab('Time') +
+  ylab('Monthly Armed Robberies') +
+  scale_y_continuous(limits = c(0, 600), breaks = seq(0, 600, by = 100)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.os
+
+grid.arrange(plot.ls, plot.os, nrow = 2)
+```
+
+## MA(2)
+Model appears to adequately  describe the data. 
+```{r, fig.width = 10, fig.height = 4.5}
+## Try AR(2)
+bar.mod <- bar.mod.ma2
+
+par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))
+acf(bar.mod$residuals, lag = 40, main = "")
+pacf(bar.mod$residuals, lag = 40, main = "")
+bt <- Box.test(bar.mod$residuals, lag = 40, type = "Ljung-Box")
+```
+$\sigma^2 =$ `r round(bar.mod$sigma2, 4)`  
+Ljung-Box Test: p-value = `r round(bt$p.value, 3)` for first 40 lags
+
+## MA(2) - Differenced Scale 
+```{r, fig.width = 10, fig.height = 4.5}
+
+bar_pred = predict(bar.mod, n.ahead=12,se.fit=T)
+pred_value = bar_pred$pred + mu
+
+pred_lower=pred_value - (1.96 * bar_pred$se)
+pred_upper=pred_value + (1.96 * bar_pred$se)
+
+# for visualization
+df.bar.sta <- data.frame(ts = bar.sta, time = seq(1966 + (2/12), (1975 + (10/12)), by = (1/12)))
+df.pred.sta <- data.frame(ts = pred_value, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.upper.sta <- data.frame(ts = pred_upper, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.lower.sta <- data.frame(ts = pred_lower, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+
+plot_sta <- ggplot() +
+  geom_line(data = df.bar.sta, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.pred.sta, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.upper.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  geom_line(data = df.lower.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('Frequency') +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))+
+  scale_y_continuous(limits = c(-0.6, 0.6), breaks = round(seq(-0.6, 0.6, by = 0.2),3))
+
+# plot_sta
+
+#plot fitted and predicted values together with the observed data
+bar_fit_pred=ts(rep(0,118),start=1966,frequency=12)
+bar_fit_pred[2:118]=bar.sta-bar.mod$residuals + mu
+# bar_fit_pred[119:128]=pred_value
+# ts.plot(bar.sta,bar_fit_pred,gpars=list(col=c('black','red','blue','blue')))
+df.bar.fitted.sta <- data.frame(ts = bar_fit_pred, time = seq(1966 + (1/12), (1975 + (10/12)), by = (1/12)))
+
+plot_sta <- plot_sta +
+  geom_line(data = df.bar.fitted.sta, aes(x = time, y = ts), color = "red", size = 1)
+
+plot_sta
+```
+
+## MA(2) - Log and Original Scales
+Model fits somewhat well. 
+```{r, fig.width = 10, fig.height = 4.5}
+
+
+#undo differencing
+bar_forc_back=diffinv(bar_fit_pred[2:118], differences=1, xi=log(bar[1]))
+bar_forc_lead=diffinv(pred_value, differences=1, xi=log(bar[118]))
+
+pe <- log(bar[117])
+moe <- 1.96*sqrt(bar.mod$sigma2[1])
+upper_start <- pe + moe
+lower_start <- pe - moe
+
+bar_forc_upper=diffinv(pred_upper, differences=1, xi = upper_start)
+bar_forc_lower=diffinv(pred_lower, differences=1, xi = lower_start)
+
+bar_forc_back=ts(bar_forc_back,start=1966,frequency=12)
+bar_forc_lead=ts(bar_forc_lead,start=(1975+(10/12)),frequency=12)
+bar_forc_upper=ts(bar_forc_upper,start=(1975+(10/12)),frequency=12)
+bar_forc_lower=ts(bar_forc_lower,start=(1975+(10/12)),frequency=12)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.upper <- data.frame(ts = bar_forc_upper, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.lower <- data.frame(ts = bar_forc_lower, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = log(bar), time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+
+# Predictions on log scale
+plot.ls <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.upper, aes(x = time, y = ts), color = "blue", size = 1) +
+  # geom_line(data = df.forc.lower, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('log(Monthly Armed Robberies)') +
+  scale_y_continuous(limits = c(0, 11), breaks = seq(0, 12, by = 2)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.ls
+
+# Predictions on original scale
+bar_forc_back <- exp(bar_forc_back)
+bar_forc_lead <- exp(bar_forc_lead)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = bar, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+plot.os <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  xlab('Time') +
+  ylab('Monthly Armed Robberies') +
+  scale_y_continuous(limits = c(0, 600), breaks = seq(0, 600, by = 100)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.os
+
+grid.arrange(plot.ls, plot.os, nrow = 2)
+```
+
+## AR(2)
+Model appears to adequately  describe the data. 
+```{r, fig.width = 10, fig.height = 4.5}
+## Try AR(2)
+bar.mod <- bar.mod.ar2
+
+par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))
+acf(bar.mod$residuals, lag = 40, main = "")
+pacf(bar.mod$residuals, lag = 40, main = "")
+bt <- Box.test(bar.mod$residuals, lag = 40, type = "Ljung-Box")
+```
+$\sigma^2 =$ `r round(bar.mod$sigma2, 4)`  
+Ljung-Box Test: p-value = `r round(bt$p.value, 3)` for first 40 lags
+
+## AR(2) - Differenced Scale
+```{r, fig.width = 10, fig.height = 4.5}
+
+bar_pred = predict(bar.mod, n.ahead=12,se.fit=T)
+pred_value = bar_pred$pred + mu
+
+pred_lower=pred_value - (1.96 * bar_pred$se)
+pred_upper=pred_value + (1.96 * bar_pred$se)
+
+# for visualization
+df.bar.sta <- data.frame(ts = bar.sta, time = seq(1966 + (2/12), (1975 + (10/12)), by = (1/12)))
+df.pred.sta <- data.frame(ts = pred_value, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.upper.sta <- data.frame(ts = pred_upper, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+df.lower.sta <- data.frame(ts = pred_lower, time = seq((1975 + (11/12)), (1976 + (10/12)), by = (1/12)))
+
+plot_sta <- ggplot() +
+  geom_line(data = df.bar.sta, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.pred.sta, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_line(data = df.upper.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  geom_line(data = df.lower.sta, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('Frequency') +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))+
+  scale_y_continuous(limits = c(-0.6, 0.6), breaks = round(seq(-0.6, 0.6, by = 0.2),3))
+
+# plot_sta
+#plot fitted and predicted values together with the observed data
+bar_fit_pred=ts(rep(0,118),start=1966,frequency=12)
+bar_fit_pred[2:118]=bar.sta-bar.mod$residuals + mu
+# bar_fit_pred[119:128]=pred_value
+# ts.plot(bar.sta,bar_fit_pred,gpars=list(col=c('black','red','blue','blue')))
+df.bar.fitted.sta <- data.frame(ts = bar_fit_pred, time = seq(1966 + (1/12), (1975 + (10/12)), by = (1/12)))
+
+plot_sta <- plot_sta +
+  geom_line(data = df.bar.fitted.sta, aes(x = time, y = ts), color = "red", size = 1)
+
+plot_sta
+
+```
+
+## AR(2) - Log and Original Scales
+Model fits quite well (definitely better than previously considered models). 
+```{r, fig.width = 10, fig.height = 4.5}
+
+#undo differencing
+bar_forc_back=diffinv(bar_fit_pred[2:118], differences=1, xi=log(bar[1]))
+bar_forc_lead=diffinv(pred_value, differences=1, xi=log(bar[118]))
+
+pe <- log(bar[117])
+moe <- 1.96*sqrt(bar.mod$sigma2[1])
+upper_start <- pe + moe
+lower_start <- pe - moe
+
+bar_forc_upper=diffinv(pred_upper, differences=1, xi = upper_start)
+bar_forc_lower=diffinv(pred_lower, differences=1, xi = lower_start)
+
+bar_forc_back=ts(bar_forc_back,start=1966,frequency=12)
+bar_forc_lead=ts(bar_forc_lead,start=(1975+(10/12)),frequency=12)
+bar_forc_upper=ts(bar_forc_upper,start=(1975+(10/12)),frequency=12)
+bar_forc_lower=ts(bar_forc_lower,start=(1975+(10/12)),frequency=12)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.upper <- data.frame(ts = bar_forc_upper, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.forc.lower <- data.frame(ts = bar_forc_lower, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = log(bar), time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+
+# Predictions on log scale
+plot.ls <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.upper, aes(x = time, y = ts), color = "blue", size = 1) +
+  # geom_line(data = df.forc.lower, aes(x = time, y = ts), color = "blue", size = 1) +
+  xlab('Time') +
+  ylab('log(Monthly Armed Robberies)') +
+  scale_y_continuous(limits = c(0, 11), breaks = seq(0, 12, by = 2)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.ls
+
+# Predictions on original scale
+bar_forc_back <- exp(bar_forc_back)
+bar_forc_lead <- exp(bar_forc_lead)
+
+df.forc.back <- data.frame(ts = bar_forc_back, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+df.forc.lead <- data.frame(ts = bar_forc_lead, time = seq((1975 + 10/12), (1976 + (10/12)), by = (1/12)))
+df.bar <- data.frame(ts = bar, time = seq((1966 + 1/12), (1975 + (10/12)), by = (1/12)))
+
+plot.os <- ggplot() + 
+  geom_line(data = df.bar, aes(x = time, y = ts), color = "navyblue", size = 1) +
+  geom_line(data = df.forc.back, aes(x = time, y = ts), color = "red", size = 1) +
+  # geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  xlab('Time') +
+  ylab('Monthly Armed Robberies') +
+  scale_y_continuous(limits = c(0, 600), breaks = seq(0, 600, by = 100)) +
+  scale_x_continuous(limits = c(1966, 1977), breaks = seq(1966, 1977, by = 1))
+
+# plot.os
+
+grid.arrange(plot.ls, plot.os, nrow = 2)
+```
+
+## Model Selection (Round 2)
+
+<div class = "black">
+Since the $\sigma^2$ values are all relatively close together (0.035 to 0.038), not much predictive power is lost between the various models. After viewing the PACF, ACF, and particularly the fitted values (transformed back to the original scale), it is clear to me that the AR(2) model fits the data best. 
+</div>
+
+<div class = "black">
+<font size = "6.5">
+AR(2) will be selected as the final model. 
+
+$$
+\begin{aligned}
+X_t = &(-0.2784)X_{t-1} + (-0.2247)X_{t-2} + Z_t
+\end{aligned}
+$$
+$$
+\text{where } Z_t \sim WN(0,1)
+$$
+</font>
+</div>
+
+## Predictions on Original Scale 
+
+```{r, fig.width = 10, fig.height = 5}
+plot.os2 <- plot.os + 
+  geom_hline(yintercept=df.forc.lead$ts[13], linetype="longdash", color = "darkred") +
+  geom_line(data = df.forc.lead, aes(x = time, y = ts), color = "red", size = 1) +
+  geom_hline(yintercept=df.bar$ts[118], linetype="longdash", color = "navyblue") +
+  geom_point(aes(x = (1976 + (10/12)), y = df.forc.lead$ts[13]), size = 3, col = "red") +
+  geom_point(aes(x = (1975 + (10/12)), y = df.bar$ts[118]), size = 3, col = "navyblue") +
+  annotate("text", label = paste("about ", round(df.forc.lead$ts[13],0)), x = 1976, y = 565, color = "darkred") +
+  annotate("text", label = df.bar$ts[118], x = 1976.5, y = 415, color = "navyblue")
+
+plot.os2
+```
+<div class = "black">
+Predicted increase of **116** monthly armed robberies in the
+next 12 months.
+</div>

@@ -1,0 +1,8 @@
+"0","plot.os2 <- plot.os + "
+"0","  geom_hline(yintercept=df.forc.lead$ts[13], linetype=""longdash"", color = ""darkred"") +"
+"0","  geom_hline(yintercept=df.bar$ts[118], linetype=""longdash"", color = ""navyblue"") +"
+"0","  geom_point(aes(x = (1976 + (10/12)), y = df.forc.lead$ts[13]), size = 3, col = ""red"") +"
+"0","  geom_point(aes(x = (1975 + (10/12)), y = df.bar$ts[118]), size = 3, col = ""navyblue"") +"
+"0","  annotate(""text"", label = paste(""about "", round(df.forc.lead$ts[13],0)), x = 1976, y = 565, color = ""darkred"") +"
+"0","  annotate(""text"", label = df.bar$ts[118], x = 1976.5, y = 415, color = ""navyblue"")"
+"0","plot.os2"

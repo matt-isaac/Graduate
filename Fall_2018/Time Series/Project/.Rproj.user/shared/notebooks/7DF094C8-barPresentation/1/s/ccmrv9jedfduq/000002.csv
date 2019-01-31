@@ -1,0 +1,2 @@
+"0","par(mfrow = c(2, 1), mar=c(3, 5, 1, 1))"
+"0","acf(bar.mod$residuals, lag = 40, main = """")"

@@ -1,0 +1,6 @@
+"0","library(forecast)"
+"0","library(ggplot2)"
+"0","library(ggfortify)"
+"0","library(knitr)"
+"0","bar.raw <- read.csv(""bar.csv"", header = TRUE)"
+"0","bar <- ts(bar.raw$armRob, frequency = 12, start = 1966)"

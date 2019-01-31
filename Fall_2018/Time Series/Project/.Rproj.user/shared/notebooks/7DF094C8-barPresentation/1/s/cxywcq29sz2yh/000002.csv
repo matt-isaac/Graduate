@@ -1,0 +1,8 @@
+"0","bar.l <- log(bar)"
+"0","bar.l.diff <- diff(bar.l, diff = 1)"
+"0","# acf(bar.l.diff, lag = 30)"
+"0","# pacf(bar.l.diff, lag = 30)"
+"0","# plot(bar.l.diff)"
+"0","mu <- mean(bar.l.diff)"
+"0","bar.l.diff.dm <- bar.l.diff - mu"
+"0","bar.sta <- bar.l.diff.dm"
