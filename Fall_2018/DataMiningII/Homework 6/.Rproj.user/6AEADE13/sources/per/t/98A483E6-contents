@@ -1,0 +1,190 @@
+library(mclust)
+library(dplyr)
+library(kernlab)
+library(speccalt)
+library(kknn)
+library(fcd)
+
+################################################################################
+### Read in and Format data ####################################################
+################################################################################
+
+# need R.utils package installed and files downloaded in working directory. 
+
+# gunzip the files
+# R.utils::gunzip("train-images-idx3-ubyte.gz")
+# R.utils::gunzip("train-labels-idx1-ubyte.gz")
+# R.utils::gunzip("t10k-images-idx3-ubyte.gz")
+# R.utils::gunzip("t10k-labels-idx1-ubyte.gz")
+
+
+
+# helper function for visualization
+show_digit = function(arr784, col = gray(12:1 / 12), ...) {
+  image(matrix(as.matrix(arr784[-785]), nrow = 28)[, 28:1], col = col, ...)
+}
+
+
+# load image files
+load_image_file = function(filename) {
+  ret = list()
+  f = file(filename, 'rb')
+  readBin(f, 'integer', n = 1, size = 4, endian = 'big')
+  n    = readBin(f, 'integer', n = 1, size = 4, endian = 'big')
+  nrow = readBin(f, 'integer', n = 1, size = 4, endian = 'big')
+  ncol = readBin(f, 'integer', n = 1, size = 4, endian = 'big')
+  x = readBin(f, 'integer', n = n * nrow * ncol, size = 1, signed = FALSE)
+  close(f)
+  data.frame(matrix(x, ncol = nrow * ncol, byrow = TRUE))
+}
+
+# load label files
+load_label_file = function(filename) {
+  f = file(filename, 'rb')
+  readBin(f, 'integer', n = 1, size = 4, endian = 'big')
+  n = readBin(f, 'integer', n = 1, size = 4, endian = 'big')
+  y = readBin(f, 'integer', n = n, size = 1, signed = FALSE)
+  close(f)
+  y
+}
+
+# load images
+train = load_image_file("train-images-idx3-ubyte")
+test  = load_image_file("t10k-images-idx3-ubyte")
+
+# load labels
+train$y = as.factor(load_label_file("train-labels-idx1-ubyte"))
+test$y  = as.factor(load_label_file("t10k-labels-idx1-ubyte"))
+
+# view test image
+show_digit(train[10000, ])
+
+################################################################################
+### Subsampling Generating functions ###########################################
+################################################################################
+
+# This function returns a random sub sample of from the specified data
+genSubSample <- function(data, sample.size){
+  smpl <- dplyr::sample_n(tbl = data, size = sample.size, replace = FALSE)
+  return(smpl)
+}
+
+# ssamp <- genSubSample(train, 500)
+
+################################################################################
+### Generate subsamples for K-means and Spectral ###############################
+################################################################################
+
+set.seed(1234)
+
+nsubsamp <- 15 # number of sub samples to generate
+n <- 2000 # number of observations in each sub sample
+
+# generate list of subsamples to be used in k-means clusting and spectral clustering
+ss_list <- list()
+for (i in 1:nsubsamp) {
+  ss_list[[i]] <- genSubSample(test, sample.size = n)
+}
+
+################################################################################
+### K-means Clustering - Training ##############################################
+################################################################################
+
+randInd.km.train <- double(15) # container to hold ARI values for each subsample
+
+# Loop over subsamples 
+counter <- 1
+for(ss in ss_list){
+  km.train <- kmeans(x = select(ss, -y), centers = 10, nstart = 20)
+  randInd.km.train[counter] <- adjustedRandIndex(km.train$cluster, ss$y)
+  counter <- counter + 1
+}
+
+mean(randInd.km.train)
+
+################################################################################
+### K-means Clustering - Test ##################################################
+################################################################################
+
+km.test <- kmeans(x = select(test, -y), centers = 10, nstart = 20)
+adjustedRandIndex(km.test$cluster, test$y)
+
+################################################################################
+### Spectral Clustering - Training #############################################
+################################################################################
+
+# Tuning sigma parameter (related to bandwidth)
+
+ssamp <- genSubSample(train, 500) # single subsample to be used in tuning
+sigma.grid <- 2*10^(-10:-5) # started with this grid: ARI max at 2e-06
+# sigma.grid <- 2*10^(seq(-7, -5, by = 0.1)) # refined to this grid
+
+randInd.sc.tune <- double(10)
+counter <- 1
+for(sg in sigma.grid){
+  sc.train <- specc(as.matrix(dplyr::select(ssamp, -y)), centers = 10, kernel = "rbfdot", kpar = list("sigma" = sg))
+  randInd.sc.tune[counter] <- adjustedRandIndex(sc.train@.Data, ssamp$y)
+  counter <- counter + 1
+}
+
+max(randInd.sc.tune)
+
+# selected sigma = 3.99e-06
+sig = 3.99 * 10^-6
+
+randInd.sc.train <- double(15)
+counter <- 1
+for(ss in ss_list){
+  sc.train <- specc(as.matrix(dplyr::select(ss, -y)), centers = 10, kernel = "rbfdot", kpar = list("sigma" = sig))
+  randInd.sc.train[counter] <- adjustedRandIndex(sc.train@.Data, ss$y)
+  counter <- counter + 1
+}
+mean(randInd.sc.train)
+
+
+################################################################################
+### Spectral Clustering - Test #################################################
+################################################################################
+
+sc.test <- specc(as.matrix(dplyr::select(test, -y)), centers = 10, kernel = "rbfdot", kpar = list("sigma" = sig))
+adjustedRandIndex(sc.test@.Data, test$y)
+
+################################################################################
+### GMM - Training #############################################################
+################################################################################
+
+# these seem to take longer to train, so at this point I regenerated the sub-samples, 
+# this time with 500 observations per sample. 
+set.seed(1234)
+
+nsubsamp <- 15 # number of sub samples to generate
+n <- 500 # number of observations in each sub sample
+
+# generate list of subsamples to be used in k-means clusting and spectral clustering
+ss_list <- list()
+for (i in 1:nsubsamp) {
+  ss_list[[i]] <- genSubSample(test, sample.size = n)
+}
+
+randInd.gmm.train <- double(15)
+counter <- 1
+for(ss in ss_list){
+  gmm.train <- Mclust(dplyr::select(ss, -y), centers = 10)
+  randInd.gmm.train[counter] <- adjustedRandIndex(gmm.train$classification, ss$y)
+  counter <- counter + 1
+}
+mean(randInd.gmm.train)
+
+################################################################################
+### GMM - Test #################################################################
+################################################################################
+
+randInd.gmm.test <- double(15)
+counter <- 1
+for(ss in ss_list){
+  gmm.test <- Mclust(dplyr::select(ss, -y), centers = 10)
+  randInd.gmm.test[counter] <- adjustedRandIndex(gmm.test$classification, ss$y)
+  counter <- counter + 1
+}
+mean(randInd.gmm.test)
+
