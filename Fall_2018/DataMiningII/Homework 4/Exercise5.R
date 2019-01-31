@@ -1,0 +1,299 @@
+# Exercise 5 (b)
+
+library(R.matlab)
+library(dplyr)
+library(geometry)
+library(ggplot2)
+
+################################################################################
+#### Function Definitions ######################################################
+################################################################################
+
+subGradInit <- function(maxitr, predictors, response, lambda){
+  # Kicks off subGrad() recursive function
+  # Args:
+  #   maxitr: maximum iterations for subgradient method
+  #   predictors: dataframe of predictor variables
+  #   response: dataframe (tibble?) of response values
+  #   lambda: regularization paramter
+  #
+  # Returns:
+  #   The optimized value of theta
+  #   
+  
+  b = 1 # initial guess of b
+  ws = rep(0, ncol(predictors) - 1) # initial guess of w's
+  inittheta <- c(b, ws)
+  
+  # initialize history data frame
+  history <- data.frame(numItr = double(0), objFun = double(0), 
+                        w1 = double(0), w2 = double(0), b = double(0))
+  
+  # start subGrad() recursive function
+  theta <- subGrad(theta = inittheta, nitr = 1, maxitr = maxitr, 
+                   xs = predictors, y = response,
+                   lambda = lambda, history = history)
+  return(theta)
+}
+
+subGrad <- function(theta, nitr, maxitr, xs, y, lambda, history){
+  # Recursive function that implements the sub-gradient method
+  # Args:
+  #   theta: vector of w's and b's
+  #   nitr: current iteration number
+  #   maxitr: maximum number of iterations for subgradient method
+  #   xs: dataframe of predictor variables
+  #   y: dataframe (tibble?) of response
+  #   lambda: 
+  #   history: a dataframe used to store parameter estimates and objective function
+  #            values. 
+  #
+  # Returns:
+  #   The optimized value of theta, or calls itself again.
+  
+  alpha <- 100/nitr # step size
+  n <- nrow(preds)
+  
+  if(nitr > maxitr){
+    return(list("theta" = theta, "history" = history))
+  } else {
+    print(paste("Iteration Number: ", nitr))
+    
+    u <- double(length(theta))
+    for(i in 1:nrow(xs)){
+      # calculate gradient
+      grad <- calcGrad(b = theta[1], w = theta[2:length(theta)], 
+                       yi = as.numeric(y$Y[i]), xi = as.numeric(xs[i,]), 
+                       n = n, lambda = lambda)
+      
+      # add to u
+      u <- u + grad
+    }
+    
+    theta.1 <- theta - (alpha * u) # take step in negative direction of gradient
+    
+    # calculate value of objective function
+    of <- objFunc(preds = xs, resp = y, theta = theta.1, lambda = lambda)
+    
+    # new row to be added to history dataframe
+    hnew <- data.frame(numItr = nitr, objFun = of, b = theta.1[1], 
+                       w1 = theta.1[2], w2 = theta.1[3])
+    
+    history <- rbind(history, hnew)
+    nitr <- nitr + 1 # increment iteration number
+    
+    return(subGrad(theta = theta.1, nitr = nitr, maxitr = maxitr, 
+                   xs = xs, y = y, lambda = lambda, history = history))
+  }
+}
+
+stochSubGradInit <- function(maxitr, predictors, response, lambda){
+  # Kicks off stochSubGrad() recursive function
+  # Args:
+  #   maxitr: maximum iterations for subgradient method
+  #   predictors: dataframe of predictor variables
+  #   response: dataframe (tibble?) of response values
+  #   lambda: regularization parameter
+  #
+  # Returns:
+  #   The optimized value of theta
+  #   
+  
+  b = 1 # initial guess of b
+  ws = rep(0, ncol(predictors) - 1) # initial guess of w's
+  inittheta <- c(b, ws)
+  
+  # initialize history data frame
+  history <- data.frame(numItr = double(0), objFun = double(0), 
+                        w1 = double(0), w2 = double(0), b = double(0))
+  
+  # begin recursion of stochSubGrad()
+  theta <- stochSubGrad(theta = inittheta, nitr = 1, maxitr = maxitr, 
+                        xs = predictors, y = response,
+                        lambda = lambda, history = history)
+  return(theta)
+}
+
+stochSubGrad <- function(theta, nitr, maxitr, xs, y, lambda, history){
+  # Recursive function that implements the sub-gradient method
+  # Args:
+  #   theta: vector of w's and b's
+  #   nitr: current iteration number
+  #   maxitr: maximum number of iterations for subgradient method
+  #   xs: dataframe of predictor variables
+  #   y: dataframe (tibble?) of response
+  #   lambda: regularization parameter
+  #   history: dataframe recording parameter values and objective function values
+  #
+  # Returns:
+  #   The optimized value of theta, or calls itself again.
+  
+  alpha <- 100/nitr # step size
+  n <- nrow(preds)
+  m <- 1 # minibatch size
+  
+  if(nitr > maxitr){
+    return(list("theta" = theta, "history" = history))
+  } else {
+    print(paste("Iteration Number: ", nitr))
+    
+    index <- 1:n
+    rand.index <- sample(index, n) # randomize indices for easy "random sampling"
+    
+    for(i in rand.index){
+        grad <- calcGrad(b = theta[1], w = theta[2:length(theta)],
+                         yi = as.numeric(y$Y[i]), xi = as.numeric(xs[i,]),
+                         n = 1, lambda = lambda)
+        theta <- theta - (alpha * grad) # update theta each time
+        
+    }
+    
+    theta.1 <- theta
+    
+    # calculate value of objective function
+    of <- objFunc(preds = xs, resp = y, theta = theta.1, lambda = lambda)
+    
+    # new row to be added to history data frame
+    hnew <- data.frame(numItr = nitr, objFun = of, b = theta.1[1], 
+                       w1 = theta.1[2], w2 = theta.1[3])
+    
+    history <- rbind(history, hnew)
+    nitr <- nitr + 1
+    return(subGrad(theta = theta.1, nitr = nitr, maxitr = maxitr, xs = xs, y = y, lambda = lambda, history = history))
+  }
+}
+
+calcGrad <- function(w, b, yi, xi, n, lambda){
+  # Calculates gradient
+  # Args: 
+  #   w: vector of w's
+  #   b: intercept
+  #   yi: response
+  #   xi: vector of predictor variables
+  #   n: number of observations
+  #   lambda: regularization parameter
+  
+  wvec <- c(0, w)
+  
+  term <- 1 - (yi * (dot(wvec, xi) + b))
+  if(term >= 0){
+    gradJi <- (1/n)*(-yi*xi) + (lambda/n)*wvec
+  } else {
+    gradJi <- (lambda/n)*wvec
+  }
+  sg <- (gradJi)
+  return(sg)
+}
+
+objFunc <- function(preds, resp, theta, lambda){
+  # Calculates value of the objective function
+  # Args:
+  #   preds: vector of predictor variable (x_i)
+  #   resp: response value (y_i)
+  #   theta: vector of b and w's
+  #   lambda: regularization parameter
+  #
+  n <- nrow(preds)
+  b <- theta[1]
+  w <- theta[2:length(theta)]
+  wvec <- c(0, w)
+  
+  summation <- 0
+  for(i in 1:n){
+    yi = as.numeric(resp$Y[i])
+    xi = as.numeric(preds[i,])
+    m1 <- 0
+    m2 <- 1 - yi*(dot(wvec, xi) + b)
+    term <- max(m1, m2)
+    summation <- summation + term
+  }
+  objf <- 1/n * (summation) + (lambda/2)*dot(w,w)
+  return(objf)
+}
+
+plotObjFun <- function(history, title){
+  # Creates plot of objective function by iterations
+  # Args:
+  #   history: history dataframe as returned by stochSubGrad() or subGrad()
+  #   title: string to be title of plot
+  #   
+  plot(history$numItr, history$objFun, xlab = "Iterations", 
+       ylab = "Objective Function value", type = 'o',
+       main = title)
+}
+
+################################################################################
+### Read in and format data ####################################################
+################################################################################
+
+df <- R.matlab::readMat("nuclear.mat") %>% lapply(t) %>% lapply(as_tibble)
+colnames(df[[1]]) <- sprintf("X_%s",seq(1:ncol(df[[1]])))
+colnames(df[[2]]) <- c("Y")
+df <- bind_cols(df) %>% select(Y, everything())
+
+# df <- slice(df, 1:300) # uncomment this line for faster debugging
+preds <- select(df, X_1, X_2)
+X0 <- rep(1, nrow(df))
+preds <- cbind(X0, preds)
+resp <- select(df, Y)
+resp$Y <- as.numeric(resp$Y)
+
+
+################################################################################
+### Function Calls #############################################################
+################################################################################
+
+
+### Sub Gradient Method ########################################################
+
+# [s]ub [g]radient [m]ethod [res]ults
+sgm_res <- subGradInit(maxitr = 30, predictors = preds, response = resp, lambda = 0.001)
+
+plotObjFun(sgm_res$history, title = "Value of Objective Function\nSubgradient Descent")
+
+b <- sgm_res$theta[1]
+w1 <- sgm_res$theta[2]
+w2 <- sgm_res$theta[3]
+
+slope <- w1/-w2
+intercept <- b/-w2
+
+df$Y <- as.factor(df$Y) # needed for correct plotting
+
+ggplot(data = df, aes(x = X_1, y = X_2, color = Y)) + 
+  geom_point() + 
+  scale_color_manual(values=c("-1" = "red", "1" = "blue")) + 
+  geom_abline(slope = slope, intercept = intercept, lwd = 1) +
+  xlab("X1") +
+  ylab("X2") + 
+  ggtitle("SubGradient Method")
+
+
+### Stochastic Sub Gradient Method #############################################
+
+# [st]ochastic [sub [g]radient [m]ethod [res]ults
+stsgm_res <- stochSubGradInit(maxitr = 100, predictors = preds, 
+                         response = resp, lambda = 0.001)
+
+plotObjFun(stsgm_res$history, title = "Value of Objective Function\nStochastic Subgradient Descent")
+
+b <- stsgm_res$theta[1]
+w1 <- stsgm_res$theta[2]
+w2 <- stsgm_res$theta[3]
+
+slope <- w1/-w2
+intercept <- b/-w2
+
+plot(preds$X_1, preds$X_2)
+abline(a = intercept, b = slope)
+
+df$Y <- as.factor(df$Y)
+
+ggplot(data = df, aes(x = X_1, y = X_2, color = Y)) + 
+  geom_point() + 
+  scale_color_manual(values=c("-1" = "red", "1" = "blue")) + 
+  geom_abline(slope = slope, intercept = intercept, lwd = 1) +
+  xlab("X1") +
+  ylab("X2") + 
+  ggtitle("Stochastic SubGradient Method")
+

@@ -1,0 +1,84 @@
+library(caret)
+library(dplyr)
+
+################################################################################
+### Logistic Regression ######################################################
+################################################################################
+
+park <- read.csv("parkinsons.csv", header = TRUE)
+park <- select(park, -name)
+
+traintest <- function(data, ptrain){
+  n <- nrow(data)
+  ntrain <- round(n * ptrain)
+  ntest <- n - ntrain
+  
+  trainInd <- sample(1:n, size = ntrain)
+  
+  train <- slice(data, trainInd)
+  test <- slice(data, -trainInd)
+  
+  return(list("train" = train, "test" = test))
+}
+
+park$status <- as.factor(park$status)
+out <- traintest(park, ptrain = 0.8)
+ptrain <- out$train
+ptest <- out$test
+
+# fit logistic regression
+logreg <- train(status ~ ., data = ptrain, method = 'glm', family = binomial, trControl = trainControl(method = 'cv', number = 5))
+
+# cross validated accuracy
+logreg$results$Accuracy
+
+pred <- predict(logreg, ptest)
+iscorrect <- (ptest$status == pred)
+
+sum(iscorrect)/nrow(ptest)
+
+################################################################################
+### SVM ########################################################################
+################################################################################
+
+library(e1071)
+
+## Linear Kernel
+
+svm.default <- svm(status~., data = ptrain, kernel = "linear")
+
+preds <- predict(svm.default, ptest)
+iscorrect <- (ptest$status == preds)
+sum(iscorrect)/nrow(ptest)
+notcorrect <- (ptest$status != preds)
+sum(notcorrect)/nrow(ptest)
+
+svm.tune <- tune.svm(status~. , data = ptrain, kernel = "linear", cost = 10^-4:4)
+svm.tune
+
+svm.mod <- svm(status~., data = ptrain, kernel = "linear", cost = 2.0001)
+
+preds <- predict(svm.mod, ptest)
+iscorrect <- (ptest$status == preds)
+sum(iscorrect)/nrow(ptest)
+notcorrect <- (ptest$status != preds)
+sum(notcorrect)/nrow(ptest)
+
+
+## Gaussian Kernel
+
+svm.default.gaus <- svm(status~., data = ptrain)
+preds <- predict(svm.default.gaus, ptest)
+iscorrect <- (ptest$status == preds)
+sum(iscorrect)/nrow(ptest)
+notcorrect <- (ptest$status != preds)
+sum(notcorrect)/nrow(ptest)
+
+svm.tune.gaus <- tune.svm(status~. , data = ptrain, cost = 10^-4:4, gamma = seq(0.01, 1.0, 0.02))
+
+svm.gaus <- svm(status~., data = ptrain, cost = 2.0001, gamma = 0.17)
+preds <- predict(svm.gaus, ptest)
+iscorrect <- (ptest$status == preds)
+sum(iscorrect)/nrow(ptest)
+notcorrect <- (ptest$status != preds)
+sum(notcorrect)/nrow(ptest)

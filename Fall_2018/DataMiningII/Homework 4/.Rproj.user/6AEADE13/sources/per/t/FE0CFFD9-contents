@@ -1,0 +1,170 @@
+## STAT LEARNING 2, FINAL PROJECT
+## Last modified by: Jared Hansen
+## Thursday, 9:13 PM, 11/15/2018
+
+
+
+
+library(caret)  # Used for upsampling, will be used for model development
+
+
+
+
+
+#===============================================================================
+#======= DATA PRE-PROCESSING ===================================================
+#===============================================================================
+
+# Read in the data
+#+++++++ CHANGE THIS LINE ON YOUR MACHINE ++++++++++++++++++++++++++++++++++++++
+# bankFilePath <- paste0("C:/Users/jrdha/OneDrive/Desktop/USU_Fa2018/",
+#                        "Moon__SLDM2/finalProject/Kaggle_bank_SLDM_data/",
+#                        "bank-full/bank-full.csv")
+bank <- read.csv("bank-full.csv", header = TRUE)
+
+# Make sure that columns with numeric values have the right data type(s).
+sapply(bank, class)
+
+# Split into training, test, and validation data, SET SEED for reproducibility
+set.seed(2345)
+
+
+# First thing to check: is there a class imbalance? I'd assume yes: most people
+# aren't going to buy a product that's marketed to them over the phone.
+# Let's check this assumption.
+bank$response <- ifelse(bank$y == "no", 0, 1)
+prop_of_1s <- (sum(bank$response) / nrow(bank))
+prop_of_1s
+# We can see that we have about 11.7% 1's (people who do buy), and the rest are 
+# 0's (people who don't buy). We'll account for this by adjusting our training
+# data below (upsampling).
+
+
+
+
+# Andrew Ng recommends splitting 60%, 20%, and 20% for training, validation, and
+# test data sets. This will be different depending on which model we're fitting,
+# since some require a validation set (NNets, SVM), and some don't (RF, logistic
+# regression)
+
+
+lengthTrain_80 <- round(nrow(bank) * 0.8)
+lengthTest_20 <- nrow(bank) - lengthTrain_80
+
+
+# Make indices for training data subsetting
+set.seed(2345)
+train_ind <- sample(seq_len(nrow(bank)), size = lengthTrain_80)
+
+# Split up the data into training and test
+# I've named this 'train_80_data' since some of our training data will be 80%
+# of the original data, and some of the training data will be 60% of the orig.
+train_80_Data <- bank[train_ind, ]
+test_20_Data <- bank[-train_ind, ]
+
+
+# For some models, we'll use 60% of the data for training, and 20% for
+# validation (parameter tuning). As such, let's split the train_80_data into
+# chunks of 1/4 and 3/4: this will leave us with 
+# --- 1/4 chunk: 20% of original data, used for validation
+# --- 3/4 chunk: 60% of original data, used for training
+lengthTrain_60 <- round(lengthTrain_80 * 0.75)
+set.seed(2345)
+indices_train60 <- sample(nrow(train_80_Data), size = lengthTrain_60,
+                          replace = FALSE)
+train_60_data <- train_80_Data[indices_train60, ]
+val_20_data <- train_80_Data[-indices_train60, ]
+
+
+# We "technically" shouldn't do this, but just to be safe, let's check to see
+# that the training, validation, and test data each have roughly the same
+# proportion of 0's and 1's as the original data does (11% 1's, 89% 0's).
+# As we'll see by running the code, below, this checks out. They're all really
+# close to having about 11.7% 1's, so we did the random splitting right.
+train_80_Data$response <- ifelse(train_80_Data$y == "no", 0, 1)
+prop_of_1s <- (sum(train_80_Data$response) / nrow(train_80_Data))
+prop_of_1s
+
+train_60_data$response <- ifelse(train_60_data$y == "no", 0, 1)
+prop_of_1s <- (sum(train_60_data$response) / nrow(train_60_data))
+prop_of_1s
+
+val_20_data$response <- ifelse(val_20_data$y == "no", 0, 1)
+prop_of_1s <- (sum(val_20_data$response) / nrow(val_20_data))
+prop_of_1s
+
+
+test_20_Data$response <- ifelse(test_20_Data$y == "no", 0, 1)
+prop_of_1s <- (sum(test_20_Data$response) / nrow(test_20_Data))
+prop_of_1s
+
+
+
+
+
+
+
+
+# Now, since some models will use the train_60_data for model training, and 
+# some will use train_80_data for model development, let's upsample both of
+# these data sets before we train our models. (This will yield better models.)
+# NOTE: we can't/don't upsample either the validation or test sets. Illegal.
+
+# Index of the column of the response variable (it's named "y" in orig data)
+colOfResp <- grep("^y$", colnames(train_60_data))
+
+# This gives upsampled training data for the 60% original
+up_train_60 <- upSample(x = train_60_data[ , -colOfResp],
+                        y = train_60_data$y)
+
+
+# Index of the column of the response variable (it's named "y" in orig data)
+colOfResp <- grep("^y$", colnames(train_80_Data))
+
+# This gives upsampled training data for the 60% original
+up_train_80 <- upSample(x = train_80_Data[ , -colOfResp],
+                        y = train_80_Data$y)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Random Forests
+
+library(randomForest)
+
+
+## SVM
+
+
+## Logistic Regression
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
