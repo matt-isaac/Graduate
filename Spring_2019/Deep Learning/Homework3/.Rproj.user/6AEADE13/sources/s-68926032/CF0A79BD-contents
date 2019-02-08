@@ -137,4 +137,45 @@ If we pick a value of $x < 0$, for instance, $x = 1$, then $\nabla^2f(x) = 6(-1)
 
 6. A function $f$ is concave if $-f$ is convex. Prove that for all $x > 0$, the function $f(x) = \ln(x)$ is concave.
 
+Let us define $g(x) = -\ln(x)$. By the property stated in the prompt, if $g(x)$ as it has been defined is convex, then $f(x) = \ln(x)$ will be concave. 
+
+Since $g(x)$ is twice differntiable, we will find the hessian, and show that it is positive for all values of $x$. 
+
+$$
+\begin{aligned}
+g(x) &= -\ln(x) \\
+\implies \nabla g(x) &= -\frac{1}{x} \\
+\implies \nabla^2g(x) &= \frac{1}{x^2}
+\end{aligned}
+$$
+Because $x^2$ is in the denominator, all values of $x$, whether postive or negative, will result in $\nabla^2g(x) = \frac{1}{x^2} > 0$. That is, the hessian of $g(x)$ is $\geq 0$ for all $x$. Therefore, $g(x)$ is convex. As was stated previously, if $g(x) = -\ln(x)$ is convex, then $f(x) = \ln(x)$ is concave.  
+
 7. Let $f(x) = ax + b$, where $a,b \in \mathbb{R}$. $f$ is called an *affine function* (a linear function plus an offset). Prove that $f$ is both convex and concave. Does $f$ have a global minimum or a global maximum? Are there any other functions that are twice continuously differentiable and both convex and concave that do not have the form of an affine function? Explain your reasoning. 
+
+**Proof of Convexity**
+
+$f(x) = ax + b$ is twice differentiable. 
+
+$$
+\begin{aligned}
+f(x) &= ax + b \\
+\implies \nabla f(x) &= a \\
+\implies \nabla^2f(x) &= 0
+\end{aligned}
+$$
+So $\nabla^2f(x) = 0 \geq 0$ for all values of $x$. Thus, $f(x)$ is convex. 
+
+**Proof of Concavity**
+
+Let $g(x) = -f(x)$. If $f(x) = -f(x)$ is convex, then $f(x)$ is concave. In this case, $g(x) = -ax - b$. 
+
+$$
+\begin{aligned}
+g(x) &= -ax - b \\
+\implies \nabla g(x) &= -a \\
+\implies \nabla^2g(x) &= 0
+\end{aligned}
+$$
+
+So $\nabla^2g(x) = 0 \geq 0$ for all values of $x$. Thus, $g(x)$ is convex. As was stated above, if $g(x) = -f(x)$ is convex, then $f(x)$ is concave. 
+
