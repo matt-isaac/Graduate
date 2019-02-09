@@ -35,9 +35,226 @@ Test data accuracy: 92%
 
 Show that $\delta^L = \nabla_aC \odot \sigma'(z^L)$ can be rewritten as $\delta^L = \Sigma'(z^L)\nabla_aC$, where $\Sigma'(z^L)$ is a square matrix whose diagonal entries are the values $\sigma'(z_j^L)$ and whose off-diagonal entries are zero. 
 
+
+Our goal is to show that $\delta^L = \nabla_aC \odot \sigma'(z^L) = \delta^L = \Sigma'(z^L)\nabla_aC$
+
+Beginning with the lefthand side (LHS), the entries of $\nabla_aC$ will be $\frac{\partial C}{\partial a_1^L}, \cdots, \frac{\partial C}{\partial a_j^L}$, and the entries of $\sigma'(z^L)$ are $\frac{\partial a_1^L}{\partial z_1^L}, \cdots, \frac{\partial a_j^L}{\partial z_j^L}$. Performing the element-wise multiplication, 
+
+$$
+\nabla_{a^L}C\odot\sigma'(z^L) =
+\begin{aligned}
+    \begin{bmatrix}
+           \frac{\partial C}{\partial a_1^L} \\
+           \vdots \\
+           \frac{\partial C}{\partial a_j^L} \\
+       \end{bmatrix}
+    \odot
+    \begin{bmatrix}
+           \frac{\partial a_1^L}{\partial z_1^L} \\
+           \vdots \\
+           \frac{\partial a_j^L}{\partial z_j^L} \\
+       \end{bmatrix}
+    =
+    \begin{bmatrix}
+       \frac{\partial C}{\partial z_1^L} \\
+       \vdots \\
+       \frac{\partial C}{\partial z_j^L} \\
+   \end{bmatrix}.
+\end{aligned}
+$$
+
+Next, moving to the right hand side (RHS),
+$$
+\Sigma'(z^L)\nabla_{a^L}C =
+\begin{bmatrix}
+           \frac{\partial a_1^L}{\partial z_1^L} & & 0 \\
+            & \ddots \\
+          0 & & \frac{\partial a_j^L}{\partial z_j^L}\\
+\end{bmatrix}
+\begin{bmatrix}
+           \frac{\partial C}{\partial a_1^L} \\
+           \vdots \\
+           \frac{\partial C}{\partial a_j^L} \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+           \frac{\partial a_1^L}{\partial z_1^L}\frac{\partial C}{\partial a_1^L} \\
+           \vdots \\
+           \frac{\partial a_j^L}{\partial z_j^L}\frac{\partial C}{\partial a_j^L} \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+           \frac{\partial C}{\partial z_1^L} \\
+           \vdots \\
+           \frac{\partial C}{\partial z_j^L} \\
+\end{bmatrix}
+$$
+Thus, we have shown that 
+$$
+\nabla_{a^L}C\odot\sigma'(z^L) = \Sigma'(z^L)\nabla_{a^L}C =  \begin{bmatrix}
+           \frac{\partial C}{\partial z_1^L} \\
+           \vdots \\
+           \frac{\partial C}{\partial z_j^L} \\
+\end{bmatrix}.
+$$
+In other words, $\nabla_{a^L}C\odot\sigma'(z^L)$ can be written as $\Sigma'(z^L)\nabla_{a^L}C$.
+
 2. Show that $\delta^L = ((w^{l+1})^T\delta^{l+1})\odot\sigma'(z^l)$ can be rewritten as $\delta^l = \Sigma'(z^l)(w^{l+1})^T \delta^{l+1}$.
 
+Our goal is to show that $((w^{l+1})^T\delta^{l+1})\odot\sigma'(z^l) = \delta^l = \Sigma'(z^l)(w^{l+1})^T \delta^{l+1}$. 
+
+Beginning with the left-hand side (LHS), let us first define some of the components:
+$$
+(w^{l+1})^T =
+\begin{bmatrix}
+  w_{1,1}^{l+1} & w_{2,1}^{l+1} & \cdots & w_{j,1}^{l+1} \\
+  w_{1,2}^{l+1} & w_{2,2}^{l+1} & \cdots & w_{j,2}^{l+1} \\
+  \vdots & \vdots & \ddots & \vdots \\
+  w_{1,k}^{l+1} & w_{2,k}^{l+1} & \cdots & w_{j,k}^{l+1}
+\end{bmatrix}
+$$
+$$
+\delta^{l+1} =
+\begin{bmatrix}
+  \delta_1^{l+1} \\
+  \delta_2^{l+1} \\
+  \vdots \\
+  \delta_j^{l+1}
+\end{bmatrix}
+$$
+Next, 
+$$
+((w^{l+1})^T\delta^{l+1}) =
+\begin{bmatrix}
+  w_{1,1}^{l+1} & w_{2,1}^{l+1} & \cdots & w_{j,1}^{l+1} \\
+  w_{1,2}^{l+1} & w_{2,2}^{l+1} & \cdots & w_{j,2}^{l+1} \\
+  \vdots & \vdots & \ddots & \vdots \\
+  w_{1,k}^{l+1} & w_{2,k}^{l+1} & \cdots & w_{j,k}^{l+1}
+\end{bmatrix}
+\begin{bmatrix}
+  \delta_1^{l+1} \\
+  \delta_2^{l+1} \\
+  \vdots \\
+  \delta_j^{l+1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+  \sum\limits_j(w_{j,1}^{l+1})(\delta_j^{l+1}) \\
+  \sum\limits_j(w_{j,2}^{l+1})(\delta_j^{l+1}) \\
+  \vdots \\
+  \sum\limits_j(w_{j,k}^{l+1})(\delta_j^{l+1})
+\end{bmatrix}.
+$$
+Now, putting this together to find the entire LHS:
+
+$$
+((w^{l+1})^T\delta^{l+1}) \odot\sigma'(z^l)
+=
+\begin{bmatrix}
+  \sum\limits_j(w_{j,1}^{l+1})(\delta_j^{l+1}) \\
+  \sum\limits_j(w_{j,2}^{l+1})(\delta_j^{l+1}) \\
+  \vdots \\
+  \sum\limits_j(w_{j,k}^{l+1})(\delta_j^{l+1})
+\end{bmatrix}
+\odot
+\begin{bmatrix}
+   \frac{\partial a_1^L}{\partial z_1^L} \\
+   \frac{\partial a_2^L}{\partial z_2^L} \\
+   \vdots \\
+   \frac{\partial a_j^L}{\partial z_j^L} \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+  \left(\sum\limits_j(w_{j,1}^{l+1})(\delta_j^{l+1})\right) \frac{\partial a_1^L}{\partial z_1^L}\\
+  \left(\sum\limits_j(w_{j,2}^{l+1})(\delta_j^{l+1})\right) \frac{\partial a_2^L}{\partial z_2^L}\\
+  \vdots \\
+  \left(\sum\limits_j(w_{j,k}^{l+1})(\delta_j^{l+1})\right)\frac{\partial a_j^L}{\partial z_j^L}
+\end{bmatrix}.
+$$
+Now, looking at the RHS, 
+
+$$
+\Sigma'(z^l)((w^{l+1})^T\delta^{l+1})
+=
+\begin{bmatrix}
+           \frac{\partial a_1^L}{\partial z_1^L} & & 0 \\
+            & \ddots\\
+          0 & & \frac{\partial a_j^L}{\partial z_j^L}\\
+\end{bmatrix}
+\begin{bmatrix}
+  \sum\limits_j(w_{j,1}^{l+1})(\delta_j^{l+1}) \\
+  \sum\limits_j(w_{j,2}^{l+1})(\delta_j^{l+1}) \\
+  \vdots \\
+  \sum\limits_j(w_{j,k}^{l+1})(\delta_j^{l+1})
+\end{bmatrix}
+=
+\begin{bmatrix}
+  \left(\sum\limits_j(w_{j,1}^{l+1})(\delta_j^{l+1})\right) \frac{\partial a_1^L}{\partial z_1^L}\\
+  \left(\sum\limits_j(w_{j,2}^{l+1})(\delta_j^{l+1})\right) \frac{\partial a_2^L}{\partial z_2^L}\\
+  \vdots \\
+  \left(\sum\limits_j(w_{j,k}^{l+1})(\delta_j^{l+1})\right)\frac{\partial a_j^L}{\partial z_j^L}
+\end{bmatrix}
+$$
+These results show that 
+
+$$
+((w^{l+1})^T\delta^{l+1}) \odot\sigma'(z^l)
+=
+\Sigma'(z^l)((w^{l+1})^T\delta^{l+1})
+=
+\begin{bmatrix}
+  \left(\sum\limits_j(w_{j,1}^{l+1})(\delta_j^{l+1})\right) \frac{\partial a_1^L}{\partial z_1^L}\\
+  \left(\sum\limits_j(w_{j,2}^{l+1})(\delta_j^{l+1})\right) \frac{\partial a_2^L}{\partial z_2^L}\\
+  \vdots \\
+  \left(\sum\limits_j(w_{j,k}^{l+1})(\delta_j^{l+1})\right)\frac{\partial a_j^L}{\partial z_j^L}
+\end{bmatrix}.
+$$
+In other words, we have shown that $((w^{l+1})^T\delta^{l+1}) \odot\sigma'(z^l)$ can be written as $\Sigma'(z^l)((w^{l+1})^T\delta^{l+1})$.
+
+
 3. By combining the results from problems 2.1 and 2.2, show that $\delta^l = \Sigma'(z^l)(w^{l+1})^T \cdots \Sigma'(z^{L-1})(w^L)^T\Sigma'(z^L)\nabla_aC$
+
+In problem 2.2, it was given that $\delta^l = \left[\Sigma'(z^l)(w^{l+1})^T\right] \delta^{l+1}$. For ease of notation, let $\theta^i = \left[\Sigma'(z^i)(w^{i+1})^T\right]$. That is, 
+$\delta^l = \theta^l \cdot \delta^{l+1}$. Incrementing indices, we see the following relationships should also hold:
+
+$$
+\begin{aligned}
+\delta^l &= \theta^l \cdot \delta^{l+1} \\
+\delta^{l+1} &= \theta^{l+1} \cdot \delta^{l+2} \\
+\delta^{l+2} &= \theta^{l+2} \cdot \delta^{l+3} \\
+&\vdots \\
+\delta^{L-2} &= \theta^{L-2} \cdot \delta^{L-1} \\
+\delta^{L-1} &= \theta^{L-1} \cdot \delta^{L} \\
+\end{aligned}
+$$
+From problem 2.1, we also have the follwoing relationship:
+$$
+\delta^L = \left[\Sigma'(z^L)\nabla_{a^L}C\right].
+$$
+Now, using the relationships defined above, we can recursively substitue for $\delta^{l+i}$. Beginning with $\delta^l = \theta^l \cdot \delta^{l+1}$, we can plug $\theta^{l+1} \cdot \delta^{l+2}$ in for $\delta^{l+1}$ since, from the relationships above, $\delta^{l+1} = \theta^{l+1} \cdot \delta^{l+2}$. This continues recursively, substituting the next values in for $\delta^{l+i}$.
+
+$$
+\begin{aligned}
+\delta^l &= \theta^l \cdot \delta^{l+1} \\
+\implies \delta^l &= \theta^l \cdot \theta^{l+1}\cdot\delta^{l+2} \\
+\implies \delta^l &= \theta^l \cdot \theta^{l+1}\cdot \theta^{l+2}\cdot\delta^{l+3} \\
+\vdots \\
+\implies \delta^l &= \theta^l \cdot \theta^{l+1}\cdot \theta^{l+2}\cdots
+\theta^{L-2} \cdot \delta^{L-1} \\
+\implies \delta^l &= \theta^l \cdot \theta^{l+1}\cdot \theta^{l+2}\cdots
+\theta^{L-2} \cdot \theta^{L-1} \cdot \delta^L \\
+\end{aligned}
+$$
+Recall that $\delta^L = \Sigma'(z^L)\nabla_{a^L}C$. Making this substituion into the last equation above, and then substituing $\left[\Sigma'(z^i)(w^{i+1})^T\right]$ back in for $\theta^i$ we obtain the following:
+$$
+\begin{aligned}
+\delta^l &= \theta^l \cdot \theta^{l+1}\cdot \theta^{l+2}\cdots
+\theta^{L-2} \cdot \theta^{L-1} \cdot \left[\Sigma'(z^L)\nabla_{a^L}C\right] \\
+\implies
+\delta^l &= \left[\Sigma'(z^l)(w^{l+1})^T\right]\left[\Sigma'(z^{l+1})(w^{l+2})^T\right] \cdots \left[\Sigma'(z^{L-2})(w^{L-1})^T\right]\left[\Sigma'(z^{L-1})(w^{L})^T\right]\left[\Sigma'(z^L)\nabla_{a^L}C\right]
+\end{aligned}
+$$
+Thus, we have shown that $\delta^l = \Sigma'(z^l)(w^{l+1})^T \cdots \Sigma'(z^{L-1})(w^L)^T\Sigma'(z^L)\nabla_aC$.
 
 4. **Backpropagation with linear neurons**
 
@@ -179,3 +396,7 @@ $$
 
 So $\nabla^2g(x) = 0 \geq 0$ for all values of $x$. Thus, $g(x)$ is convex. As was stated above, if $g(x) = -f(x)$ is convex, then $f(x)$ is concave. 
 
+NEED TO REWORD:
+No, $f$ does not have a global minimum or a global maximum. Since the line will continue increasing infinitely in one direction, and continue decreasing infinitely in the other, it will extend to positive and negative infinity, and never have a global maximum or minimum. 
+
+There are no other functions that are twice continuously differentiable and both convex and concave. s
