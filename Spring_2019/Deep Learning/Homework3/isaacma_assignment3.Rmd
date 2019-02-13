@@ -260,6 +260,17 @@ Thus, we have shown that $\delta^l = \Sigma'(z^l)(w^{l+1})^T \cdots \Sigma'(z^{L
 
 Suppose we replace the usual non-linear $\sigma$ function (sigmoid) with $\sigma(z) = z$ throughout the network. Rewrite the backpropagation algorithm for this case.
 
+The backpropagation algorithm would proceed in the following manner:
+
+1. **Input $\mathbf{x}$**: set the activation $a^1$ for the input layer.
+
+2. **Feed forward: For each**: For each $l = 2, 3, ..., L$, compute $\mathbf{z}^l = \langle w^l, z^{l-1}\rangle + b^l$ and $a^l = z^l$.
+
+3. **Output error $\mathbf{\delta^l}$**: compute $\mathbf{\delta}^L = \nabla_{z^L}C\odot\sigma'(z^L) = \nabla_{z^L}C$.
+
+4. **Backpropagate the error**: For each $l = L-1, L-2, ..., 2$, compute $\mathbf{\delta}^l = ((w^{l+1})^T\delta^{l+1})\odot\sigma'(z^l)$.
+
+5. **Output**: The cost function gradient is $\frac{\partial C}{\partial w_{jk}^l} = z^{l-1}\delta_j^l$, and $\frac{\partial C}{\partial b_j^l} = \delta_j^l$.
 
 ## Problem 3
 
