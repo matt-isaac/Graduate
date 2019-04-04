@@ -1,12 +1,15 @@
 library(shiny)
 library(shinydashboard)
 library(plotly)
+library(shinyalert)
+library(shinyWidgets)
 
 dashboardPage(
   dashboardHeader(),
   dashboardSidebar(
   ),
   dashboardBody(
+    useShinyalert(),
     tabsetPanel(
       tabPanel("Data Source",
                fluidRow(
@@ -28,21 +31,26 @@ dashboardPage(
                    width = 2,
                    offset = 0,
                    verticalLayout(
-                     checkboxInput(inputId = "checkPbox",
-                                   label = "Show/Hide P-box",
-                                   value = TRUE),
-                     checkboxInput(inputId = "checkCDFs",
-                                   label = "Show/Hide CDFs",
-                                   value = FALSE)
+                     # checkboxInput(inputId = "checkPbox",
+                     #               label = "Show/Hide P-box",
+                     #               value = TRUE),
+                     # checkboxInput(inputId = "checkCDFs",
+                     #               label = "Show/Hide CDFs",
+                     #               value = FALSE)
+                     br(),
+                     uiOutput(outputId = "pbxBttn"),
+                     br(),
+                     uiOutput(outputId = "cdfBttn")
+                     
                    )  
                    
                  ),
                  column(
                    width = 2,
                    offset = 0,
-                   numericInput(inputId = "pboxLower", label = "Lower Percentile",
+                   numericInput(inputId = "pboxLower", label = "Lower P-box Percentile",
                                 value = 0.05, width = 250),
-                   numericInput(inputId = "pboxUpper", label = "Upper Perentile.",
+                   numericInput(inputId = "pboxUpper", label = "Upper P-box Perentile.",
                                 value = 0.95, width = 250)
                  ),
                  column(

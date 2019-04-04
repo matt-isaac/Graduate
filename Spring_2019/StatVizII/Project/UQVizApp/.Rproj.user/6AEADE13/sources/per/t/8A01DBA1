@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1554401868211.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "170237640",
+    "id" : "8A01DBA1",
+    "lastKnownWriteTime" : 1554401866,
+    "last_content_update" : 1554401866,
+    "path" : "C:/Users/misaa/Downloads/lect_chapter10.Rnw",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "1378,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "sweave"
+}

@@ -1,0 +1,1631 @@
+% !Rnw root = lect_main.Rnw
+
+\def\jsprivatechten{1} % show additional details
+%\def\jsprivatechten{0} % do NOT show additional details
+
+
+
+%\section{Dimension Reduction}
+
+
+\section{Interactive and Dynamic Graphics}
+
+
+\cite{Sym2004}, p.~295, states:
+\begin{quotation}
+``Interactive and dynamic statistical graphics 
+enable data analysts in all fields to
+carry out visual investigations leading to insights into relationships
+in complex data. Interactive and dynamic statistical graphics involve methods for
+viewing data in the form of point clouds or modeled surfaces.  
+Higher--dimensional data can be projected into one--, two-- or three--dimensional
+planes in a set of multiple views or as a continuous sequence of views
+which constitutes motion through the higher--dimensional space
+containing the data.
+
+Strictly, there is some difference between interactive graphics and
+dynamic graphics.
+When speaking of interactive graphics only, we usually mean that a user 
+actively interacts with, i.e., manipulates, the visible graphics by input
+devices such as keyboard, mouse, or others and makes changes based on the
+visible result. When speaking of dynamic graphics only, we usually mean
+that the visible graphics change on the computer screen without further 
+user interaction. An example for interactive graphics might be the
+selection of interval lengths and starting points when trying to construct
+an optimal histogram while looking at previous histograms. 
+An example for dynamic graphics might be an indefinitely long grand tour
+with no user interaction. Typically, interactive graphics and dynamic graphics
+are closely related and we will not make any further distinction among the
+two here and just speak of interactive and dynamic statistical graphics.
+
+Two terms closely related to interactive and dynamic statistical graphics are
+exploratory data analysis (EDA)%
+\index{exploratory data analysis}\index{EDA}
+and visual data mining (VDM).%
+\index{visual data mining}\index{VDM}
+
+EDA, as defined by \citet{Tuk77}, 
+``{\it is detective work --- numerical
+detective work --- or counting detective work --- or graphical
+detective work.}'' 
+Modern techniques and software in EDA, based on interactive
+and dynamic statistical graphics, are a continuation of Tukey's
+idea to use graphics to find structure, general concepts, unexpected
+behavior, etc. in data sets by looking at the data. 
+To cite \citet{Tuk77} again, 
+``{\it today, exploratory and confirmatory
+can --- and should --- proceed side by side.}'' 
+Interactive and dynamic statistical graphics should not replace
+common analytic and inferential statistical methods --- they
+should rather extend these classical methods of data analysis.''
+\end{quotation}
+
+
+%Due to time constraints, we are not able to go deeper into
+%interactive and dynamic graphics this semester.
+
+
+\newpage
+
+
+\subsection{Software for Interactive and Dynamic Graphics}
+
+\cite{Sym2004}, pp.~308--309, states:
+\begin{quotation}
+``In this section, we concentrate on three main streams
+of software for interactive and dynamic statistical graphics:
+Software developed by researchers affiliated with the
+University of Augsburg, in particular REGARD,\index{REGARD} 
+MANET,\index{MANET}
+and Mondrian;\index{Mondrian} 
+software developed by researchers affiliated
+with George Mason University (GMU), in particular 
+ExplorN\index{ExplorN} and CrystalVision;\index{CrystalVision}
+and software developed
+by researchers affiliated with Bell Labs, AT\&T, and 
+Iowa State University (ISU),
+in particular XGobi\index{XGobi} and GGobi\index{GGobi}.
+\citet{WUT96} contains an in depth
+review of software for interactive
+statistical graphics.
+\citet{WWS99} is one of the few publications
+where the different interactive graphical concepts 
+provided by these three main streams (represented by 
+MANET,\index{MANET} ExplorN,\index{ExplorN}
+and XGobi\index{XGobi}, respectively) are applied to the
+same data set and thus allow a direct comparison
+of their features and capabilities in visual
+clustering and classification.''
+\end{quotation}
+
+
+\subsubsection{REGARD\index{REGARD}, MANET\index{MANET}, and Mondrian\index{Mondrian}}
+\label{IG.Software.Regard}
+
+
+\begin{figure}[t]
+\centering{\includegraphics[width=6in]{Scans//fig_Mondrian.jpg}}
+\caption{\label{fig_Mondrian}\small
+\cite{Sym2004}, p.~308, Figure~10.4:
+Screenshot of the ``Places'' data in Mondrian.
+The variables Crime, Education, and Population have been
+discretized for this figure.
+A mosaic plot of Crime (first vertical division,
+grouped as below 1000 [left] and above 1000 [right]),
+Education (first horizontal division, grouped as
+2700 to 3500 [top], below 2700 [middle], and above 3500 [bottom]),
+and Population (second vertical division,
+grouped as 500,000 to 1,000,000 [left], below 500,000 [middle], 
+and above 1,000,000 [right]) is displayed at the top right.
+A histogram of Transportation is shown at the bottom left,
+boxplots of HealthCare and Arts are shown at the bottom middle,
+and a scatterplot of Climate (horizontal) vs.\
+HousingCost (vertical) is shown at the bottom right. 
+The mosaic plot shows that Crime, Education, and Population
+are not independent. 
+The different displays show how average Transportation (that
+has been brushed in the histogram) is related to the
+other variables.
+All displays have been linked.
+}
+\end{figure}
+
+
+\cite{Sym2004}, pp.~309--310, states:
+\begin{quotation}
+``In this section we present a series of software developments
+that was initiated in the late 1980's by John Haslett and
+Antony Unwin at Trinity College, Dublin, and later was continued
+by Antony Unwin and his collaborators at the Institut f{\"u}r
+Mathematik, University of Augsburg. Other main collaborators that
+contributed to the development of these software tools that
+should be mentioned here are Heike Hofmann, Martin Theus,
+Adalbert Wilhelm, and Graham Wills.
+
+Some of the early developments are
+Diamond Fast\index{Diamond Fast}
+\citep{UW88} and Spider\index{Spider}
+\citep{CHUW89}.
+Diamond Fast\index{Diamond Fast} is a software package for the exploration
+of multiple time series with interactive graphics.
+Spider\index{Spider} is a software package for the exploration
+of spatially referenced data. One of its main
+features are moving statistics, an extension of
+brushing for spatial data \citep{CHUW89}.
+Spider\index{Spider} also supports
+histograms, density estimates, scatterplot matrices,
+and linked brushing. It runs on Macintosh computers only.
+
+REGARD\index{REGARD}
+\citep{UWH90,Un94} is a software package 
+that also provides high interaction graphics tools
+for spatial data. REGARD\index{REGARD} stands for
+``Radical Effective Graphical Analysis of
+Regional Data'' and runs on Macintosh computers only.
+REGARD\index{REGARD} supports four types of layers of spatial data, i.e., 
+points, regions, lines, and pictures.
+The central display  in REGARD\index{REGARD} is the map window that is linked
+to statistical displays such as boxplots, scatterplots,
+and rotating plots. 
+A map may be loaded as one picture in a picture layer or
+as several pictures in several layers, thus allowing
+to turn on or off different aspects of a map (such as
+state boundaries or a road network).
+Additional interactive features 
+are interrogation, highlighting, resizing, and rescaling.
+Advanced features include zooming into submaps, animation
+across ordered variables, cross--layer linking, network
+analysis tools, and interactive query tools across
+all graphical displays.
+
+MANET\index{MANET}
+\citep{UHHS96} 
+is a statistical graphics research program for EDA and written in C++.
+MANET\index{MANET} stands for ``Missings Are Now Equally Treated'' and 
+runs on Macintosh computers only.
+It is freely available from the following Web site: 
+\url{http://www1.math.uni-augsburg.de/Manet/}.\footnote{The current URL is
+\url{http://www.rosuda.org/MANET/}.}
+
+%To make the discovered structure as widely understandable as
+%possible, it is desirable to use simple and easily
+%interpretable views of the data. Extracting an easily
+%understandable statement from some high--dimensional data
+%projected on two--space is typically hard to achieve. It is
+%therefore useful to give a description in terms of the
+%original variables. Linking univariate views of individual
+%quantities enhances this interpretation step.
+%Our analysis by linked low--dimensional views will be done with the
+%MANET\index{MANET} software. 
+
+MANET\index{MANET} offers all 
+standard one-- and two--dimensional graphics for continuous data
+as well as for
+discrete data: dotplots, scatterplots, histograms, boxplots, bar charts. 
+Some special graphics for discrete and spatial data are integrated: 
+spine plots, mosaic plots and polygon plots. 
+MANET\index{MANET} grew out of a project to
+keep track of missing values in statistical graphics. 
+In MANET\index{MANET} all displays are
+fully linked and instantaneously updated.
+Displays are kept as simple 
+as possible to not distract the user. 
+
+%This software provides a range of graphical
+%tools specially designed for studying multivariate features with
+%low--dimensional views. It now provides
+%many new interactive features including special graphs like spine
+%plots and mosaic plots for categorical data \citep{TW98}. 
+
+The standard use of linked views in MANET\index{MANET} 
+is to highlight clusters that are
+apparent in one dimension and to see these one--dimensional
+clusters in the light of other variables. By
+systematically subsetting the sample points, we can also detect
+two-- and higher--dimensional clusters.
+Once a cluster has been detected, a classification rule can be set up
+by taking the boundary values of the cluster.
+In MANET\index{MANET} those
+values can easily be obtained by interrogating the plot symbols.
+
+One--dimensional views show the one--dimensional clusters directly.
+Two--dimensional clusters become visible by highlighting a subset in
+one variable and conditioning another plot on this subset. For three--
+and higher--dimensional clusters, we have to combine various subsets in
+different plots into one conditioning set and then we have to look at the
+remaining plots to check for clusters. The generation of such combined
+selections is not only possible in MANET\index{MANET} but it is also very
+efficiently implemented through selection sequences. 
+
+%Linking bar charts and histograms is an effective way to
+%analyze data sets with both discrete and continuous
+%variables. It is also much easier to keep track of missing
+%values in low--dimensional views than it is in high--dimensional
+%graphics which typically restrict plotting to complete cases
+%only.
+
+%Thus, for each data type the 
+%most appropriate graphic can be chosen. In MANET\index{MANET} data sets 
+%with up to 256 variables and 300 000 cases can be analyzed. However, 
+%speed of interaction depends on the computing power and on the amount 
+%of open displays. So best performance of MANET\index{MANET} is obtained 
+%for small up to large data sets (as defined in \citet{We95}).
+
+%Parallel coordinates are very space efficient when visualizing many 
+%variables at a time. The linked views alternative to parallel 
+%coordinates is to use linked dotplots and linked boxplots. 
+%For a data set with only twelve variables,
+%the space requirements of boxplots and dotplots are so 
+%modest that many of them can be shown together on an ordinary 
+%screen. So we focus on them, even when histograms and scatterplots
+%would usually show the clusters more clearly. 
+
+In MANET\index{MANET}, both dotplots and boxplots are drawn in a non--standard way. 
+In dotplots the brightness of a point shows the 
+frequency of its occurrence. This method, called tonal highlighting, 
+is used to visualize overplotting of points.  
+A bright color represents many points while a dark color
+represents just a few points.
+There is no tonal highlighting for selected points in MANET.\index{MANET}
+The layout of boxplots is changed so that a standard boxplot can be 
+superimposed for selected points. The inner fifty percent box is 
+drawn as a dark grey box. The outer regions, usually represented as 
+whiskers, are drawn as light grey boxes. 
+
+A recent new development, Mondrian\index{Mondrian} 
+\citep{Theu2002,Theu2003}, is a data visualization 
+system written in JAVA and therefore runs on any hardware platform.
+Mondrian\index{Mondrian} is freely available from the following Web site: \\
+\url{http://www.rosuda.org/Mondrian/}.
+
+The main  emphasis of Mondrian\index{Mondrian} is on visualization 
+techniques for categorical and geographical data. 
+All plots in Mondrian\index{Mondrian} 
+(see Figure~\ref{fig_Mondrian})
+are fully linked and offer various 
+interrogations. Any case selected in one plot in Mondrian\index{Mondrian} is 
+highlighted in all other linked plots. 
+Currently, implemented plots comprise mosaic plots, scatterplots, 
+maps, bar charts, boxplots, histograms, and parallel coordinate plots. 
+Mosaic plots in Mondrian\index{Mondrian} are fully interactive. This includes not only 
+linking, highlighting and interrogations, but also an interactive 
+graphical modeling technique for loglinear models.''
+\end{quotation}
+
+
+Most recent members of this software family are the {\it iplots} and {\it iplots eXtreme}
+R package. See 
+\url{http://www.iplots.org/}
+and
+\url{http://rforge.net/Acinonyx/}
+for details.
+
+
+
+\newpage
+
+
+\subsubsection{HyperVision,\index{HyperVision} ExplorN,\index{ExplorN} and CrystalVision\index{CrystalVision}}
+\label{IG.Software.ExplorN}
+
+
+\begin{figure}[t]
+\centering{\includegraphics[width=6in]{Scans//fig_CrystalVision.jpg}}
+\caption{\label{fig_CrystalVision}\small
+\cite{Sym2004}, p.~304, Figure~10.3:
+Screenshot of the ``Places'' data in CrystalVision.
+A parallel coordinate plot of all variables is shown
+as the main plot. 
+A scatterplot matrix of all variables with a
+scatterplot of Crime (horizontal) vs.\ Education (vertical)
+is shown as a popup in the top right.
+The data has been brushed according to high and low Population.
+According to the parallel coordinate plot, higher Population
+is associated with higher Arts and HousingCost.
+The scatterplot of Crime and Education seems to reveal
+that higher Population is also associated with higher Crime
+and higher Education.
+All displays have been linked.
+}
+\end{figure}
+
+
+\cite{Sym2004}, pp.~310--311, states:
+\begin{quotation}
+``In this section we present a series of software developments
+that was initiated in the late 1980's by 
+Daniel B. Carr (initially while at Battelle Pacific Northwest Laboratories)
+and Edward J. Wegman at GMU.
+Other main collaborators that
+contributed to the development of these software tools that
+should be mentioned here are Qiang Luo and Wesley L. Nicholson.
+
+EXPLOR4\index{EXPLOR4}
+\citep{CN88} is a research tool, originally
+implemented on a VAX 11/780
+and written in FORTRAN. Its main features are rotation, masking,
+scatterplots and scatterplot matrix, ray glyph plots, and stereo
+views.
+
+HyperVision,\index{HyperVision}
+presented in \citet{BW88}, is a software product
+that has been implemented in PASCAL on an IBM RT under the
+AIX operating system as well as for MS--DOS machines.
+The latter implementation has a mouse--driven painting
+capability and can do real--time rotations of 3D scatterplots.
+Other displays are parallel coordinate plots,
+parallel coordinate density plots,
+relative slope plots, and color histograms.
+The main interactive features in HyperVision\index{HyperVision}
+in addition to linked brushing
+are highlighting, zooming, and nonlinear
+rescaling of each axis.
+
+ExplorN\index{ExplorN}
+\citep{CWL97} is a more advanced software package 
+than HyperVision\index{HyperVision}
+and EXPLOR4,\index{EXPLOR4} but 
+with similar basic features. It runs on SGI workstations only,
+using either the GL or the OpenGL tools. ExplorN\index{ExplorN}
+is freely available from the following ftp site: 
+\url{ftp://www.galaxy.gmu.edu/pub/software/}.\footnote{Software no
+longer available from this URL.}
+
+ExplorN\index{ExplorN} supports
+scatterplot matrices, parallel coordinate plots, icon--enhanced
+three--dimensional stereoscopic plots, $d$--dimensional grand tours and partial
+grand tours (i.e., tours based on a subset of the variables with the remaining
+variables being held fixed), and saturation brushing all in a high
+interaction graphics package. 
+
+%Parallel coordinate methods as an exploratory
+%analysis tool are described in \citet{We90}, $d$--dimensional grand
+%tours are described in \citet{We90a} and also in \citet{WC93}, while
+%saturation brushing is described in \citet{WL97a} and \citet{WL97b}.
+
+The ExplorN\index{ExplorN}
+software is intended to demonstrate principles rather than to be an
+operational tool so that some refinements normally found in operational
+software are not there. These include history tracking, easy point
+identification, identification of mixture weights in the grand tour,
+relabeling of axes during and after a grand tour as well as simultaneous
+multiple window views. 
+
+Although ExplorN\index{ExplorN} also supports conventional
+scatterplots and scatterplot matrices, 
+one of its outstanding features are parallel
+coordinate displays and partial grand tours.
+Since it is easy to see pairwise relationships
+for adjacent variables in parallel coordinate plots, 
+but less easy for nonadjacent
+variables, a complete parallel coordinate investigation
+would require running through all possible permutations.
+Instead of this, we recommend using the $d$--dimensional 
+parallel coordinate grand tour that is implemented in ExplorN.\index{ExplorN}
+An important interactive procedure for finding clusters using
+parallel coordinate plots is via the brush--tour. 
+
+%On the other hand, the software is capable of
+%handling much larger data sets than are commonly used with other packages such as
+%S--PLUS\index{S--PLUS} \citep{BCW88}. We have used the software with 
+%more than 300,000 observations in
+%12--dimensional space. 
+
+%The saturation brushing techniques in ExplorN\index{ExplorN} are most applicable
+%to ``medium'' to ``huge'' data sets (as defined in \citet{Hu92,Hu94}).
+
+%ExplorN\index{ExplorN} has been developed on high resolution graphics--oriented
+%workstations. In particular the
+%use of color graphic tools such as alpha blending
+%which makes use of the alpha channel, i.~e., a mask that 
+%specifies how pixel colors should be merged with another pixel when
+%the two are overlaid,
+%allows for a very subtle high resolution analysis.
+%By using a black background and subtle colorings, we have been able to code
+%data with single pixel and single--pixel--width lines. While this allows a
+%rather delicate high--interaction analysis on the screen, it does not
+%translate well into static pictures in a paper--based publication. 
+
+CrystalVision\index{CrystalVision}
+is a recently developed successor of ExplorN,\index{ExplorN} freely accessible at
+\url{ftp://www.galaxy.gmu.edu/pub/software/}.\footnote{Software no
+longer available from this URL.} \\ 
+Its main advantage over the older package is that it is available
+for PCs. Similar to ExplorN,\index{ExplorN} 
+CrystalVision's\index{CrystalVision} 
+(see Figure~\ref{fig_CrystalVision})
+main focus is on 
+parallel coordinate plots, scatterplots, and grand tour animations.
+Examples of its use, e.g., its EDA techniques applied to
+scanner data provided by the U.S. Bureau of Labor Statistics (BLS), can
+be found in \citet{WD2003}.''
+\end{quotation}
+
+Currently (in April 2019), CrystalVision and some demo data sets can be downloaded from \url{ftp://www.galaxy.gmu.edu/pub/}.
+
+
+\newpage
+
+
+\subsubsection{Data Viewer,\index{Data Viewer} XGobi,\index{XGobi} and GGobi\index{GGobi}}
+\label{IG.Software.XGobi}
+
+
+\begin{figure}[t]
+\centering{\includegraphics[width=6in]{Scans//fig_ArcViewXGobi.jpg}}
+\caption{\label{fig_ArcViewXGobi}\small
+\cite{Sym2004}, p.~299, Figure~10.1:
+Screenshot of the ``Places'' data in Arc\-View/XGobi. 
+A map view of the 329 spatial locations is displayed in ArcView
+at the top.
+The two XGobi windows at the bottom are
+showing scatterplots of Crime (horizontal) vs.\ Education
+(vertical) [left] and Recreation (horizontal) vs.\ Arts (vertical)
+[right]. 
+Locations of high Crime have been brushed and identified,
+representing some of the big cities in the U.S. 
+Also, locations of high Education (above 3500) have been brushed,
+mostly representing locations in the northeastern U.S.
+All displays have been linked.
+}
+\end{figure}
+
+
+\begin{figure}[t]
+\centering{\includegraphics[width=6in]{Scans//fig_GGobi.jpg}}
+\caption{\label{fig_GGobi}\small
+\cite{Sym2004}, p.~300, Figure~10.2:
+Screenshot of the ``Places'' data in GGobi.
+A scatterplot of Crime (horizontal) vs.\ Education (vertical)
+is displayed at the top right,
+a scatterplot matrix of five of the variables
+is displayed at the bottom right, and
+a density (1D) plot of Population is displayed at the
+bottom left. 
+The data has been brushed with respect to Population:
+one group for a Population less than 500,000, 
+one group for a Population between 500,000 and 1,000,000,
+and one group for a Population above 1,000,000.
+The scatterplot of Crime and Education seems to reveal
+that higher Population is associated with higher Crime
+and higher Education.
+The scatterplot matrix seems to reveal that 
+higher Population is also associated with higher Arts
+and higher HealthCare.
+All displays have been linked.
+}
+\end{figure}
+
+
+\cite{Sym2004}, pp.~311--313, states:
+\begin{quotation}
+``In this section we present a series of software developments
+that was initiated in the mid 1980's by 
+Andreas Buja, Deborah F. Swayne, and Dianne Cook
+at the University of Washington,
+Bellcore, AT\&T Bell Labs, and ISU.
+Other main collaborators that
+contributed to the development of these software tools that
+should be mentioned here are Catherine Hurley, John A. McDonald,
+and Duncan Temple Lang.
+
+The Data Viewer\index{Data Viewer}
+\citep{BHM86,BAHM88,Hu88,Hu89,HB90} 
+is a software package originally developed on a
+Symbolics Lisp Machine that supports object--oriented
+programming. The Data Viewer\index{Data Viewer} is a system for the
+exploratory analysis of high--dimensional
+data sets that allows interactive
+labeling, identification, brushing, and linked 
+windows. Additional features are viewport
+transformations such as expanding or shrinking
+of the data and shifting of the data.
+The Data Viewer\index{Data Viewer} supports several types of projections,
+including simple 3D rotations, correlation tour
+\citep{BAHM88}, and grand tour.
+
+Many of the design and layout concepts of the Data Viewer\index{Data Viewer}
+as well as parts of its functionality provided
+the basic ideas for the follow--up XGobi\index{XGobi}
+(see Figure~\ref{fig_ArcViewXGobi}), 
+first described in \citet{SCB91} and \citet{SC90b}.
+Development on XGobi\index{XGobi} took place for about a decade; 
+its almost final version is documented in \citet{SCB98}. 
+XGobi\index{XGobi} is implemented in the X Windows System, so it runs on any UNIX
+system, and it runs under Microsoft Windows or the Macintosh
+operating system if an X emulator is used.  
+XGobi\index{XGobi} can be freely downloaded from \\
+\url{http://www.research.att.com/areas/stat/xgobi/}.
+
+
+%XGobi has been publicly
+%available since the early 1990's \citep{SCB91}, and has been widely used
+%by data analysts in many fields. 
+
+XGobi\index{XGobi} is a data visualization system with interactive
+and dynamic methods for the manipulation of views of data. It offers
+2D displays of projections of points and lines in high--dimensional
+spaces, as well as parallel coordinate plots.
+Projection tools include dotplots and ASH%
+\index{averaged shifted histogram}\index{ASH}
+of single variables, scatterplots of pairs of variables,
+3D data rotations, and grand tours.
+%\citep{As85}, and interactive projection pursuit \citep{Hu85}.  
+%\citet{CBCH95} describes how the latter two techniques have been combined in XGobi\index{XGobi}.
+Views of the data can be panned and zoomed.
+Points can be labeled and brushed with glyphs and colors.  Lines can
+be edited and colored.  Several XGobi\index{XGobi} processes can be run
+simultaneously and linked for labeling, brushing, and sharing of
+projections.  Missing data are accommodated and their patterns can be
+examined; multiple imputations can be given to XGobi\index{XGobi} for rapid visual
+diagnostics \citep{SB98}. 
+XGobi\index{XGobi} can be cloned, i.e., an identical new XGobi\index{XGobi}
+process with exactly the same data and all brushing information can be
+invoked.  
+%XGobi\index{XGobi} also includes an extensive on--line help facility.
+
+Rotating plots are nowadays implemented in most statistical packages, 
+but the implementation in XGobi\index{XGobi} goes beyond most of the others. 
+In addition to the standard grand tour, XGobi\index{XGobi} supports the projection
+pursuit guided tour.
+% \citep{CBCH95}, a combination of two
+%complementary methods into an interactive and dynamic framework.
+More details on projection pursuit indices available in XGobi\index{XGobi}
+can be found in \citet{CBC93} and \citet{CBCH95}.
+Additional index functions that result in speed improvements
+of the calculations have been presented in \citet{KC97}.
+
+GGobi\index{GGobi}
+\citep{SwayneTempleLangBujaCook2003}
+is a direct descendant of XGobi\index{XGobi}, but it has been thoroughly redesigned.
+GGobi\index{GGobi} 
+(see Figures~\ref{fig_GGobi})
+can be freely downloaded from
+\url{http://www.ggobi.org/}.
+
+At first glance, GGobi\index{GGobi} looks quite unlike XGobi\index{XGobi} 
+because GGobi\index{GGobi} uses
+a newer graphical toolkit called GTK+
+(\url{http://www.gtk.org}), with a more contemporary look and feel
+and a larger set of user interface components.   
+Through the use of GTK+, GGobi\index{GGobi} can be used directly on
+Microsoft Windows, without any emulator. In addition, GGobi\index{GGobi} can be
+used on any UNIX and Linux system.
+
+In contrast to XGobi\index{XGobi}, the plot window in GGobi\index{GGobi} has been 
+separated from the control
+panel.  In XGobi\index{XGobi}, there is in general a single plot per process; to
+look at multiple views of the same data, we have to launch multiple
+XGobi\index{XGobi} processes.  In contrast, a single GGobi\index{GGobi} session can support
+multiple plots of various types: scatterplots, parallel coordinate
+plots, scatterplot matrices, and time series plots have been
+implemented thus far. 
+Other changes in GGobi's\index{GGobi} appearance and repertoire of tools 
+(when compared to XGobi\index{XGobi}) include
+an interactive color lookup table manager, the ability to add
+variables ``on the fly'', and a new interface for view scaling (panning
+and zooming).
+At this point, some of the advanced grand tour and projection pursuit
+guided tour features from XGobi\index{XGobi} have not been fully reimplemented
+in GGobi\index{GGobi} (but hopefully will be available in the near future).''
+\end{quotation}
+
+
+GGobi was developed under Windows and LINUX. This link shows how it could be made
+operational for a Mac: 
+\url{https://www.stat.iastate.edu/ggobi-mac}.
+No warranties that this still works these days.
+
+The most recent member of this software family is the {\it rggobi} R package.
+See \url{https://vita.had.co.nz/papers/rggobi-rnews.pdf}
+for details.
+
+
+\newpage
+
+
+\subsection{Concepts of Interactive and Dynamic Graphics}
+
+\cite{Sym2004}, p.~298, states:
+\begin{quotation}
+``This section will provide some deeper insights into
+concepts of interactive and dynamic graphics mentioned in
+the previous sections.
+\citet{BCS96} contains a taxonomy of interactive
+data visualization based on the notions of
+focusing, linking, and arranging views of data.
+\citet{Un99} discusses some of the main concepts
+in the context of interactive graphics software.''
+\end{quotation}
+
+
+\subsubsection{Scatterplots and Scatterplot Matrices}
+
+
+\cite{Sym2004}, pp.~298--299, states:
+\begin{quotation}
+``Perhaps the most basic concepts for statistical graphics
+are scatterplots\index{scatterplot} 
+(see Figures~\ref{fig_ArcViewXGobi}, \ref{fig_GGobi}, 
+\ref{fig_CrystalVision}, and \ref{fig_Mondrian}).
+In a simple scatterplot, we place different
+symbols (sometimes also called glyphs) at $x$-- and $y$--positions
+in a two--dimensional plot area. These positions are determined
+by two of the variables.
+The type, size, and color of the symbols
+may depend on additional variables. Usually, explanatory information 
+such as axes, labels, legends, and titles are added
+to a scatterplot. Additional information such as 
+a regression line or a smoothed curve can be
+added as well. 
+
+If the data consist of more than two variables
+(e.g., somewhere between three to ten),
+the data can be displayed by a scatterplot matrix\index{scatterplot matrix}
+(see Figures~\ref{fig_GGobi} and \ref{fig_CrystalVision})
+that shows all pairwise scatterplots of the variables.
+The essential property of a scatterplot matrix
+is that any adjacent pair of plots have one
+of their axes in common. When plotting
+the full array of all $n \times (n-1)$ 
+pairwise scatterplots, each plot in the
+upper triangle of plots has a matching
+plot in the lower triangle of plots,
+with the exception that the axes in these
+pairs of plots have been flipped.
+Therefore, sometimes only the upper or
+lower triangle of scatterplots is 
+displayed; thus gaining plotting speed
+and allowing each individual plot to be 
+somewhat larger.
+Early examples of scatterplot matrices can be found in
+\citet{CCKT83} and \citet{Cle85} for example. 
+In fact, \cite{CCKT83}
+initially called an array of pairwise scatterplots
+for three variables a draftsman's display and
+for four (or more) variables a 
+generalized draftsman's display.
+In their (generalized) draftsman's display,
+each point is plotted with the same symbol.
+When encoding additional information through
+the use of different plotting symbols,
+\cite{CCKT83} speak of
+symbolic (generalized) draftsman's displays.
+Today, we hardly make any distinction of these
+different types of displays and just
+speak of scatterplot matrices.
+
+\citet{Mur2000Scat} and \citet{Un2002}
+discuss features good scatterplots and related
+interactive software should provide, e.g.,
+meaningful axes and scales, features for
+rescaling and reformatting, good handling of
+overlapping points and missing data,
+panning and zooming, and querying of points.
+\citet{CLNL87} describes techniques for
+scatterplot matrices particularly useful
+for large numbers of observations.''
+\end{quotation}
+
+
+\subsubsection{Brushing and Linked Brushing/Linked Views}
+
+
+\cite{Sym2004}, pp.~300--301, states:
+\begin{quotation}
+``Brushing, as introduced in \citet{BC88} and \citet{BCW88BruRot},
+\index{brushing}
+initially was considered as a collection of several dynamic
+graphical methods for analyzing data displayed in a 
+scatterplot matrix. The central idea behind brushing
+is a brush, usually a rectangular area on the computer
+screen, that is moved by the data analyst to different
+positions on the scatterplot or any other graphical display. 
+Four brushing operations were introduced in \citet{BC88}:
+highlight, shadow highlight, delete, and label.
+The most commonly used brushing technique is 
+highlighting --- often in the context of linked brushing,
+\index{linked brushing}
+i.e., for linked views. 
+\index{linked views}
+All points that are inside
+the brush in the currently selected display are highlighted,
+i.e., marked with a different symbol or color.
+Simultaneously, 
+points that correspond to those points are automatically
+highlighted with the same symbol/color in all linked views.
+
+A very useful brushing technique is the transient paint mode.
+As the brush is moved, the new points that come inside the brush
+are highlighted while points that move outside the brush
+are no longer highlighted. 
+
+While brushing initially was only developed for scatterplot
+matrices, it quickly has been adapted to other types of
+linked graphical displays. Linked brushing among
+different displays is one of the most useful techniques
+used within dynamic and statistical graphics.
+Linked brushing can be applied to graphical representation
+of continuous data, summary data such as histograms
+\citep{St88}, or even displays of categorical
+data such as mosaic plots \citep{Hof2000,Hof2003}.
+All dynamic statistical graphics software
+packages support linked brushing among different
+types of graphical displays these days.
+
+When dealing with massive data sets, it is often beneficial
+to focus on particular subgroups of the data and also
+be able to quickly return to a previous stage of the analysis.
+Selection sequences 
+\index{selection sequences}
+\citep{THW97,HT98} are an extension of the
+conventional linked--highlighting paradigm as they store
+the whole hierarchical path of a selection and allow an
+easy editing, redefinition, and interrogation of each
+selection in the path of the analysis. In a
+selection sequence, we can easily jump from one branch of the
+hierarchic selection tree to another.''
+\end{quotation}
+
+
+\subsubsection{Focusing, Zooming, Panning, Slicing,
+Rescaling, and Reformatting}
+\label{IG.Concepts.Panning}
+
+\cite{Sym2004}, pp.~301--302, states:
+\begin{quotation}
+``Focusing
+\index{focusing}
+techniques, as introduced in \citet{BMMS91},
+are based on the idea that it often might be easier
+for a human analyst to understand several
+individual displays, each focused on a 
+particular aspect of the underlying data,
+rather than looking at the full data set.
+Focusing techniques include subset selection
+techniques, e.g.,
+panning and zooming or slicing, and
+dimensionality reduction techniques,
+e.g., projection. Methods for focusing
+can be automatic, interactive, or a 
+combination of both. While focusing 
+shows only part of the data at a time,
+it is important to display multiple
+linked views of the data, perhaps
+each focusing on a different aspect
+of the data, to maintain the full
+picture of the data.
+
+Zooming
+\index{zooming}
+is a technique that can be used for inspecting details of the data
+when overplotting arises. Zooming can be done via some kind
+of a magnifying glass or by manually selecting subsections of
+the visible axes, e.g., via sliders. The main idea behind zooming
+is that when several points overplot in the full display, it
+may indeed turn out that these points are exactly the same when
+zooming into the neighborhood of these points --- or, what most
+frequently happens, that these points have a particular structure
+and are not exactly the same.
+
+Panning
+\index{panning}
+is closely related to zooming. An analyst should know which
+subset of the data is currently visible. Therefore, an 
+information plot should reveal the current location on 
+which subregion we have zoomed.
+
+Slicing,
+\index{slicing}
+as described in \citet{Fu88} and \citet{FB94},
+is a technique that takes sections (or slices) of 
+a high--dimensional data set. While slicing (and projections)
+are useful means for an exploratory data analysis,
+these techniques also have their limitations.
+However, these limitations may be overcome
+by combining slicing and projections in so--called
+prosections
+\index{prosections}
+\citep{FB94}.
+An extension of individual prosection views is the 
+prosection matrix
+\index{prosection matrix}
+\citep{TS98},
+some kind of a density plot summarizing multi--dimensional
+volumetric information. The prosection matrix is a useful
+representation for engineering design, allowing an analyst
+to interactively find a design that leads to a maximal
+manufacturing yield.
+
+Rescaling
+\index{rescaling} 
+is a technique to quickly change the scale of the displayed
+variables, e.g., by taking the log, square root, standardize,
+or by mapping to a 0--1 scale. When looking at multiple
+variables, it might also be beneficial to have a common
+scale (from the minimum across all variables to the maximum
+across all variables). By interactively rescaling variables,
+an analyst may identify useful transformations for a
+follow--up modeling step of the data.
+
+Reformatting
+\index{reformatting}
+includes features as simple as swapping x and y axes
+in a scatterplot or changing the order of coordinate
+axes in a parallel coordinate plot. 
+
+\citet{Un2002} provides
+more details on several of the techniques described above.''
+\end{quotation}
+
+
+\newpage
+
+
+\subsubsection{Rotations and Projections}
+\label{IG.Concepts.Rotations}
+
+\cite{Sym2004}, p.~302, states:
+\begin{quotation}
+``Rotation, 
+\index{rotation}
+as introduced in \citet{FFT74}
+and later refined in \citet{BCW88BruRot},
+is a very powerful tool for understanding relationships 
+among three or more variables. The familiar planar scatterplot is enhanced by 
+rotation to give the illusion of a third dimension. We typically 
+rotate plots in search of some interesting views that do not align 
+with the plot axes and therefore cannot be seen in a scatterplot 
+matrix. Usually, a three--dimensional point cloud representing
+three of the variables is shown rotating on a computer screen.
+The rotation shows us different views of the points and 
+it produces a 3D effect while moving, allowing us to see depth.
+Basic rotation controls with a mouse have been introduced
+in \citet{BCW88BruRot}.
+
+Mathematically speaking, each rotation within a 3D space onto
+a 2D computer screen is based on a projection. 
+\index{projection}
+Obviously, it is mathematically possible to project
+high--dimensional data onto low--dimensional subspaces
+and gain insights into the underlying data through
+dynamic visualizations of such projections. One 
+particular example of a continuous sequence of projections,
+the grand tour, will be discussed in the next section.
+\citet{CB97} discuss methods how to manually control
+high--dimensional data projections.
+\citet{Cook97} provides a variety of training data sets
+that help new users get a visual feeling of the underlying
+high--dimensional data set when seen as a projection
+into low--dimensional space.''
+\end{quotation}
+
+
+\subsubsection{Grand Tour}
+\label{IG.Concepts.GrandTour}
+
+
+\cite{Sym2004}, p.~303, states:
+\begin{quotation}
+``Often, simple plot rotation, as discussed in the previous
+section, does not suffice to see all interesting views
+of the data.
+To produce a plethora of possible interesting views, the grand tour 
+\index{grand tour}
+has been introduced in \citet{As85} and
+\citet{BA86b}. In \citet{As85},
+the grand tour has been described as
+``{\it a method for viewing multivariate
+statistical data via orthogonal projections onto a
+sequence of two--dimensional subspaces. The sequence
+of subspaces is chosen so that it is dense in the set of all
+two--dimensional subspaces.}''
+Some of the features the grand tour can be used for are 
+examining the overall structure and finding
+clusters or outliers in high--dimensional data sets.
+
+In the context of the grand tour, an alternating
+sequence of brushing, looking at additional projections from the
+grand tour, brushing, and so on, is
+referred to as the brush--tour
+\index{brush--tour}
+strategy in the remainder of this chapter.
+We can only be sure that a cluster
+visible in one projection of the grand tour 
+really is a cluster if its points remain
+close to each other in a series of projections and these points
+move similarly when the grand tour is activated. If points move
+apart, we probably found 
+several subclusters instead of one larger cluster.
+
+\citet{We90a} discusses a form of the grand tour 
+for general $d$--dimensional space.
+The algorithms for computing a grand tour are relatively 
+computationally intensive. \citet{WS93} discuss an 
+approximate one-- and two--dimensional grand tour algorithm that was 
+much more computationally efficient than the Asimov winding algorithm. 
+That algorithm was motivated in part by a discussion of the Andrews 
+(multidimensional data) plot, discussed in
+Section~\ref{IG.Concepts.Andrews},
+which can also be regarded as a 
+highly restricted pseudo tour.''
+\end{quotation}
+
+
+\newpage
+
+
+\SweaveInput{lect_chapter10_workshop.Rnw}
+
+
+\newpage
+
+
+\subsection{Interactive and Dynamic Graphics in R}
+
+
+\subsubsection{R Package {\it rggobi}}
+
+The R package {\it rggobi} is closely related to the 
+{\it Data Viewer/XGobi/GGobi} family, introduced in Section~\ref{IG.Software.XGobi}.
+\cite{WLTS2008} introduce {\it rggobi}. 
+Technial details are provided in \cite{LWCHS2009}.
+\cite{CS2007} deals with {\it GGobi} and {\it rggobi}. 
+Additional details on rggobi can be found at 
+\url{http://cran.r-project.org/web/packages/rggobi/index.html}. \\
+
+
+\underline{\bf Example 1:}
+%
+\begin{verbatim}
+library(rggobi)
+
+g <- ggobi(iris)
+clustering <- hclust(dist(iris[, 1:4]), method = "average")
+glyph_colour(g[1]) <- cutree(clustering, 3)
+
+d <- display(g[1], "Parallel Coordinates Display")
+variables(d)
+variables(d) <- list(X = 1:4)
+
+# Do not open the 2D tour from within R - rather open it from within ggobi
+# t <- display(g[1], "2D Tour")
+# variables(t)
+
+s <- display(g[1], "Scatterplot Matrix")
+variables(s)
+variables(s) <- list(X = 2:4)
+
+glyph_type(g[1]) <- unclass(iris[, 5]) + 1
+
+glyph_size(g[1]) <- ifelse(iris[, 1] >= 6.0, 4, 2)
+
+# Reset color, type & size
+glyph_colour(g[1])  <- 1
+glyph_type(g[1]) <- unclass(iris[, 5]) + 1
+glyph_size(g[1]) <- 2
+
+# Code from Chunyang Li
+
+library(randomForest)
+library(pROC)
+
+iris.rf <- randomForest(x = iris[, 1:4], iris$Species, 
+  oob.prox = TRUE, ntree = 2000) # RF classification
+roc(as.factor(iris$Species), iris.rf$votes[, 1]) # Calculate the AUC of ROC
+print(iris.rf) # Print out the RandomForest Classification Results
+
+iris.rf$predicted  # Predicted species
+
+# Overview of which classifications are right, which are wrong
+iris.rf$predicted == iris$Species 
+
+# Print out the ones that are falsely classified
+iris[iris$Species != iris.rf$predicted, c("Sepal.Length", "Sepal.Width",
+  "Petal.Length", "Petal.Width", "Species")]
+
+# Add the RandomForests results to plots
+
+glyph_colour(g[1]) <- unclass(iris.rf$predicted)
+glyph_size(g[1]) <- ifelse(iris.rf$predicted != iris$Species, 5, 2)
+
+# Summary of the rggobi data
+summary(g)
+
+# Close all rggobi windows
+close(ggobi_get())
+\end{verbatim}
+
+
+%Unfortunately, rggobi did not load on my laptop due to conflicts
+%with other libraries I have installed. It should work with a ``cleaner''
+%R version than the one I have. Then experiment with the sample code from
+%\url{http://cran.r-project.org/web/packages/rggobi/rggobi.pdf}.
+
+
+\newpage
+
+
+\subsubsection{R Package {\it tourr}}
+
+The R package {\it tourr} introduces the Grand Tour,
+discussed in Section~\ref{IG.Concepts.GrandTour}, to R.
+\cite{WCHB2011} deals with {\it tourr}.
+Additional details on {\it tourr} can be found at 
+\url{http://cran.r-project.org/web/packages/tourr/index.html}. \\
+
+
+\underline{\bf Example 2:}
+%
+<<fig=FALSE>>=
+library(tourr)
+
+# iris data
+animate(iris[, 1:4], grand_tour(), display_xy())
+
+animate(iris[, 1:4], grand_tour(), display_xy(col = unclass(iris[, 5])))
+
+
+# olive data
+animate(olive[, 3:9], grand_tour(), display_xy())
+
+animate(olive[, 3:9], grand_tour(), display_xy(col = olive[, 1]))
+
+animate(olive[, 3:9], grand_tour(), display_xy(col = unclass(olive[, 2])))
+
+animate(olive[, 3:9], grand_tour(), 
+  display_xy(col = unclass(olive[, 2]), pch = olive[, 1]))
+
+
+# flea data
+animate(flea[, 1:6], grand_tour(), display_xy())
+
+animate(flea[, 1:6], grand_tour(), display_xy(col = unclass(flea[, 7])))
+@
+
+
+\newpage
+
+
+\subsubsection{R Package {\it iplots}}
+
+
+The R package {\it iplots} is closely related to the
+{\it REGARD/MANET/Mondrian} family, introduced in Section~\ref{IG.Software.Regard}.
+\citet{TU2004} introduce {\it iplots}.
+\citet{TU2009} deals with {\it Mondrian} and {\it iplots}.
+Additional details on {\it iplots} can be found at 
+\url{http://cran.r-project.org/web/packages/iplots/index.html}. \\
+
+
+\underline{\bf Example 3:} (Based on a Student Project by Rong Xia in Spring 2009)
+%
+{
+\scriptsize
+<<fig=FALSE>>=
+#########################################################################
+###                             Input data                           ####
+#########################################################################
+
+data_url <- "http://www.interactivegraphics.org/Datasets_files/rent.txt"
+
+rents <- read.table(url(data_url), head = TRUE, sep = "\t")
+
+head(rents)
+
+##########################################################################
+##                         Activiate iplots                           ####
+##########################################################################
+
+Sys.setenv(JAVA_HOME = "C:/Program Files/Java/jdk1.8.0_77/")
+library(iplots)
+
+iset.new("rents")
+
+attach(rents)
+
+iplot(Size, Rent)
+iset.col(Num..Rooms)
+iabline(lm(Rent ~ Size))
+
+ibar(Num..Rooms)
+
+ibar(Built, isSpine = TRUE)
+
+ihist(Rent)
+
+ibox(Rent, Warm.Water)
+
+iset.col()
+
+
+iset.select(Rent > median(Rent))
+
+iset.selectNone()
+
+
+iplot.set(1) # set scatterplot as current
+
+d <- iplot.data()
+
+iabline(lm(d$y ~ d$x), col = "black")
+ilines(lowess(d$x, d$y), col = "#0000c0")
+ilines(c(0, 0), c(0, 0), col = "marked", visible = FALSE)
+cat("Select *Break* from the menu of any plot to return back to R.\n")
+
+#while (!is.null(ievent.wait())) {
+#  if (iset.sel.changed()) {
+#    s <- iset.selected()
+#    if (length(s) > 1)
+#      iobj.opt(x = lowess(d$x[s], d$y[s]), visible = TRUE)
+#    else 
+#      iobj.opt(visible = FALSE)
+#  }
+#}
+
+iobj.list()
+
+for (i in 1:length(iobj.list())) 
+  iobj.rm() # remove all objects
+
+
+iplot.list()
+
+for (i in 1:length(iplot.list()))
+  iplot.off() # close all windows
+
+
+#iset.rm() # remove this iset
+@
+}
+
+
+\newpage
+
+
+\subsubsection{R Package {\it animation}}
+
+The R package {\it animation} introduces the concept of general animations to R.
+\citet{XC2008} introduce {\it animation}.
+Additional details on {\it animation} can be found at 
+\url{http://cran.r-project.org/web/packages/animation/index.html}
+and 
+\url{http://vis.supstat.com/}. 
+Additional examples can be found at 
+\url{http://www.r-bloggers.com/search/animation}.
+\\
+
+
+\underline{\bf Example 4:} (Based on a Student Project by Jin Ying in Spring 2009)
+%
+{
+\scriptsize
+<<>>=
+#########################################################################
+###                                                                   ###
+### the following code is modified based on the R documentation for   ###
+###                       the animation package                       ###
+###                                                                   ###
+#########################################################################
+
+library(animation)
+
+
+######## Buffon's Needle ################
+
+ani.options(nmax = 100, interval = 0.5)
+par(mar = c(3, 2.5, 0.5, 0.2), pch = 20, mgp = c(1.5, 0.5, 0))
+buffon.needle(mat = matrix(c(1, 2, 1, 3), 2))
+
+
+####### swans data to apply for the k-means (given in the animation package) cluster analysis #######
+
+par(mfrow = c(1, 1))
+
+data_url1 <- "http://www.math.usu.edu/~symanzik/teaching/2009_stat6560/RDataAndScripts/jin_ying_project2_swans.txt"
+swans <- read.table(data_url1, header = TRUE)
+
+swan <- swans[, c(1, 3)]
+oopt <- ani.options(interval = 2, nmax = 1000)
+op <- par(mar = c(3, 3, 1, 1.5), mgp = c(1.5, 0.5, 0))
+kmeans.ani(swan, centers = 2, pch = 1:2, col = 1:2)
+
+
+####### iris data #######
+
+irissub <- iris[, c(1, 3)]
+oopt <- ani.options(interval = 2, nmax = 1000)
+op <- par(mar = c(3, 3, 1, 1.5), mgp = c(1.5, 0.5, 0))
+kmeans.ani(irissub, centers = 3, pch = 1:3, col = 1:3)
+@
+}
+
+
+\newpage
+
+
+\subsubsection{R Package {\it plotly}}
+
+The R package {\it plotly} 
+easily translates {\it ggplot2} graphs to an interactive web--based 
+version and/or creates custom web--based visualizations directly from R.
+Additional details and examples on {\it plotly} can be found at 
+\url{https://cran.r-project.org/web/packages/plotly/index.html},
+\url{https://plot.ly/r},
+\url{https://plot.ly/ggplot2},
+\url{https://plot.ly/r/knitr/},
+\url{https://images.plot.ly/plotly-documentation/images/r_cheat_sheet.pdf},
+\url{https://talks.cpsievert.me/},
+and
+\url{https://plotly-book.cpsievert.me/}.
+\\
+
+{\it plotly} is quite complex. Carson Sievert, one of the main developers
+suggests (see \url{https://plotly-book.cpsievert.me/}):
+{\it ``I highly recommend copying/pasting examples into your R console, and modifying 
+them as you read along, to aid the learning process.''}
+This is what we do in our lecture notes below. \\
+
+See the files {\it PlotlyDemo.Rmd} and {\it PlotlyDemo.html} for the 
+web--based version of the examples. In particular, note that the 
+pdf version results in static (non--interactive) graphs while the
+html version contains JavaScript graphs that remain fully interactive. \\
+
+
+<<>>=
+library(plotly)
+library(tourr)
+
+# Basic interactive plots
+
+names(olive)
+head(olive)
+
+pltlyb1 <- plot_ly(olive, x = ~palmitic, color = as.character(olive$region), type = "box")
+pltlyb1
+@
+
+<<>>=
+# Export of static plotly image
+
+library(webshot)
+#webshot::install_phantomjs()
+export(pltlyb1, file = "Ch10_pltlyb1.png")
+@
+
+\begin{center}
+\includegraphics[width=3in]{Ch10_pltlyb1.png}
+\end{center}
+
+
+<<>>=
+pltlyb2 <- plot_ly(olive, x = ~palmitic, color = ~area, type = "box")
+pltlyb2
+
+export(pltlyb2, file = "Ch10_pltlyb2.png")
+@
+
+\begin{center}
+\includegraphics[width=3in]{Ch10_pltlyb2.png}
+\end{center}
+
+
+<<>>=
+pltlyb3 <- plot_ly(olive, x = ~palmitic, color = ~area, type = "box", colors = "Paired")
+pltlyb3
+
+export(pltlyb3, file = "Ch10_pltlyb3.png")
+@
+
+\begin{center}
+\includegraphics[width=3in]{Ch10_pltlyb3.png}
+\end{center}
+
+
+<<>>=
+pltlyb4 <- plot_ly(olive, type = "scatter", mode = "markers",
+                  x = ~palmitic, 
+                  y = ~linoleic,
+                  color = as.character(olive$region))
+pltlyb4
+
+export(pltlyb4, file = "Ch10_pltlyb4.png")
+@
+
+\begin{center}
+\includegraphics[width=3in]{Ch10_pltlyb4.png}
+\end{center}
+
+
+<<>>=
+pltlyb5 <- plot_ly(olive, type = "scatter", mode = "markers",
+                  x = ~palmitic, 
+                  y = ~linoleic,
+                  color = as.character(olive$region),
+                  symbol = ~area,
+                  symbols = c("x", "o", "square-open", 
+                              "circle-dot", "triangle-up", "+",
+                              "triangle-down", "diamond-open", "square-dot"))
+pltlyb5
+
+export(pltlyb5, file = "Ch10_pltlyb5.png")
+@
+
+\begin{center}
+\includegraphics[width=3in]{Ch10_pltlyb5.png}
+\end{center}
+
+
+<<>>=
+# Advanced interactive plots
+# based on
+#    https://talks.cpsievert.me/20170730/#1
+
+library(crosstalk)
+
+txhousing %>% 
+  filter(city %in% c("Galveston", "Midland", "Odessa", "South Padre Island")) -> txhousing2
+
+sd <- SharedData$new(txhousing2, ~year)
+
+p <- ggplot(sd, aes(month, median)) +
+  geom_line(aes(group = year)) + 
+  geom_smooth(data = txhousing2, method = "gam") + 
+  facet_wrap(~ city)
+
+ggplotly(p, tooltip = "year") %>%
+  highlight(defaultValues = 2015, color = "red")
+
+export(last_plot(), file = "Ch10_pltlyb6.png")
+@
+
+\begin{center}
+\includegraphics[width=3in]{Ch10_pltlyb6.png}
+\end{center}
+
+
+<<>>=
+# Example from https://plotly-book.cpsievert.me/linking-views-without-shiny.html
+
+p <- ggplot(sd, aes(month, median, group = year)) + 
+  geom_line() +
+  facet_wrap(~city, ncol = 2)
+(gg <- ggplotly(p, tooltip = "year"))
+
+highlight(gg, on = "plotly_hover", persistent = TRUE, selectize = TRUE)
+
+export(last_plot(), file = "Ch10_pltlyb7.png")
+@
+
+\begin{center}
+\includegraphics[width=3in]{Ch10_pltlyb7.png}
+\end{center}
+
+
+<<>>=
+# Example from https://plotly-book.cpsievert.me/linking-views-without-shiny.html
+
+library(GGally)
+
+d <- SharedData$new(iris)
+p <- GGally::ggpairs(d, aes(color = Species), columns = 1:4)
+highlight(ggplotly(p), on = "plotly_selected")
+
+export(last_plot(), file = "Ch10_pltlyb8.png")
+@
+
+\begin{center}
+\includegraphics[width=3in]{Ch10_pltlyb8.png}
+\end{center}
+
+
+\newpage
+
+
+{\bf Interactive Maps}
+
+Note that choropleth maps and similar maps from {\it plotly}
+do not work in RStudio as discussed in
+\url{https://github.com/ropensci/plotly/issues/356},
+but they work fine in the web interface as can be seen at
+\url{https://plot.ly/r/choropleth-maps/}
+and
+\url{https://plot.ly/r/bubble-maps/}.
+
+
+<<>>=
+# Example from https://plot.ly/r/choropleth-maps/
+
+df <- read.csv("https://raw.githubusercontent.com/plotly/datasets/master/2011_us_ag_exports.csv")
+df$hover <- with(df, paste(state, '<br>', "Beef", beef, "Dairy", dairy, "<br>",
+                           "Fruits", total.fruits, "Veggies", total.veggies,
+                           "<br>", "Wheat", wheat, "Corn", corn))
+# give state boundaries a white border
+l <- list(color = toRGB("white"), width = 2)
+# specify some map projection/options
+g <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+
+p <- plot_geo(df, locationmode = 'USA-states') %>%
+  add_trace(
+    z = ~total.exports, text = ~hover, locations = ~code,
+    color = ~total.exports, colors = 'Purples'
+  ) %>%
+  colorbar(title = "Millions USD") %>%
+  layout(
+    title = '2011 US Agriculture Exports by State<br>(Hover for breakdown)',
+    geo = g
+  )
+
+p
+@
+
+
+<<>>=
+# Example from https://plotly-book.cpsievert.me/linking-views-without-shiny.html
+
+# requires an experimental version of leaflet
+# devtools::install_github("rstudio/leaflet#346")
+# devtools::install_github("rstudio/leaflet#346", lib = "C:/Program Files/R/R-3.4.3/library")
+
+library(leaflet)
+
+sd <- SharedData$new(quakes)
+
+# let plotly & leaflet know this is persistent selection
+options(persistent = TRUE)
+
+p <- plot_ly(sd, x = ~depth, y = ~mag) %>% 
+  add_markers(alpha = 0.5) %>%
+  highlight("plotly_selected", dynamic = TRUE)
+
+map <- leaflet(sd) %>% 
+  addTiles() %>% 
+  addCircles()
+
+bscols(widths = c(6, 6), p, map)
+@
+
+
+\newpage
+
+
+\subsubsection{R Package {\it shiny}}
+
+The R package {\it shiny} makes it easy to build interactive web applications with R.
+Automatic binding between inputs and outputs and extensive prebuilt widgets
+make it possible to build powerful applications with minimal effort.
+Additional details on {\it shiny} can be found at 
+\url{https://cran.r-project.org/web/packages/shiny/index.html},
+\url{https://shiny.rstudio.com/},
+and additional tutorials at 
+\url{http://rstudio.github.io/shiny/tutorial/}
+and
+\url{https://www.r-bloggers.com/building-shiny-apps-an-interactive-tutorial/}.
+It may be a good idea to start at 
+\url{http://shiny.rstudio.com/tutorial/written-tutorial/lesson1/}.
+\\
+
+A basic {\it shiny} app for linked micromaps has been developed by
+Markus Beck and is accessible at
+\url{https://beckmw.shinyapps.io/micromap_app/}.
+The source code is accessible at
+\url{https://github.com/fawda123/micromap_app}. \\
+
+A {\it shiny} app for google map overlays, linked micromap plots,
+and comparative micromaps has been developed by
+Sejin Park and is accessible at
+\url{https://s2c-maps.shinyapps.io/home/}. \\
+
+The {\it SpatialEpiApp} {\it shiny} app has been developed by
+Paula Moraga--Serrano. It allows users to visualize spatial and 
+spatio--temporal disease data, estimate disease risk, and detect clusters.
+At the core pf the app is a choropleth map that is linked to various
+statistical and tabular displays.
+Further details are available at
+\url{https://cran.r-project.org/web/packages/SpatialEpiApp/index.html},
+\url{https://www.showmeshiny.com/spatialepiapp/},
+\url{https://github.com/Paula-Moraga/SpatialEpiApp},
+and 
+\url{https://paula-moraga.github.io/software/}. \\
+
+
+\begin{verbatim}
+library(shiny)
+
+# The Shiny package has eleven built-in examples that each demonstrate how Shiny works. 
+# Each example is a self-contained Shiny app.
+
+# In case you RStudio crashes for some of the examples, do the following:
+#
+# 1) Update RStudio to the current version:
+#      Help -> Check for Updates
+#
+# 2) Update all R packages:
+#      update.packages(ask = FALSE, checkBuilt = TRUE, lib.loc = "C:/Program Files/R/R-3.4.3/library")
+#
+#    Adjust lib.loc to where your R library is located
+
+runExample("01_hello")
+runExample("02_text")
+runExample("03_reactivity")
+runExample("04_mpg")
+runExample("05_sliders")
+runExample("06_tabsets")
+runExample("07_widgets")
+runExample("08_html")
+runExample("09_upload")
+runExample("10_download")
+runExample("11_timer")
+\end{verbatim}
+
+
+\newpage
+
+
+{\bf Additional Shiny Examples:}
+
+\begin{verbatim}
+setwd("C://JUE//Teaching//Stat5810_Sp2018_StatVisualizationII//LectureNotes//ShinyApps")
+
+library(shiny)
+
+runApp("App-1")
+runApp("App-2")
+runApp("App-3")
+runApp("App-4")
+\end{verbatim}
+
+
+\newpage
+
+
+\subsection{Further Reading}
+
+
+Additional sources for interactive and dynamic graphics are:
+
+\begin{itemize}
+
+\item The Statistical Computing \& Statistical Graphics Video Library:
+{\it ``The graphics video library is an archive of great technical and historic interest 
+which captures much of the history of dynamic graphics for data analysis over 
+the past 30 years.''} --- see
+\url{http://stat-graphics.org/movies/}.
+
+\item Interactive and dynamic statistical graphics in a geographical context,
+linked to a Geographic Information System (GIS):
+\cite{SMCC94,CCMS94,SMC95,MCCKLS95,MCCS96,SMMC96Int,CMSC96,SMC96ACM,CSMC97,%
+SMC97IASC,SKSKCS97Int,SKSCL97ASA,SCKL98Army,LSC99,SCLMM00}.
+Related videos can be found at
+\url{http://stat-graphics.org/movies/}.
+
+\item Interactive and dynamic statistical graphics in Virtual Reality (VR) environments:
+\cite{SCKLC97IASC,CCLNOPS97,CCKLLNOPS98,NCC98,NCC99,WS99,WS2002}.
+Related videos can be found at
+\url{http://stat-graphics.org/movies/highly-immersive.html}.
+
+\end{itemize}
+
+
+\newpage
+
+
+~\\[3cm]
+
+\begin{figure}[ht]
+\centering{\includegraphics[height=4in]{Scans//Cartoonstock_HappyChart.jpg}}
+\caption{\label{Cartoonstock_HappyChart}
+\url{http://www.cartoonstock.com/blowup_stock.asp?imageref=vsh0603&artist=Shirvanian,+Vahan&topic=statistics+},
+Cartoon.
+}
+\end{figure}
+
+
+\newpage
+
+

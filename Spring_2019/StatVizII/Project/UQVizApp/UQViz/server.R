@@ -11,6 +11,11 @@ library(shiny)
 library(ggplot2)
 library(plotly)
 library(dplyr)
+library(shinyalert)
+library(shinyWidgets)
+
+## Increase max file upload size
+options(shiny.maxRequestSize=15*1024^2)
 
 ###############################################
 # Functions ###################################
@@ -67,12 +72,68 @@ cdf_df <-  data.frame(cdf_arr)
 values$valmax <- max(cdf_df[,1])
 values$valmin <- min(cdf_df[,1])
 values$userin <- NULL
+values$showcdf <- FALSE
+values$showpbx <- TRUE
 
 ###############################################
 # Server Logic ################################
 ###############################################
 shinyServer(function(input, output) {
 
+  observeEvent(input$cdfToggle, {
+    if(values$showcdf == FALSE){
+      shinyalert(
+        title = "",
+        callbackR = function(x){
+          values$showcdf <- x
+        },
+        text = "Showing the CDF ensemble on the plot may significantly increase plot render times. Do you want to continue?",
+        # confirmButtonCol = "#DD6B55",
+        showCancelButton = TRUE,
+        confirmButtonText = "Show CDFs",
+        cancelButtonText = "Don't Show CDFs",
+        confirmButtonCol = "#52D755",
+        type = "info"
+      )
+    } else {
+    values$showcdf <- FALSE
+    }
+  })
+  
+  observeEvent(input$pbxToggle, {
+    if(values$showpbx == FALSE){
+      values$showpbx <- TRUE
+    } else {
+      values$showpbx <- FALSE
+    }
+  })
+  
+  output$pbxBttn <- renderUI({
+    if (values$showpbx == TRUE){
+      lbl = "Hide P-box"
+      sty = "bordered"
+    } else {
+      lbl = "Show P-box"
+      sty = "simple"
+    }
+    
+    actionBttn(inputId = "pbxToggle", label = lbl, style = sty,
+               size = "sm", color = "primary")
+  })
+  
+  output$cdfBttn <- renderUI({
+    if (values$showcdf == TRUE){
+      lbl = "Hide CDFs"
+      sty = "bordered"
+    } else {
+      lbl = "Show CDFs"
+      sty = "simple"
+    }
+    
+    actionBttn(inputId = "cdfToggle", label = lbl, style = sty,
+               size = "sm", color = "primary")
+  })
+  
   output$uqPlot <- renderPlot({
     if(input$radioDataSource == "Sample Data"){
       values$data <- cdf_df
@@ -86,7 +147,7 @@ shinyServer(function(input, output) {
 
     req(values$data)
     plt <- ggplot(data = values$data, aes(values$data[,1]))
-    if(input$checkCDFs == TRUE){
+    if(values$showcdf == TRUE){
       for(i in names(values$data)[-1]){ 
         plt <- plt + geom_line(aes_string(y=i), alpha = input$sliderAlpha)
       }
@@ -106,7 +167,7 @@ shinyServer(function(input, output) {
             axis.text = element_text(size = 12),
             axis.title = element_text(size = 14))
     
-    if(input$checkPbox == TRUE){
+    if(values$showpbx == TRUE){
       pbox <- calc_pbox(values$data, (1 - input$pboxLower), (1 - input$pboxUpper))
       plt <- plt + 
         geom_line(aes(y = pbox[,1]), col = "red", lwd = 1) +
