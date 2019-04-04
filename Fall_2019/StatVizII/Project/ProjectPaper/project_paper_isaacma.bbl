@@ -1,0 +1,44 @@
+\begin{thebibliography}{8}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+
+\bibitem[{Chang and {Borges Ribeiro}(2018)}]{DASH}
+Chang, W., {Borges Ribeiro}, B., 2018. shinydashboard: Create Dashboards with
+  'Shiny'. R package version 0.7.1
+  (\url{https://CRAN.R-project.org/package=shinydashboard}).
+
+\bibitem[{Chang et~al.(2018)Chang, Cheng, Allaire, Xie, and McPherson}]{SHINY}
+Chang, W., Cheng, J., Allaire, J., Xie, Y., McPherson, J., 2018. shiny: Web
+  Application Framework for R. {R package version 1.2.0}
+  (\url{https://CRAN.R-project.org/package=shiny}).
+
+\bibitem[{Ewing et~al.(2018)Ewing, Liechty, and Black}]{EW2018}
+Ewing, M., Liechty, B.~C., Black, D., 2018. {A} {G}eneral {M}ethodology for
+  {U}ncertainty {Q}uantification in {E}ngineering {A}nalyses {U}sing a
+  {C}redible {P}robability {B}ox. Journal of Verification, Validation, and
+  Uncertainty Quantification 3~(2), \url{https://doi.org/10.1115/1.4041490}.
+
+\bibitem[{Kiureghian and Ditlevsen(2009)}]{KD2009}
+Kiureghian, A.~D., Ditlevsen, O., 2009. {A}leatory or {E}pistemic? {D}oes it
+  {M}atter? Structural Safety 31~(2),
+  \url{http://www.sciencedirect.com/science/article/pii/S0167473008000556}.
+
+\bibitem[{{RStudio Team}(2016)}]{RSTUDIO}
+{RStudio Team}, 2016. RStudio: Integrated Development Environment for R.
+  RStudio, Inc., Boston, MA, (\url{http://www.rstudio.com/}).
+
+\bibitem[{Sievert(2018)}]{PLOTLY}
+Sievert, C., 2018. plotly for R. ({\url{https://plotly-book.cpsievert.me}}).
+
+\bibitem[{Wickham(2016)}]{GGPLOT}
+Wickham, H., 2016. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag
+  New York, ({\url{http://ggplot2.org}}).
+
+\bibitem[{Wickham et~al.(2013)Wickham, Francois, Henry, and Muller}]{DPLYR}
+Wickham, H., Francois, R., Henry, L., Muller, K., 2013. dplyr: A {G}rammer of
+  {D}ata {M}anipulation. R package version 0.7.6.
+  (\url{https://CRAN.R-project.org/package=dplyr}).
+
+\end{thebibliography}

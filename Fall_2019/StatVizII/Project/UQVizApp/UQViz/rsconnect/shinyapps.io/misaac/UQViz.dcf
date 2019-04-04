@@ -1,0 +1,12 @@
+name: UQViz
+title: UQViz
+username:
+account: misaac
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 826826
+bundleId: 1980415
+url: https://misaac.shinyapps.io/UQViz/
+when: 1554175622.86558
+asMultiple: FALSE
+asStatic: FALSE

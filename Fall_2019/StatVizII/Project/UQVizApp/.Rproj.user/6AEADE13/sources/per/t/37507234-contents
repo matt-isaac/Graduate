@@ -1,0 +1,94 @@
+library(shiny)
+library(dplyr)
+library(reshape)
+library(ggplot2)
+
+ui <- fluidPage(
+  titlePanel("Shiny App"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(inputId = "dataselection", label = "Select Data", choices = c("mtcars", "USArrests"))
+    ),
+    mainPanel(
+      tabsetPanel(
+        tabPanel(title = "Preview Data",
+                 dataTableOutput(outputId = 'datapreview')),
+        tabPanel(title = "Plot Data",
+                 radioButtons(label = "plot type", inputId = "plottype", choices = c("scatter plot", "histogram", "boxplot")),
+                 uiOutput(outputId = "selectxOutput"),
+                 uiOutput(outputId = 'selectyOutput'),
+                 uiOutput(outputId = 'selectbinsOutput'),
+                 plotOutput(outputId = 'plotoutput')
+        )
+      )
+    )
+  )
+)
+
+server <- function(input, output){
+  
+  v <- reactiveValues(data = NULL)
+  
+  output$datapreview <- renderDataTable({
+    if(input$dataselection == 'mtcars'){
+      v$data <-  melt(mtcars)
+      data <-  mtcars
+    } else if(input$dataselection == 'USArrests'){
+      v$data <- melt(USArrests)
+      data <- USArrests
+    }
+  })
+  
+  output$selectxOutput <- renderUI(
+    if(input$plottype == "scatter plot"){
+      nms <- v$data$variable
+      selectInput(inputId = "selectxInput", label = "X variable", choices = nms)
+    } else if(input$plottype == "histogram"){
+      nms <- v$data$variable
+      selectInput(inputId = "selectxInput", label = "Variable", choices = nms)
+    }
+  )
+  
+  output$selectyOutput <- renderUI(
+    if(input$plottype == "scatter plot"){
+      nms <- v$data$variable
+      selectInput(inputId = "selectyInput", label = "Y variable", choices = nms)
+    }
+  )
+  
+  output$selectxOutput <- renderUI(
+    if(input$plottype == "scatter plot"){
+      nms <- v$data$variable
+      selectInput(inputId = "selectxInput", label = "X variable", choices = nms)
+    } else if(input$plottype == "histogram" | input$plottype == 'boxplot'){
+      nms <- v$data$variable
+      selectInput(inputId = "selectxInput", label = "Variable", choices = nms)
+    }
+  )
+  
+  output$selectbinsOutput <- renderUI(
+    if(input$plottype == "histogram"){
+      sliderInput(inputId = "selectbinsInput", min = 1, max = 50, value = 10, label = "Number of Bins", step = 1)
+    }
+  )
+  
+  
+  output$plotoutput <- renderPlot({
+    if(input$plottype == "scatter plot"){
+      req(input$selectxInput, input$selectyInput)
+      x <- filter(v$data, variable == input$selectxInput)$value
+      y <- filter(v$data, variable == input$selectyInput)$value
+      plot(x, y, xlab = input$selectxInput, ylab = input$selectyInput, main = input$dataselection)
+    }else if(input$plottype == "histogram"){
+      req(input$selectxInput)
+      x <- filter(v$data, variable == input$selectxInput)$value
+      hist(x, breaks = input$selectbinsInput, xlab = input$selectxInput, main = input$dataselection)
+    }else if(input$plottype == "boxplot"){
+      req(input$selectxInput)
+      x <- filter(v$data, variable == input$selectxInput)$value
+      boxplot(x, main = input$dataselection)
+    }
+  })
+}
+
+shinyApp(ui, server)

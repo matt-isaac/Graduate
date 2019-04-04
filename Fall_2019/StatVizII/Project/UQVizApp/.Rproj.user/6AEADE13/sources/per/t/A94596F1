@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1553542411363.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "4005304169",
+    "id" : "A94596F1",
+    "lastKnownWriteTime" : 1554342205,
+    "last_content_update" : 1554342205638,
+    "path" : "C:/Users/misaa/Dropbox/Matt/Sp19/StatViz II/Project/UQVizApp/UQViz/server.R",
+    "project_path" : "UQViz/server.R",
+    "properties" : {
+        "cursorPosition" : "116,22",
+        "scrollLine" : "100"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
