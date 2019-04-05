@@ -5,8 +5,8 @@ account: misaac
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 826826
-bundleId: 1980415
+bundleId: 1990174
 url: https://misaac.shinyapps.io/UQViz/
-when: 1554175622.86558
+when: 1554496975.03006
 asMultiple: FALSE
 asStatic: FALSE
