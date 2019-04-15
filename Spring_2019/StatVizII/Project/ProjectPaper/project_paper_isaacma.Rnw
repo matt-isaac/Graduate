@@ -46,7 +46,7 @@ Uncertainty quantification is a class of methods used to simulate the ways that 
 
 Uncertainty quantification is a methodological framework used with some frequency in engineering analysis \citep{EW2018}. It is used to understand how variability  within the parameters (i.e. inputs) to some system impact the end state of that system. Engineering analysts use uncertainty quantification to assess and find the balance between design sufficiency and design efficiency. This is particularly important in fields where large-scale prototypes, testing, and data collection are extremely expensive. Engineers in these types of applications are increasingly relying on computational simulations to assess system designs.
 
-In the following article, I outline the implementation of an interactive tool to visualize uncertainty quantification results. The outline of this article will proceed as follows: In Section~\ref{UQOverview}, a brief overview of uncertainty quantification is given. In Section~\ref{Methods}, the methods by which the visualization tool was developed are described. In Section~\ref{Results}, the resulting web application is described and screenshots of the web application are shown. In Section~\ref{Future}, future enhancements to the web application are discussed. The code written to generate the {\tt shiny} app is included in the Appendix.
+In the following article, I outline the implementation of an interactive tool to visualize uncertainty quantification results. The outline of this article will proceed as follows: In Section~\ref{UQOverview}, a brief overview of uncertainty quantification is given. In Section~\ref{Methods}, the methods by which the visualization tool was developed are described. In Section~\ref{Results}, features of the resulting web application is described. In Section~\ref{Discussion}, challenges with and future enhancements to the web application are discussed. The code written to generate the {\tt shiny} app is included in the Appendix.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uncertainty Quantification Overview}  
@@ -73,75 +73,94 @@ At this point, there will be $m$ empirical CDFs that have been calculated, repre
 \label{Methods}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-In order to assist analysts in visualizing and interpreting results from an uncertainty quantification analysis as described in Section~\ref{UQOverview}, an interactive visualization tool was developed. Since the actual uncertainty quantification analysis can be carried out with greater speed and computational power elsewhere, this implementation does not include the Monte Carlo portion of the implementation described in Section~\ref{UQOverview}. The web application was built using the {\tt shiny R} package and the code for this application is contained in two files. The first file, {\tt ui.R} (short for `user interface') contains the code that controls the layout of the various panels and panes in the application, as well as the placement of the user interface elements (i.e. text inputs, sliders, etc.). The {\tt server.R} file contains the computational code that performs calculations, data manipulation, and generates the plots. See Section~\ref{Appendix} for the source code. 
+In order to assist analysts in visualizing and interpreting results from an uncertainty quantification analysis as described in Section~\ref{UQOverview}, an interactive visualization tool was developed. Since the actual uncertainty quantification analysis can be carried out with greater speed and computational power elsewhere, this implementation does not include the Monte Carlo portion of the algorithm described in Section~\ref{UQOverview}. The web application was built using the {\tt shiny R} package \citep{SHINY} and the code for this application is contained in two files. The first file, {\tt ui.R} (short for `user interface') contains the code that controls the layout of the various panels and panes in the application, as well as the placement of the user interface elements (i.e. text inputs, sliders, etc.). The {\tt server.R} file contains the computational code that performs calculations, data manipulation, and generates the plots. The source code is included in the Appendix.
 
 \subsection{{\tt R} Packages}
-The following packages and methods were used in the development of the web application:
+The following software packages were used in the development of the web application:
 
 \begin{description}
 
-\item[{\bf dplyr:}] The {\tt dplyr} package \citep{DPLYR} is a data-wrangling and manipulation package implemented in {\tt R}. The methods in this package were used to manage and manipulate the CDFs from the {\tt .csv} file into a convenient format for plotting. 
+\item[{\bf R:}] The code for the web application was written in the {\tt R} programming language \citep{R}.
+
+\item[{\bf RStudio:}] Rstudio \citep{RSTUDIO} is an integrated development environment that was used to both develop and deploy the web application.
 
 \item[{\bf shiny:}] The {\tt shiny} package and framework \citep{SHINY} constitues the backbone of this project. {\tt shiny} provides a way to create and deploy web applications through RStudio \citep{RSTUDIO}. It also contains the implementations for all user-interface components (toggle buttons, check boxes, numeric inputs, sliders, etc.). The {\tt shinydashboard} package \citep{DASH} was also used as an aesthetic wrapper around the {\tt shiny} framework. The {\tt shiny} package was be used to create and will be used to deploy the web application.
 
 \item[{\bf ggplot2:}] The plotting functionality of the {\tt ggplot2} package \citep{GGPLOT} was used to generate the actual visualization and to add, remove, or adjust components on the plot. 
 
-\item[{\bf plotly:}] The {\tt plotly} package \citep{PLOTLY} is not currently used in the implementation, but may be used to add additional interactive capabilities to the plot. {\tt plotly} includes a method called {\tt ggplotly()} which could be used to convert the {\tt ggplot} plot object to a {\tt plotly} plot object. The {\tt plotly} plots contain options to zoom in and out on a plot, show plot values when hovering with mouse, download and save a {\tt .png} version of the plot, and download and save an interactive {\tt html} version of the plot. 
+\item[{\bf shinydashboard:}] The {\tt shinydashboard} package \citep{DASH} was used as an aesthetic wrapper to the web application to improve its professional appearance. 
+
+\item[{\bf shinyalert:}] The {\tt shinyalert} package \citep{SALERT} was used to create a pop-up message when the user takes certain actions.
+
+\item[{\bf shinyWidgets:}] The {\tt shinyWidgets} package \citep{SWIDGET} was used to create custom toggle buttons.
+
 \end{description}
 
 \vspace{5mm}
 
-Since the existing {\tt R} packages already implemented most of the tools needed to generate the plot and implement user interface elements, the primary task on this project was to seamlessly combine elements from the packages above (particularly the {\tt shiny}, {\tt ggplot2}, and {\tt plotly} packages) to create a user-friendly interactive visualization tool. 
-
-% \subsection{User Guide}
-% Users begin by selecting a data source using toggle buttons, selecting either provided sample data, or uploading a {.csv} file. An uploaded {\tt .csv} file should contain the 'x' values (i.e. values of the SRQ that the CDf is evaluated over) in the first column and individual values of the CDFs in the rest of the columns. 
+Since the existing {\tt R} packages already implemented most of the tools needed to generate the plot and implement user interface elements, the primary task on this project was to seamlessly combine elements from the packages above (particularly the {\tt shiny}, {\tt ggplot2} packages) to create a user-friendly interactive visualization tool. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 \label{Results}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Features}
-The resulting web application currently has the several features implemented. First, the capability was added to allow the user to upload their own data from a {\tt .csv} file to be used in the visualization. If users want to experiment with the visualization but don't have their own data readily on hand, they can also choose to use some provided sample data.  Once the data source is specified by the user, several options are provided to allow customization of the visualization. Users can show or hide the P-box, as well as specify the upper and lower percentiles to be used in the P-box calculation. The CDF ensemble can also be toggled on and off so only the P-box is shown. Oftentimes there are hundreds or thousands of CDFs to be plotted, so naturally a lot of overplotting can occur. A slider is included in the control panel to adjust the tranparency of the CDFs. A download button has also been provided so users can download and save a {\tt .png} file of the current rendering of the plot. 
+The resulting web application currently several main features implemented. The web application is currently deployed at \url{https://misaac.shinyapps.io/UQViz/}. The following subsections outlines the basic functionality. 
 
-% \begin{itemize}
-% \item experiment with provided sample data
-% \item upload data from a {\tt .csv} file 
-% \item toggle P-box on/off
-% \item toggle CDF ensemble on/off
-% \item select upper and lower percentiles to be used in P-box calculation
-% \item select level of transparency for CDF ensemble
-% \item download and save the visualization in its current state
-% \item view user manual
-% \end{itemize}
+\subsection{Data Source}
+The `Data Source' tab contains the controls that allow the user to select either a sample data set (provided for convenience) or to upload their own {\tt .csv} file. If data from a file is to be used, the x-values over which the CDFs are evaluated should be the first column, and the CDF y-values in the following columns. 
 
-A few preliminary screenshots from the web application are included in this article. Figure~\ref{dwnld_plt} shows downloaded plots with various plotting options selected (show/hide P-box and CDFs). Figure~\ref{full} shows a full-view screenshot of the application.  
+\subsection{Visualization Options}
+Several visualization options are provided to allow customizable graphics to be created. The `Show/Hide P-box' and the `Show/Hide CDFs' buttons toggle back and forth between showing and hiding the red P-box and the black ensemble of CDFs. Note that showing the CDF ensemble may (depending on the size of the uploaded file) significantly increase plot rendering times.
+
+The P-box lower and upper percentiles default to 0.05 and 0.95. Users can modify this by inputting the desired lower and upper percentile to be used in the visualization. 
+
+Moving the `CDF Transparency' slider will make each individual CDF trace more or less transparent. A slider value of 1 corresponds to completely opaque, while a slider value of 0 corresponds to completely transparent. This mitigates the issue of overplotting that can often arise when hundreds or thousands traces are shown on the same plot. Allowing for some transparency allows the user to visualize the density of regions within the CDF ensemble. Figure~\ref{viz_opt} shows plots with several possible visualization options selected. A screenshot of the visualization option control panel is shown in Figure~\ref{tab_vo}.
 
 \begin{figure}[t]
 \begin{center} 
-\includegraphics[height=4.3cm,width=4.3cm]{figures2/dwnld_plt_cdfs.png}
-\includegraphics[height=4.3cm,width=4.3cm]{figures2/dwnld_plt_pbx.png}
-\includegraphics[height=4.3cm,width=4.3cm]{figures2/dwnld_plt.png} 
+\includegraphics[height=4.2cm,width=4.5cm]{figures2/pbx_only.png}
+\includegraphics[height=4.1cm,width=4.5cm]{figures2/pbx_cdf_d.png}
+\includegraphics[height=4.1cm,width=4.5cm]{figures2/pbx_cdf_l.png} 
 \end{center} 
-\caption{\label{dwnld_plt}Plots downloaded and saved from the web application.}
+\caption{\label{viz_opt}Visualization with P-box shown and CDfs hidden (left); Visualization with P-box and CDFs both shown with high transparency (center) and low transparency (right)}
 \end{figure}
+
 
 \begin{figure}[t]
 \begin{center} 
-\includegraphics[height=8cm,width=15.5cm]{figures2/SS_full.png}
+\includegraphics[height=2cm,width=14cm]{figures2/tab_vo.png}
 \end{center} 
-\caption{\label{full}Full screenshot.}
+\caption{\label{tab_vo}Screenshot from the web application of the visualization option control panel}
 \end{figure}
+
+To aid with interpretation, both probability intervals and SRQ intervals can be extracted from the P-box shown in the visualization, as described in \cite{EW2018}. To extract a probability interval, the user selects an SRQ value at which a line is drawn vertically. The intersections of the vertical line with the P-box create the lower and upper endpoints for the probability interval. In a similar process, the user can also extract a SRQ interval by selecting a probability value at which a line is drawn horizontally. The intersections of the horizontal line with the P-box create the SRQ interval. This process is illustrated in Figure~\ref{ext_int}. 
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[height=5cm,width=6cm]{figures2/prob_int.png}
+\includegraphics[height=5cm,width=6.5cm]{figures2/srq_int.png}
+\end{center}
+\caption{\label{ext_int}Extracting a probability interval (left); Extracting an SRQ interval (right)}
+\end{figure}
+
+A title and can be added to the plot and the x-axis label can be changed from the default label of `SRQ'. This allows users to futher customize the visualization to a specific domain or context. 
+
+Users can download and save a {\tt .png} version of the current rendering of the visualization by providing a file name and clicking the `Download' button. 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+\label{Discussion}
+%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Challenges}
-One main challenge with this visualization tool that was unanticipated was the time that it would take to render the plot. The nature of uncertainty quantificataion and the nature of this kind of visualization leads to there being hundreds or even thousands of traces on a single plot. In addition, the way the {\tt shiny} package is implemented causes the plot to completely re-render when user inputs change. Thus, whenever the user selects a new plotting option, he or she must wait several seconds (depending on the size of the data set being used) for the plot to re-render. This leads to a less `interactive' feel for the user. As this application is still under development, possibilites for decreasing the re-rendering time of the plots are being explored. 
+One main challenge with this visualization tool is the time that it would takes to render the plot when the CDF ensemble is shown. The nature of uncertainty quantificataion and this kind of visualization leads to there being hundreds or even thousands of traces on a single plot. In addition, the way the interactive features are implemented through the {\tt shiny} package causes the plot to completely re-render when user inputs change. Thus, whenever the user selects a new plotting option and the CDFs are currently shown, he or she must wait several seconds (depending on the size of the data set being used) for the plot to re-render. This leads to a less `interactive' feel for the user. No immediate or direct solution has been found for this issue yet. However, an effective workaround, as described the the User Guide tab on the web application, has been suggested. If the user wishes to display the CDF ensemble on the final version of the plot, it is suggested to adjust all visualization options and controls while the CDFs are hidden, keeping the plot rendering times to a reasonable length. Then, as the last step, show the CDF ensemble. This way, the user will only have to wait once for the long rendering time.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Future Work}
-\label{Future}
-%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Future Work}
+Further work in developing this visualization tool may involve researching other methods for visualizing uncertainty, such as the methods described in \cite{JA2008}, and implementing several methods for visualization. This would allow users to choose from various visualization methods within the web application to create a graphic that is best suited to a given context. Another extension of this visualization tool could be to use it in a self contained UQ tool, where users could perform the entire UQ algorithm from start to finish. For example, users could define the engineering model to be used, define parameters as aleatory or epistemic, carry out the UQ algorithm, and visualize the results. However, as the web application now stands, it can be used to assist engineers and analysts in visualizing, understanding, and interpreting results from uncertainty quantification analyses. 
 
-In the next two weeks I plan to fine-tune the visualization tool and produce a polished final product. There is also one more major feature to implement that will greatly aid in the interpretabilty of the visualization. This feature is the ability for a user to input an SRQ value and extract a probability range, as well as the ability to input a probability and extract an SRQ range. Finishing touches will also include adjusting the spacing between controls to improve aesthetics and adding a user manual/help page. 
 
 \newpage
 
@@ -158,17 +177,19 @@ In the next two weeks I plan to fine-tune the visualization tool and produce a p
 \label{Appendix}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-{\tt R} code for {\tt shiny} web application.
+% {\tt R} code for {\tt shiny} web application.
 
-\subsection{{\tt ui.R}}
+\subsection{Source Code: {\tt ui.R}}
 
-\scriptsize{
+{\scriptsize
 <<eval=FALSE, tidy.opts = list(blank = FALSE, width.cutoff = 60)>>=
 library(shiny)
 library(shinydashboard)
 library(plotly)
 library(shinyalert)
 library(shinyWidgets)
+
+cranURL <- "https://cran.r-project.org/web/packages/"
 
 dashboardPage(
   dashboardHeader(
@@ -271,11 +292,15 @@ dashboardPage(
                h3("Overview"),
                h5("UQViz is an interactive tool that can be used 
                   to create meaningful visualizations of
-                  '2D Uncertainty Quantification' (for more
-                  information on 2D UQ, see ", 
-                  tags$a(href = "http://verification.asmedigitalcollection.asme.org/article.aspx?articleid=2703289&resultClick=1",
+                  '2D Uncertainty Quantification' 
+                  (for more information on 2D UQ, see ", 
+                  tags$a(
+                    href = paste0("http://verification.asmedigitalcollection",
+                                  ".asme.org",
+                                  "/article.aspx?articleid=",
+                                  "2703289&resultClick=1"),
                          "this article",
-                         target="_blank"), 
+                         target = "_blank"), 
                   "). Users can select data source and adjust various 
                   visual components and labels. The title and axis
                   label can also be customized, and the visualization 
@@ -392,26 +417,26 @@ dashboardPage(
                        were used in development: "),
                tags$div(tags$ul(
                  tags$li(tags$span(tags$a(href = "https://www.R-project.org/",
-                                          target="_blank",
+                                          target = "_blank",
                                           "R"))),
                  tags$li(tags$span(tags$a(href = "http://www.rstudio.com/",
-                                          target="_blank",
+                                          target = "_blank",
                                           "RStudio"))),
                  tags$li(tags$span(tags$a(
-                   href = "https://cran.r-project.org/web/packages/shiny/index.html",
-                   target="_blank",
+                   href = paste0(cranURL, "shiny/index.html"),
+                   target = "_blank",
                    "shiny"))),
                  tags$li(tags$span(tags$a(
-                   href = "https://cran.r-project.org/web/packages/ggplot2/index.html",
-                   target="_blank",
+                   href = paste0(cranURL, "ggplot2/index.html"),
+                   target=  "_blank",
                    "ggplot2"))),
                  tags$li(tags$span(tags$a(
-                   href = "https://cran.r-project.org/web/packages/shinyWidgets/index.html",
-                   target="_blank",
+                   href = paste0(cranURL,"shinyWidgets/index.html"),
+                   target = "_blank",
                    "shinyWidgets"))),
                  tags$li(tags$span(tags$a(
-                   href = "https://cran.r-project.org/web/packages/shinydashboard/index.html",
-                   target="_blank",
+                   href = paste0(cranURL,"shinydashboard/index.html"),
+                   target = "_blank",
                    "shinydashboard"))))
                )
       )
@@ -440,8 +465,8 @@ dashboardPage(
 @
 }
 
-\subsection{{\tt server.R}}
-\scriptsize{
+\subsection{Source Code: {\tt server.R}}
+{\scriptsize
 <<eval=FALSE>>=
 # Load needed packages
 library(shiny)

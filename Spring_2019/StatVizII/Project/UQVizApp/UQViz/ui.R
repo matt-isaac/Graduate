@@ -4,6 +4,8 @@ library(plotly)
 library(shinyalert)
 library(shinyWidgets)
 
+cranURL <- "https://cran.r-project.org/web/packages/"
+
 dashboardPage(
   dashboardHeader(
     title = "UQViz"
@@ -105,10 +107,15 @@ dashboardPage(
                h3("Overview"),
                h5("UQViz is an interactive tool that can be used 
                   to create meaningful visualizations of
-                  '2D Uncertainty Quantification' (for more information on 2D UQ, see ", 
-                  tags$a(href = "http://verification.asmedigitalcollection.asme.org/article.aspx?articleid=2703289&resultClick=1",
+                  '2D Uncertainty Quantification' 
+                  (for more information on 2D UQ, see ", 
+                  tags$a(
+                    href = paste0("http://verification.asmedigitalcollection",
+                                  ".asme.org",
+                                  "/article.aspx?articleid=",
+                                  "2703289&resultClick=1"),
                          "this article",
-                         target="_blank"), 
+                         target = "_blank"), 
                   "). Users can select data source and adjust various 
                   visual components and labels. The title and axis
                   label can also be customized, and the visualization 
@@ -225,26 +232,26 @@ dashboardPage(
                        were used in development: "),
                tags$div(tags$ul(
                  tags$li(tags$span(tags$a(href = "https://www.R-project.org/",
-                                          target="_blank",
+                                          target = "_blank",
                                           "R"))),
                  tags$li(tags$span(tags$a(href = "http://www.rstudio.com/",
-                                          target="_blank",
+                                          target = "_blank",
                                           "RStudio"))),
                  tags$li(tags$span(tags$a(
-                   href = "https://cran.r-project.org/web/packages/shiny/index.html",
-                   target="_blank",
+                   href = paste0(cranURL, "shiny/index.html"),
+                   target = "_blank",
                    "shiny"))),
                  tags$li(tags$span(tags$a(
-                   href = "https://cran.r-project.org/web/packages/ggplot2/index.html",
-                   target="_blank",
+                   href = paste0(cranURL, "ggplot2/index.html"),
+                   target=  "_blank",
                    "ggplot2"))),
                  tags$li(tags$span(tags$a(
-                   href = "https://cran.r-project.org/web/packages/shinyWidgets/index.html",
-                   target="_blank",
+                   href = paste0(cranURL,"shinyWidgets/index.html"),
+                   target = "_blank",
                    "shinyWidgets"))),
                  tags$li(tags$span(tags$a(
-                   href = "https://cran.r-project.org/web/packages/shinydashboard/index.html",
-                   target="_blank",
+                   href = paste0(cranURL,"shinydashboard/index.html"),
+                   target = "_blank",
                    "shinydashboard"))))
                )
       )
