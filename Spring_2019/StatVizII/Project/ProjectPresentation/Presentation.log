@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6500 64-bit) (preloaded format=pdflatex 2017.11.6)  3 APR 2019 20:15
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6500 64-bit) (preloaded format=pdflatex 2017.11.6)  8 APR 2019 21:20
 entering extended mode
 **./Presentation.tex
 (Presentation.tex
@@ -970,10 +970,6 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [3
 
 ]
-Overfull \vbox (4.23598pt too high) detected at line 148
- []
-
-
 Overfull \hbox (3.9597pt too wide) has occurred while \output is active
  [][][][]  
  []
@@ -986,21 +982,21 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [4
 
 ]
-LaTeX Font Info:    Try loading font information for U+msa on input line 163.
+LaTeX Font Info:    Try loading font information for U+msa on input line 166.
  ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 163.
+LaTeX Font Info:    Try loading font information for U+msb on input line 166.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10.95> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 163.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 166.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <8> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 163.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 166.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <6> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 163.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 166.
 
 Overfull \hbox (3.9597pt too wide) has occurred while \output is active
  [][][][]  
@@ -1014,13 +1010,17 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [5
 
 ]
-<figures/uq_algo.png, id=262, 568.524pt x 416.757pt>
+<figures/uq_algo.png, id=262, 611.28375pt x 451.6875pt>
 File: figures/uq_algo.png Graphic file (type png)
 <use figures/uq_algo.png>
-Package pdftex.def Info: figures/uq_algo.png  used on input line 173. on input 
-line 173.
-Package pdftex.def Info: Requested size: 213.3955pt x 170.71886pt on input line
- 173.
+Package pdftex.def Info: figures/uq_algo.png  used on input line 176. on input 
+line 176.
+Package pdftex.def Info: Requested size: 234.73402pt x 184.94495pt on input lin
+e 176.
+
+Overfull \vbox (5.67947pt too high) detected at line 176
+ []
+
 
 Overfull \hbox (3.9597pt too wide) has occurred while \output is active
  [][][][]  
@@ -1037,10 +1037,10 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 <figures/viz_exmp.png, id=296, 404.10976pt x 263.18324pt>
 File: figures/viz_exmp.png Graphic file (type png)
 <use figures/viz_exmp.png>
-Package pdftex.def Info: figures/viz_exmp.png  used on input line 183. on input
- line 183.
+Package pdftex.def Info: figures/viz_exmp.png  used on input line 186. on input
+ line 186.
 Package pdftex.def Info: Requested size: 142.2668pt x 113.80911pt on input line
- 183.
+ 186.
 
 Overfull \hbox (3.9597pt too wide) has occurred while \output is active
  [][][][]  
@@ -1069,12 +1069,12 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 <figures/proto_app_layout.png, id=364, 460.119pt x 277.035pt>
 File: figures/proto_app_layout.png Graphic file (type png)
 <use figures/proto_app_layout.png>
-Package pdftex.def Info: figures/proto_app_layout.png  used on input line 208. 
-on input line 208.
+Package pdftex.def Info: figures/proto_app_layout.png  used on input line 211. 
+on input line 211.
 Package pdftex.def Info: Requested size: 312.99612pt x 199.16913pt on input lin
-e 208.
+e 211.
 
-Overfull \vbox (4.96867pt too high) detected at line 208
+Overfull \vbox (4.96867pt too high) detected at line 211
  []
 
 
@@ -1090,6 +1090,10 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [9
 
  <./figures/proto_app_layout.png>]
+Overfull \vbox (3.80211pt too high) detected at line 229
+ []
+
+
 Overfull \hbox (7.29565pt too wide) has occurred while \output is active
  [][][][]  
  []
@@ -1114,13 +1118,13 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [11
 
 ]
-<figures/tab_ds.png, id=472, 308.352pt x 171.039pt>
+<figures/tab_ds.png, id=474, 415.5525pt x 171.64125pt>
 File: figures/tab_ds.png Graphic file (type png)
 <use figures/tab_ds.png>
-Package pdftex.def Info: figures/tab_ds.png  used on input line 249. on input l
-ine 249.
-Package pdftex.def Info: Requested size: 170.71863pt x 85.36008pt on input line
- 249.
+Package pdftex.def Info: figures/tab_ds.png  used on input line 254. on input l
+ine 254.
+Package pdftex.def Info: Requested size: 199.17125pt x 85.35683pt on input line
+ 254.
 
 Overfull \hbox (7.29565pt too wide) has occurred while \output is active
  [][][][]  
@@ -1134,13 +1138,13 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [12
 
  <./figures/tab_ds.png>]
-<figures/tab_vo.png, id=505, 663.07726pt x 145.14224pt>
+<figures/tab_vo.png, id=507, 628.14674pt x 145.14224pt>
 File: figures/tab_vo.png Graphic file (type png)
 <use figures/tab_vo.png>
-Package pdftex.def Info: figures/tab_vo.png  used on input line 260. on input l
-ine 260.
-Package pdftex.def Info: Requested size: 312.98189pt x 64.0178pt on input line 
-260.
+Package pdftex.def Info: figures/tab_vo.png  used on input line 265. on input l
+ine 265.
+Package pdftex.def Info: Requested size: 284.53244pt x 64.0178pt on input line 
+265.
 
 Overfull \hbox (7.29565pt too wide) has occurred while \output is active
  [][][][]  
@@ -1156,31 +1160,31 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
  <./figures/tab_vo.png>]
 File: figures/tab_vo.png Graphic file (type png)
 <use figures/tab_vo.png>
-Package pdftex.def Info: figures/tab_vo.png  used on input line 273. on input l
-ine 273.
-Package pdftex.def Info: Requested size: 312.98189pt x 64.0178pt on input line 
-273.
-<figures/pbx.png, id=539, 511.31026pt x 360.1455pt>
+Package pdftex.def Info: figures/tab_vo.png  used on input line 278. on input l
+ine 278.
+Package pdftex.def Info: Requested size: 312.98953pt x 64.0178pt on input line 
+278.
+<figures/pbx.png, id=541, 511.31026pt x 360.1455pt>
 File: figures/pbx.png Graphic file (type png)
 <use figures/pbx.png>
-Package pdftex.def Info: figures/pbx.png  used on input line 273. on input line
- 273.
+Package pdftex.def Info: figures/pbx.png  used on input line 278. on input line
+ 278.
 Package pdftex.def Info: Requested size: 99.58415pt x 85.3541pt on input line 2
-73.
-<figures/pbx_cdf_l.png, id=540, 508.299pt x 351.714pt>
+78.
+<figures/pbx_cdf_l.png, id=542, 508.299pt x 351.714pt>
 File: figures/pbx_cdf_l.png Graphic file (type png)
 <use figures/pbx_cdf_l.png>
-Package pdftex.def Info: figures/pbx_cdf_l.png  used on input line 273. on inpu
-t line 273.
+Package pdftex.def Info: figures/pbx_cdf_l.png  used on input line 278. on inpu
+t line 278.
 Package pdftex.def Info: Requested size: 99.57938pt x 85.35762pt on input line 
-273.
-<figures/pbx_cdf_d.png, id=541, 507.69675pt x 349.90726pt>
+278.
+<figures/pbx_cdf_d.png, id=543, 507.69675pt x 349.90726pt>
 File: figures/pbx_cdf_d.png Graphic file (type png)
 <use figures/pbx_cdf_d.png>
-Package pdftex.def Info: figures/pbx_cdf_d.png  used on input line 273. on inpu
-t line 273.
+Package pdftex.def Info: figures/pbx_cdf_d.png  used on input line 278. on inpu
+t line 278.
 Package pdftex.def Info: Requested size: 99.5776pt x 85.35695pt on input line 2
-73.
+78.
 
 Overfull \hbox (7.29565pt too wide) has occurred while \output is active
  [][][][]  
@@ -1194,20 +1198,20 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [14
 
  <./figures/pbx.png> <./figures/pbx_cdf_l.png> <./figures/pbx_cdf_d.png>]
-<figures/tab_lb.png, id=576, 324.61275pt x 89.73524pt>
+<figures/tab_lb.png, id=578, 415.5525pt x 89.73524pt>
 File: figures/tab_lb.png Graphic file (type png)
 <use figures/tab_lb.png>
-Package pdftex.def Info: figures/tab_lb.png  used on input line 285. on input l
-ine 285.
-Package pdftex.def Info: Requested size: 156.49092pt x 42.67807pt on input line
- 285.
-<figures/plt_labeled.png, id=577, 514.3215pt x 361.35pt>
+Package pdftex.def Info: figures/tab_lb.png  used on input line 290. on input l
+ine 290.
+Package pdftex.def Info: Requested size: 199.17125pt x 42.67807pt on input line
+ 290.
+<figures/plt_labeled.png, id=579, 599.841pt x 364.36125pt>
 File: figures/plt_labeled.png Graphic file (type png)
 <use figures/plt_labeled.png>
-Package pdftex.def Info: figures/plt_labeled.png  used on input line 285. on in
-put line 285.
-Package pdftex.def Info: Requested size: 170.71545pt x 113.80931pt on input lin
-e 285.
+Package pdftex.def Info: figures/plt_labeled.png  used on input line 290. on in
+put line 290.
+Package pdftex.def Info: Requested size: 170.71848pt x 113.807pt on input line 
+290.
 
 Overfull \hbox (7.29565pt too wide) has occurred while \output is active
  [][][][]  
@@ -1233,22 +1237,22 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [16
 
 ]
-<figures/prob_int_ctrl.png, id=642, 283.65974pt x 121.6545pt>
+<figures/prob_int_ctrl.png, id=644, 283.65974pt x 121.6545pt>
 File: figures/prob_int_ctrl.png Graphic file (type png)
 <use figures/prob_int_ctrl.png>
-Package pdftex.def Info: figures/prob_int_ctrl.png  used on input line 304. on 
-input line 304.
+Package pdftex.def Info: figures/prob_int_ctrl.png  used on input line 309. on 
+input line 309.
 Package pdftex.def Info: Requested size: 92.46965pt x 35.56476pt on input line 
-304.
-<figures/prob_int.png, id=643, 519.74174pt x 342.078pt>
+309.
+<figures/prob_int.png, id=645, 519.74174pt x 342.078pt>
 File: figures/prob_int.png Graphic file (type png)
 <use figures/prob_int.png>
-Package pdftex.def Info: figures/prob_int.png  used on input line 304. on input
- line 304.
+Package pdftex.def Info: figures/prob_int.png  used on input line 309. on input
+ line 309.
 Package pdftex.def Info: Requested size: 227.62437pt x 163.60574pt on input lin
-e 304.
+e 309.
 
-Overfull \vbox (5.97005pt too high) detected at line 304
+Overfull \vbox (5.97005pt too high) detected at line 309
  []
 
 
@@ -1264,22 +1268,22 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 [17
 
  <./figures/prob_int_ctrl.png> <./figures/prob_int.png>]
-<figures/srq_int_ctrl.png, id=677, 284.262pt x 121.05225pt>
+<figures/srq_int_ctrl.png, id=679, 284.262pt x 121.05225pt>
 File: figures/srq_int_ctrl.png Graphic file (type png)
 <use figures/srq_int_ctrl.png>
-Package pdftex.def Info: figures/srq_int_ctrl.png  used on input line 313. on i
-nput line 313.
+Package pdftex.def Info: figures/srq_int_ctrl.png  used on input line 318. on i
+nput line 318.
 Package pdftex.def Info: Requested size: 92.4708pt x 35.56602pt on input line 3
-13.
-<figures/srq_int.png, id=678, 530.58224pt x 343.88475pt>
+18.
+<figures/srq_int.png, id=680, 530.58224pt x 343.88475pt>
 File: figures/srq_int.png Graphic file (type png)
 <use figures/srq_int.png>
-Package pdftex.def Info: figures/srq_int.png  used on input line 313. on input 
-line 313.
+Package pdftex.def Info: figures/srq_int.png  used on input line 318. on input 
+line 318.
 Package pdftex.def Info: Requested size: 234.73608pt x 163.60406pt on input lin
-e 313.
+e 318.
 
-Overfull \vbox (5.96964pt too high) detected at line 313
+Overfull \vbox (5.96964pt too high) detected at line 318
  []
 
 
@@ -1308,8 +1312,8 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 
 ]
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <9> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 340.
-LaTeX Font Info:    Try loading font information for OMS+phv on input line 340.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 347.
+LaTeX Font Info:    Try loading font information for OMS+phv on input line 347.
 
  ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omsphv.fd"
 File: omsphv.fd 
@@ -1317,12 +1321,12 @@ File: omsphv.fd
 
 LaTeX Font Warning: Font shape `OMS/phv/bx/n' undefined
 (Font)              using `OMS/phv/m/n' instead
-(Font)              for symbol `textbullet' on input line 340.
+(Font)              for symbol `textbullet' on input line 347.
 
 LaTeX Font Info:    Font shape `OMS/phv/m/n' in size <9> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 340.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 347.
 LaTeX Font Info:    Font shape `OMS/phv/bx/n' in size <9> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 340.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 347.
 
 Overfull \hbox (7.29565pt too wide) has occurred while \output is active
  [][][][]  
@@ -1337,7 +1341,7 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 
 ]
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <12> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 349.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 356.
 
 Overfull \hbox (7.29565pt too wide) has occurred while \output is active
  [][][][]  
@@ -1377,11 +1381,11 @@ Overfull \hbox (36.42174pt too wide) has occurred while \output is active
 \tf@snm=\write8
 \openout8 = `Presentation.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 364.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 364.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 371.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 371.
  (Presentation.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 364.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 364.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 371.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 371.
 Package rerunfilecheck Info: File `Presentation.out' has not changed.
 (rerunfilecheck)             Checksum: 080015F61322182B7A0BB23D74ACA559;180.
 
@@ -1390,10 +1394,10 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 18715 strings out of 493308
- 352802 string characters out of 3138768
- 437239 words of memory out of 3000000
- 21674 multiletter control sequences out of 15000+200000
+ 18719 strings out of 493308
+ 352822 string characters out of 3138768
+ 437267 words of memory out of 3000000
+ 21677 multiletter control sequences out of 15000+200000
  60011 words of font info for 79 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,20n,62p,781b,749s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -1404,9 +1408,9 @@ ype1/public/amsfonts/cm/cmsy9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/
 courier/ucrr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/helvetic/uhvb8a
 .pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/helvetic/uhvr8a.pfb><C:/Progr
 am Files/MiKTeX 2.9/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on Presentation.pdf (22 pages, 646279 bytes).
+Output written on Presentation.pdf (22 pages, 633771 bytes).
 PDF statistics:
- 889 PDF objects out of 1000 (max. 8388607)
- 71 named destinations out of 1000 (max. 500000)
+ 892 PDF objects out of 1000 (max. 8388607)
+ 72 named destinations out of 1000 (max. 500000)
  205 words of extra memory for PDF output out of 10000 (max. 10000000)
 

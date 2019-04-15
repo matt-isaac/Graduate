@@ -1,3 +1,4 @@
+
 \documentclass[11pt]{asaproc}
 
 \usepackage{graphicx}
@@ -31,10 +32,10 @@ E-mail: \url{matt.isaac@aggiemail.usu.edu}}
 \maketitle
 
 \begin{abstract}
-Uncertainty quantification is a class of methods used to simulate the ways that variations to inputs of a system can potentially change the end state of that system. This paper outlines the implementation of an interactive tool to visualize the results of an uncertainty quantification analysis. The interactive tool is a deployable web application built with the {\tt R Shiny} framework. Users can create, adjust, and save custom visualizations to assist in interpreting and presenting results. 
+Uncertainty quantification is a class of methods used to simulate the ways that variations to inputs of a system can potentially change the end state of that system. This article outlines the implementation of an interactive tool to visualize the results of an uncertainty quantification analysis. The interactive tool is a deployable web application built with the {\tt R Shiny} framework. Users can create, adjust, and save custom visualizations to assist in interpreting and presenting results. 
 \end{abstract}
 
-\begin{keywords}Uncertainty Quantification; Statistical Visualization; Interactive Visualization; {\tt shiny} R Package
+\begin{keywords} Interactive Visualization; {\tt shiny} R Package
 \end{keywords}
 
 
@@ -45,7 +46,7 @@ Uncertainty quantification is a class of methods used to simulate the ways that 
 
 Uncertainty quantification is a methodological framework used with some frequency in engineering analysis \citep{EW2018}. It is used to understand how variability  within the parameters (i.e. inputs) to some system impact the end state of that system. Engineering analysts use uncertainty quantification to assess and find the balance between design sufficiency and design efficiency. This is particularly important in fields where large-scale prototypes, testing, and data collection are extremely expensive. Engineers in these types of applications are increasingly relying on computational simulations to assess system designs.
 
-In the following paper, I outline the implementation of an interactive tool to visualize uncertainty quantification results. The outline of this paper will proceed as follows: In Section~\ref{UQOverview}, a brief overview of uncertainty quantification is given. In Section~\ref{Methods}, the methods by which the visualization tool was developed are described. In Section~\ref{Results}, the resulting web application is described and screenshots of the web application are shown. In Section~\ref{Future}, future enhancements to the web application are discussed. Section~\ref{Appendix} contains the code written to generate the {\tt shiny} app.
+In the following article, I outline the implementation of an interactive tool to visualize uncertainty quantification results. The outline of this article will proceed as follows: In Section~\ref{UQOverview}, a brief overview of uncertainty quantification is given. In Section~\ref{Methods}, the methods by which the visualization tool was developed are described. In Section~\ref{Results}, the resulting web application is described and screenshots of the web application are shown. In Section~\ref{Future}, future enhancements to the web application are discussed. The code written to generate the {\tt shiny} app is included in the Appendix.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uncertainty Quantification Overview}  
@@ -114,7 +115,7 @@ The resulting web application currently has the several features implemented. Fi
 % \item view user manual
 % \end{itemize}
 
-A few preliminary screenshots from the web application are included in this paper. Figure~\ref{dwnld_plt} shows downloaded plots with various plotting options selected (show/hide P-box and CDFs). Figure~\ref{full} shows a full-view screenshot of the application.  
+A few preliminary screenshots from the web application are included in this article. Figure~\ref{dwnld_plt} shows downloaded plots with various plotting options selected (show/hide P-box and CDFs). Figure~\ref{full} shows a full-view screenshot of the application.  
 
 \begin{figure}[t]
 \begin{center} 
@@ -142,7 +143,17 @@ One main challenge with this visualization tool that was unanticipated was the t
 
 In the next two weeks I plan to fine-tune the visualization tool and produce a polished final product. There is also one more major feature to implement that will greatly aid in the interpretabilty of the visualization. This feature is the ability for a user to input an SRQ value and extract a probability range, as well as the ability to input a probability and extract an SRQ range. Finishing touches will also include adjusting the spacing between controls to improve aesthetics and adding a user manual/help page. 
 
+\newpage
+
+\bibliographystyle{elsarticle-harv}
+% modified to add 
+%     \itemsep=0pt
+% to 2nd line of file paper.bbl
+\bibliography{references2}
+
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
 \section{Appendix}
 \label{Appendix}
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -151,98 +162,330 @@ In the next two weeks I plan to fine-tune the visualization tool and produce a p
 
 \subsection{{\tt ui.R}}
 
-%
-<<fig=FALSE, eval=FALSE>>=
+\scriptsize{
+<<eval=FALSE, tidy.opts = list(blank = FALSE, width.cutoff = 60)>>=
 library(shiny)
 library(shinydashboard)
 library(plotly)
+library(shinyalert)
+library(shinyWidgets)
 
 dashboardPage(
-  dashboardHeader(),
+  dashboardHeader(
+    title = "UQViz"
+  ),
   dashboardSidebar(
-    width = 400,
-    radioButtons(inputId = 'radioDataSource',
-                 label = 'Data Source',
-                 choices = c("Sample Data",
-                             "File Upload"),
-                 selected = "Sample Data"),
-    fileInput(inputId = "fileIn", label = "upload .csv"),
-    checkboxInput(inputId = "checkPbox", 
-                  label = "Show P-box", 
-                  value = TRUE),
-    checkboxInput(inputId = "checkCDFs", 
-                  label = "Show CDFs", 
-                  value = TRUE),
-    numericInput(inputId = "pboxLower", label = "P-box Lower Perc.",
-                 value = 0.05),
-    numericInput(inputId = "pboxUpper", label = "P-box Upper Perc.",
-                 value = 0.95),
-    sliderInput(inputId = "sliderAlpha", label = "CDF Transparency", 
-                value = 0.3, 
-                min = 0, 
-                max = 1, 
-                step = 0.1, 
-                ticks = FALSE)
   ),
   dashboardBody(
-    fluidRow(
-      box(
-        width = 12,
-        height = 500,
-        # main plot
-        plotOutput("uqPlot")
+    useShinyalert(),
+    tabsetPanel(
+      tabPanel("Data Source",
+               fluidRow(
+                 column(
+                   width = 3,
+                   radioButtons(inputId = "radioDataSource",
+                                label = "Data Source",
+                                choices = c("Sample Data",
+                                            "File Upload"),
+                                selected = "Sample Data"),
+                   uiOutput(outputId = "fileInput")
+                 )
+               )
+               
+      ),
+      tabPanel("Visualization Options",
+               fluidRow(
+                 column(
+                   width = 2,
+                   offset = 0,
+                   verticalLayout(
+                     br(),
+                     uiOutput(outputId = "pbxBttn"),
+                     br(),
+                     uiOutput(outputId = "cdfBttn")
+                     
+                   )  
+                   
+                 ),
+                 column(
+                   width = 2,
+                   offset = 0,
+                   numericInput(inputId = "pboxLower", 
+                                label = "Lower P-box Percentile",
+                                value = 0.05, 
+                                width = 250),
+                   numericInput(inputId = "pboxUpper", 
+                                label = "Upper P-box Perentile.",
+                                value = 0.95, 
+                                width = 250)
+                 ),
+                 column(
+                   width = 3,
+                   offset = 0,
+                   sliderInput(inputId = "sliderAlpha", 
+                               label = "CDF Transparency",
+                               value = 0.2,
+                               min = 0,
+                               max = 1,
+                               step = 0.1,
+                               ticks = FALSE)
+                 ),
+                 column(
+                   width = 1,
+                   offset = 0,
+                   checkboxInput(inputId = "extractInt", 
+                                 label = "Extract Interval", 
+                                 value = FALSE)
+                   
+                 ),
+                 column(
+                   width = 2,
+                   uiOutput(outputId = "extractTypeInput"),
+                   uiOutput(outputId = "valInput")
+                 )
+               )
+               
+      ),
+      tabPanel("Labeling",
+               fluidRow(
+                 column(
+                   width = 2,
+                   textInput(inputId = "titleInput", 
+                             label = "Title", 
+                             placeholder = "Plot Title", 
+                             value = "")
+                 ),
+                 column(
+                   width = 2,
+                   textInput(inputId = "xaxisInput", 
+                             label = "X axis Label", 
+                             placeholder = "X-axis", 
+                             value = "SRQ") #,
+                   # textInput(inputId = "yaxisInput", 
+                   #           label = "Y axis Label", 
+                   #           placeholder = "Y-axis", 
+                   #           value = "Probability")
+                 )
+               )),
+      tabPanel("User Guide",
+               h3("Overview"),
+               h5("UQViz is an interactive tool that can be used 
+                  to create meaningful visualizations of
+                  '2D Uncertainty Quantification' (for more
+                  information on 2D UQ, see ", 
+                  tags$a(href = "http://verification.asmedigitalcollection.asme.org/article.aspx?articleid=2703289&resultClick=1",
+                         "this article",
+                         target="_blank"), 
+                  "). Users can select data source and adjust various 
+                  visual components and labels. The title and axis
+                  label can also be customized, and the visualization 
+                  can be downloaded and saved."),
+               h3("Data Source"),
+               tags$p("The 'Data Source' tab contains controls for 
+                      the user to select the source from 
+                      which data for the visualization will be obtained.
+                      If ", 
+                      tags$b('Sample Data'),
+                      "is selected, a small built-in data set is used as 
+                      the data source for the 
+                      visualization. This feature is provided for convenience, 
+                      and can be used for experimentation and 
+                      exploration. If ",
+                      tags$b('File Upload'), "
+                      is selected, users can upload a ",
+                      tags$code(".csv"),
+                      "file containing
+                      data to be used in the visualization. This ",
+                      tags$code(".csv"),
+                      "file should be formatted such that the 'x' values over 
+                      which the CDFs are evaluated 
+                      are in the first column, and the CDFs are 
+                      in the following columns."
+               ),
+               h3("Visualization Options"),
+               tags$p("Several visualization options are provided to
+                      allow customizable graphics to be
+                      created. The ",
+                      tags$b("Show/Hide P-box"), " and the ", 
+                      tags$b("Show/Hide CDFs"), " buttons toggle
+                      back and forth between showing and 
+                      hiding the red P-box and the black ensemble of CDFs. 
+                      Note that showing the CDF 
+                      ensemble may (depending on the size of the uploaded
+                      file) significantly increase
+                      plot rendering times. If the user wishes to
+                      display the CDFs on the final version
+                      of the plot, it is suggested to adjust all
+                      visualization options and controls 
+                      while the CDFs are hidden, keeping the plot
+                      rendering times to a reasonable
+                      length. Then, as the last step, show the CDF
+                      ensemble. This way, the user will only
+                      have to wait once for the lengthened rendering time."),
+               tags$p("The ", 
+                      tags$b("Lower P-box Percentile"), 
+                      " and ", 
+                      tags$b("Upper P-box Percentile"),
+                      "values can also be adjusted. This will 
+                      shift the boundaries of the P-box on 
+                      the visualization."),
+               tags$p("Adjusting the ", 
+                      tags$b("CDF Transparency"), 
+                      " slider will adjust the 
+                      transparency of each CDF in the CDF ensemble.
+                      A value of 0 corresponds to 
+                      completely transparent, while a value 
+                      of 1 corresponds to completely opaque. 
+                      This control will only affect the visualization 
+                      when the CDFs are being shown.
+                      This feature can be useful when there is a
+                      high degree of overplotting due to 
+                      a large number of CDFs. Allowing transparency
+                      on the CDFs can assist in 
+                      visualizing high-density regions on the plot."),
+               tags$p("When the ", 
+                      tags$b("Extract Interval"), 
+                      " box is checked,
+                      several more controls appear. 
+                      Extracting an interval is one way that 
+                      P-boxes can be interpreted in practice.
+                      Users can decide whether to extract an ", 
+                      tags$b("SRQ Interval"), 
+                      " or a ", 
+                      tags$b("Probability Interval"), 
+                      ". If extracting an SRQ interval, users 
+                      will need to select a probablity value; if 
+                      extracting a probability interval, users 
+                      will need to select an SRQ value. 
+                      Labels and dotted lines will be displayed 
+                      on the visualization, showing the 
+                      probability or SRQ value selected and the 
+                      corresponding interval."),
+               h3("Labeling"),
+               tags$p("Users also have the capability to choose
+                      a custom ",
+                      tags$b("Title"), 
+                      " and a custom ", 
+                      tags$b("X axis Label"), 
+                      "to futher customize the plot to a 
+                      specific context or application. Since this
+                      visualization was designed to always show 
+                      probability on the y axis, the y axis label 
+                      cannot be changed."),
+               h3("Saving a Plot"),
+               tags$p("Users can enter a ",
+                      tags$b("File Name"), 
+                      " and can click the " ,
+                      tags$b("Download"), 
+                      " button to download and save a ",
+                      tags$code(".png"),
+                      " file of the current version of the visualization.
+                      These controls are located below the plot.
+                      Note that the chosen
+                      file name should omit the ",
+                      tags$code(".png"), 
+                      " file extension.")
+               
+      ),
+      tabPanel("References",
+               tags$h4("The following software packages
+                       were used in development: "),
+               tags$div(tags$ul(
+                 tags$li(tags$span(tags$a(href = "https://www.R-project.org/",
+                                          target="_blank",
+                                          "R"))),
+                 tags$li(tags$span(tags$a(href = "http://www.rstudio.com/",
+                                          target="_blank",
+                                          "RStudio"))),
+                 tags$li(tags$span(tags$a(
+                   href = "https://cran.r-project.org/web/packages/shiny/index.html",
+                   target="_blank",
+                   "shiny"))),
+                 tags$li(tags$span(tags$a(
+                   href = "https://cran.r-project.org/web/packages/ggplot2/index.html",
+                   target="_blank",
+                   "ggplot2"))),
+                 tags$li(tags$span(tags$a(
+                   href = "https://cran.r-project.org/web/packages/shinyWidgets/index.html",
+                   target="_blank",
+                   "shinyWidgets"))),
+                 tags$li(tags$span(tags$a(
+                   href = "https://cran.r-project.org/web/packages/shinydashboard/index.html",
+                   target="_blank",
+                   "shinydashboard"))))
+               )
       )
     ),
     fluidRow(
       box(
-        splitLayout(
-          downloadButton(outputId = 'savePng'),
-          textInput(inputId = "pngName", value = "", placeholder = "file name", label = "File Name (omit file extension)")
+        width = 12,
+        height = 625,
+        plotOutput("uqPlot", 
+                   height = 475),
+        fluidRow(
+          column(
+            width = 3,
+            textInput(inputId = "pngName", 
+                      value = "", 
+                      placeholder = "file name", 
+                      label = "File Name (omit file extension)", 
+                      width = 200),
+            downloadButton(outputId = 'savePng')
+          )
         )
       )
     )
   )
 )
 @
+}
 
 \subsection{{\tt server.R}}
-%
-<<fig=FALSE, eval=FALSE>>=
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
+\scriptsize{
+<<eval=FALSE>>=
+# Load needed packages
 library(shiny)
 library(ggplot2)
 library(plotly)
-library(dplyr)
+library(shinyalert)
+library(shinyWidgets)
+
+## Increase max file upload size
+options(shiny.maxRequestSize = 15*1024^2)
 
 ###############################################
 # Functions ###################################
 ###############################################
-plotAllLayers <- function(df){
-  p<-ggplot(data = df, aes(df[,1]))
-  for(i in names(df)[-1]){
-    p<-p+geom_line(aes_string(y=i), alpha = 0.2)
-  }
-  return(p)
+
+# Function to calculate p-box lower and upper bounds
+calc_pbox <- function(data, p_upper, p_lower){
+  pbox <- apply(values$data, 
+                1, 
+                FUN = quantile, 
+                probs = c(p_lower, p_upper))
+  
+  pbox <- t(pbox)
+  
+  values$pbox <- data.frame(x = values$data[,1], 
+                            lower = pbox[,1], 
+                            upper = pbox[,2])
+  return(pbox)
 }
 
-calc_pbox <- function(data, p_upper, p_lower){
-  # for row in np.transpose(cdf_arr): # loop over transposed matrix
-  #   qlower = np.quantile(row, q = pbox_lower) # calculate lower quantile
-  #   qupper = np.quantile(row, q = pbox_upper) # calculate upper quantile
-  #   ql[counter] = qlower # store
-  #   qu[counter] = qupper # store
-  #   counter = counter + 1 
-  pbox <- apply(values$data, 1, FUN = quantile, probs = c(p_lower, p_upper))
-  # pbox <- data_frame(pbox)
-  return(t(pbox))
+# function to calculate the SRQ value for a given probability level
+calc_srq <- function(prob_in){
+  srq_l <- values$pbox[which.min(abs(values$pbox$lower - prob_in)),]$x
+  srq_u <- values$pbox[which.min(abs(values$pbox$upper - prob_in)),]$x
+  
+  return(c(srq_l, srq_u))
+}
+
+# function to calculate the probability value for a probability level
+calc_probs <- function(srq_in){
+  prob_l <- values$pbox[which.min(abs(values$pbox$x - srq_in)),]$lower
+  prob_u <- values$pbox[which.min(abs(values$pbox$x - srq_in)),]$upper
+  
+  return(c(prob_l, prob_u))
 }
 
 ###############################################
@@ -254,17 +497,86 @@ values <- reactiveValues()
 ###############################################
 # Read in Sample Data #########################
 ###############################################
-cdf_arr <-  read.csv('data/cdfs.csv', header = FALSE)
+cdf_arr <-  read.csv("data/cdfs.csv", header = FALSE)
 cdf_arr <-  t(cdf_arr)
 cdf_df <-  data.frame(cdf_arr)
+
+values$valmax <- max(cdf_df[,1])
+values$valmin <- min(cdf_df[,1])
+values$userin <- NULL
+values$showcdf <- FALSE
+values$showpbx <- TRUE
 
 ###############################################
 # Server Logic ################################
 ###############################################
 shinyServer(function(input, output) {
 
+  # toggle button to show/hide cdf ensemble
+  observeEvent(input$cdfToggle, {
+    if (values$showcdf == FALSE){
+      shinyalert(
+        title = "",
+        callbackR = function(x){
+          values$showcdf <- x
+        },
+        text = paste("Showing the CDF ensemble on the plot may significantly",
+                     "increase plot render times. Do you want to continue?"),
+        showCancelButton = TRUE,
+        confirmButtonText = "Show CDFs",
+        cancelButtonText = "Don't Show CDFs",
+        confirmButtonCol = "#52D755",
+        type = "info"
+      )
+    } else {
+    values$showcdf <- FALSE
+    }
+  })
+  
+  observeEvent(input$pbxToggle, {
+    if (values$showpbx == FALSE){
+      values$showpbx <- TRUE
+    } else {
+      values$showpbx <- FALSE
+    }
+  })
+  
+  # toggle button to show/hide p-box
+  output$pbxBttn <- renderUI({
+    if (values$showpbx == TRUE){
+      lbl = "Hide P-box"
+      sty = "bordered"
+    } else {
+      lbl = "Show P-box"
+      sty = "simple"
+    }
+    
+    actionBttn(inputId = "pbxToggle", 
+               label = lbl, 
+               style = sty,
+               size = "sm", 
+               color = "primary")
+  })
+  
+  output$cdfBttn <- renderUI({
+    if (values$showcdf == TRUE){
+      lbl = "Hide CDFs"
+      sty = "bordered"
+    } else {
+      lbl = "Show CDFs"
+      sty = "simple"
+    }
+    
+    actionBttn(inputId = "cdfToggle", 
+               label = lbl, 
+               style = sty,
+               size = "sm", 
+               color = "primary")
+  })
+  
   output$uqPlot <- renderPlot({
-    if(input$radioDataSource == "Sample Data"){
+    # Use selected data source
+    if (input$radioDataSource == "Sample Data"){
       values$data <- cdf_df
     } else {
       req(input$fileIn)
@@ -274,48 +586,215 @@ shinyServer(function(input, output) {
       values$data <- df
     }
 
+    # set up initial plot
     req(values$data)
-    plt <- ggplot(data = values$data, aes(values$data[,1]))
-    if(input$checkCDFs == TRUE){
+    plt <- ggplot(data = values$data, 
+                  aes(values$data[,1]))
+    
+    # plot cdf ensemble if user selects
+    if (values$showcdf == TRUE){
       for(i in names(values$data)[-1]){ 
-        plt <- plt + geom_line(aes_string(y=i), alpha = input$sliderAlpha)
+        plt <- plt + 
+          geom_line(aes_string(y = i, 
+                               color = shQuote("CDFs")), 
+                    alpha = input$sliderAlpha)
+      }
+      plt <- plt
+    }
+    
+    # get nice breaks for x-axis
+    px <- pretty(values$data[,1])
+    
+    # Labels and additional plot formatting
+    plt <- plt +
+      xlab(input$xaxisInput) +
+      # ylab(input$yaxisInput) +
+      ylab("Probability") +
+      scale_x_continuous(breaks = px, 
+                         limits = range(px)) +
+      ggtitle(input$titleInput) +
+      theme_bw() +
+      theme(plot.title = element_text(hjust = 0.5, 
+                                      size = 18, 
+                                      face = "bold"),
+            panel.grid.minor = element_blank(),
+            axis.text = element_text(size = 12),
+            axis.title = element_text(size = 14)) 
+    
+    # show p-box if user selects
+    if (values$showpbx == TRUE){
+      pbox <- calc_pbox(values$data, 
+                        (1 - input$pboxLower), 
+                        (1 - input$pboxUpper))
+      plt <- plt + 
+        geom_line(aes(y = pbox[,1], col = "Pbox"), lwd = 1) +
+        geom_line(aes(y = pbox[,2], col = "Pbox"),  lwd = 1) +
+        scale_colour_manual(name="", values=c("Pbox"="red"))
+    }
+    
+    # Calculate and show extracted interval on plot
+    # if user selects
+    if (input$extractInt == TRUE){
+      req(input$valIn)
+      
+      # if interval is an SRQ interval
+      if (input$extractType == "SRQ Interval"){
+        if (input$valIn < 0){
+          values$userin <- 0
+        } else if (input$valIn > 1) {
+          values$userin <- 1
+        } else {
+          values$userin <- input$valIn
+        }
+        srq_vec <- calc_srq(values$userin)
+        plt <- plt + 
+          geom_hline(yintercept = values$userin, lty = 2) +
+          geom_segment(mapping = aes(x = srq_vec[1], 
+                                     y = 0, 
+                                     xend = srq_vec[1], 
+                                     yend = 1), 
+                       lty = "longdash") +
+          geom_segment(mapping = aes(x = srq_vec[2], 
+                                     y = 0, 
+                                     xend = srq_vec[2], 
+                                     yend = 1), 
+                       lty = "longdash") +
+          geom_text(aes(srq_vec[1],0.05, 
+                        label = round(srq_vec[1],2), 
+                        vjust = 3, 
+                        hjust = 0.5), 
+                    size = 5) +
+          geom_text(aes(srq_vec[2],0.05, 
+                        label = round(srq_vec[2],2), 
+                        vjust = 3, 
+                        hjust = 0.5), 
+                    size = 5) +
+          geom_text(aes(min(values$data[,1]), 
+                        values$userin, 
+                        label = round(values$userin,2),
+                        vjust = -0.5, 
+                        hjust = 2), 
+                    size = 5)
+      } else {
+        # if interval is a probability interval
+        req(input$valIn)
+        if (input$valIn < values$valmin){
+          values$userin <- values$valmin
+        } else if (input$valIn > values$valmax) {
+          values$userin <- values$valmax
+        } else {
+          values$userin <- input$valIn
+        }
+        prob_vec <- calc_probs(values$userin)
+        plt <- plt + 
+          geom_segment(mapping = aes(x = values$userin, 
+                                     y = 0, 
+                                     xend = values$userin, 
+                                     yend = 1), 
+                       lty = 2) +
+          geom_hline(yintercept = prob_vec[1], 
+                     lty = "longdash") +
+          geom_hline(yintercept = prob_vec[2], 
+                     lty = "longdash") +
+          geom_text(aes(min(values$data[,1]), 
+                        prob_vec[1], 
+                        label = round(prob_vec[1],2), 
+                        vjust = -0.5, 
+                        hjust = 2), 
+                    size = 5) +
+          geom_text(aes(min(values$data[,1]), 
+                        prob_vec[2], 
+                        label = round(prob_vec[2],2), 
+                        vjust = -0.5, 
+                        hjust = 2), 
+                    size = 5) +
+          geom_text(aes(values$userin, 
+                        0.05, 
+                        label = round(values$userin,2), 
+                        vjust = 3, 
+                        hjust = 0.5), 
+                    size = 5)
       }
     }
-    plt <- plt +
-      xlab("SRQ") +
-      ylab("Probability")
     
-    if(input$checkPbox == TRUE){
-      pbox <- calc_pbox(values$data, (1 - input$pboxLower), (1 - input$pboxUpper))
-      plt <- plt + 
-        geom_line(aes(y = pbox[,1]), col = "red", lwd = 1) +
-        geom_line(aes(y = pbox[,2]), col = "red", lwd = 1)
+    if (values$showpbx && values$showcdf){
+      plt <- plt +
+        scale_color_manual(name = "", 
+                           values = c("CDFs" = "black", 
+                                      "Pbox" = "red")) +
+        guides(colour = 
+                 guide_legend(override.aes = 
+                                list(linetype = c(1, 1),
+                                     lwd = c(0.5, 1)))) +
+        theme(legend.text = element_text(size = 12))
+    } else if (values$showpbx){
+      plt <- plt +
+        scale_color_manual(name = "", 
+                           values = c("Pbox" = "red")) +
+        theme(legend.text = element_text(size = 12))
+    } else if (values$showcdf){
+      plt <- plt +
+        scale_color_manual(name = "", 
+                           values = c("CDFs" = "black")) +
+        theme(legend.text = element_text(size = 12))
     }
     
     values$plot <- plt
     
     plt
+   })
+  
+  output$extractTypeInput <- renderUI({
+    if (input$extractInt == TRUE){
+      radioButtons(inputId = "extractType", 
+                   label = "Interval Type: ", 
+                   choices = c("SRQ Interval", 
+                               "Probability Interval"))
+    }
   })
   
-  # help from https://stackoverflow.com/questions/14810409/save-plots-made-in-a-shiny-app
+  
+  output$valInput <- renderUI({
+    if (input$extractInt == TRUE){
+      if (input$extractType == "Probability Interval"){
+        lbl = "SRQ Input Value"
+        val = round(quantile(values$data[,1], 0.1), 0)
+      } else {
+        lbl = "Probability Input Value"
+        val = 0.95
+      }
+      numericInput(inputId = "valIn", 
+                   label = lbl, 
+                   value = val)
+    }
+  })
+  
+  output$fileInput <- renderUI({
+    if (input$radioDataSource == "File Upload"){
+      fileInput(inputId = "fileIn", 
+                label = "Upload .csv File")
+    }
+  })
+  
+  # help from https://stackoverflow.com/questions
+  # /14810409/save-plots-made-in-a-shiny-app
   output$savePng <- downloadHandler(
-    filename = function() { paste(input$pngName, '.png', sep='') },
-    content = function(file) {
-      ggsave(file, plot = values$plot, device = "png")
+    filename = function(){
+      paste(input$pngName, 
+            ".png", 
+            sep="")
+    },
+    content = function(file){
+      ggsave(file, 
+             plot = values$plot, 
+             device = "png", 
+             width = 12)
     }
   )
-  
 })
-
 @
+}
 
-\newpage
 
-\bibliographystyle{elsarticle-harv}
-% modified to add 
-%     \itemsep=0pt
-% to 2nd line of file paper.bbl
-
-\bibliography{references2}
 
 \end{document}

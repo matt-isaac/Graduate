@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "ISO8859-1",
     "folds" : "",
-    "hash" : "1322547900",
+    "hash" : "1762539055",
     "id" : "A94596F1",
-    "lastKnownWriteTime" : 1554496956,
-    "last_content_update" : 1554496956223,
+    "lastKnownWriteTime" : 1555183410,
+    "last_content_update" : 1555183410193,
     "path" : "D:/GITHUB/Graduate/Spring_2019/StatVizII/Project/UQVizApp/UQViz/server.R",
     "project_path" : "UQViz/server.R",
     "properties" : {
-        "cursorPosition" : "13,0",
-        "scrollLine" : "0"
+        "cursorPosition" : "73,19",
+        "scrollLine" : "63"
     },
     "relative_order" : 3,
     "source_on_save" : false,

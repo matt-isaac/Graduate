@@ -1,3 +1,4 @@
+
 \documentclass[11pt]{asaproc}\usepackage[]{graphicx}\usepackage[]{color}
 %% maxwidth is the original width if it is less than linewidth
 %% otherwise use linewidth (to make sure the graphics do not exceed the margin)
@@ -81,10 +82,10 @@ E-mail: \url{matt.isaac@aggiemail.usu.edu}}
 \maketitle
 
 \begin{abstract}
-Uncertainty quantification is a class of methods used to simulate the ways that variations to inputs of a system can potentially change the end state of that system. This paper outlines the implementation of an interactive tool to visualize the results of an uncertainty quantification analysis. The interactive tool is a deployable web application built with the {\tt R Shiny} framework. Users can create, adjust, and save custom visualizations to assist in interpreting and presenting results. 
+Uncertainty quantification is a class of methods used to simulate the ways that variations to inputs of a system can potentially change the end state of that system. This article outlines the implementation of an interactive tool to visualize the results of an uncertainty quantification analysis. The interactive tool is a deployable web application built with the {\tt R Shiny} framework. Users can create, adjust, and save custom visualizations to assist in interpreting and presenting results. 
 \end{abstract}
 
-\begin{keywords}Uncertainty Quantification; Statistical Visualization; Interactive Visualization; {\tt shiny} R Package
+\begin{keywords} Interactive Visualization; {\tt shiny} R Package
 \end{keywords}
 
 
@@ -95,7 +96,7 @@ Uncertainty quantification is a class of methods used to simulate the ways that 
 
 Uncertainty quantification is a methodological framework used with some frequency in engineering analysis \citep{EW2018}. It is used to understand how variability  within the parameters (i.e. inputs) to some system impact the end state of that system. Engineering analysts use uncertainty quantification to assess and find the balance between design sufficiency and design efficiency. This is particularly important in fields where large-scale prototypes, testing, and data collection are extremely expensive. Engineers in these types of applications are increasingly relying on computational simulations to assess system designs.
 
-In the following paper, I outline the implementation of an interactive tool to visualize uncertainty quantification results. The outline of this paper will proceed as follows: In Section~\ref{UQOverview}, a brief overview of uncertainty quantification is given. In Section~\ref{Methods}, the methods by which the visualization tool was developed are described. In Section~\ref{Results}, the resulting web application is described and screenshots of the web application are shown. In Section~\ref{Future}, future enhancements to the web application are discussed. Section~\ref{Appendix} contains the code written to generate the {\tt shiny} app.
+In the following article, I outline the implementation of an interactive tool to visualize uncertainty quantification results. The outline of this article will proceed as follows: In Section~\ref{UQOverview}, a brief overview of uncertainty quantification is given. In Section~\ref{Methods}, the methods by which the visualization tool was developed are described. In Section~\ref{Results}, the resulting web application is described and screenshots of the web application are shown. In Section~\ref{Future}, future enhancements to the web application are discussed. The code written to generate the {\tt shiny} app is included in the Appendix.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uncertainty Quantification Overview}  
@@ -164,7 +165,7 @@ The resulting web application currently has the several features implemented. Fi
 % \item view user manual
 % \end{itemize}
 
-A few preliminary screenshots from the web application are included in this paper. Figure~\ref{dwnld_plt} shows downloaded plots with various plotting options selected (show/hide P-box and CDFs). Figure~\ref{full} shows a full-view screenshot of the application.  
+A few preliminary screenshots from the web application are included in this article. Figure~\ref{dwnld_plt} shows downloaded plots with various plotting options selected (show/hide P-box and CDFs). Figure~\ref{full} shows a full-view screenshot of the application.  
 
 \begin{figure}[t]
 \begin{center} 
@@ -192,7 +193,17 @@ One main challenge with this visualization tool that was unanticipated was the t
 
 In the next two weeks I plan to fine-tune the visualization tool and produce a polished final product. There is also one more major feature to implement that will greatly aid in the interpretabilty of the visualization. This feature is the ability for a user to input an SRQ value and extract a probability range, as well as the ability to input a probability and extract an SRQ range. Finishing touches will also include adjusting the spacing between controls to improve aesthetics and adding a user manual/help page. 
 
+\newpage
+
+\bibliographystyle{elsarticle-harv}
+% modified to add 
+%     \itemsep=0pt
+% to 2nd line of file paper.bbl
+\bibliography{references2}
+
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
 \section{Appendix}
 \label{Appendix}
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -201,55 +212,278 @@ In the next two weeks I plan to fine-tune the visualization tool and produce a p
 
 \subsection{{\tt ui.R}}
 
-%
+\scriptsize{
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(shiny)}
 \hlkwd{library}\hlstd{(shinydashboard)}
 \hlkwd{library}\hlstd{(plotly)}
+\hlkwd{library}\hlstd{(shinyalert)}
+\hlkwd{library}\hlstd{(shinyWidgets)}
 
 \hlkwd{dashboardPage}\hlstd{(}
-  \hlkwd{dashboardHeader}\hlstd{(),}
+  \hlkwd{dashboardHeader}\hlstd{(}
+    \hlkwc{title} \hlstd{=} \hlstr{"UQViz"}
+  \hlstd{),}
   \hlkwd{dashboardSidebar}\hlstd{(}
-    \hlkwc{width} \hlstd{=} \hlnum{400}\hlstd{,}
-    \hlkwd{radioButtons}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{'radioDataSource'}\hlstd{,}
-                 \hlkwc{label} \hlstd{=} \hlstr{'Data Source'}\hlstd{,}
-                 \hlkwc{choices} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Sample Data"}\hlstd{,}
-                             \hlstr{"File Upload"}\hlstd{),}
-                 \hlkwc{selected} \hlstd{=} \hlstr{"Sample Data"}\hlstd{),}
-    \hlkwd{fileInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"fileIn"}\hlstd{,} \hlkwc{label} \hlstd{=} \hlstr{"upload .csv"}\hlstd{),}
-    \hlkwd{checkboxInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"checkPbox"}\hlstd{,}
-                  \hlkwc{label} \hlstd{=} \hlstr{"Show P-box"}\hlstd{,}
-                  \hlkwc{value} \hlstd{=} \hlnum{TRUE}\hlstd{),}
-    \hlkwd{checkboxInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"checkCDFs"}\hlstd{,}
-                  \hlkwc{label} \hlstd{=} \hlstr{"Show CDFs"}\hlstd{,}
-                  \hlkwc{value} \hlstd{=} \hlnum{TRUE}\hlstd{),}
-    \hlkwd{numericInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"pboxLower"}\hlstd{,} \hlkwc{label} \hlstd{=} \hlstr{"P-box Lower Perc."}\hlstd{,}
-                 \hlkwc{value} \hlstd{=} \hlnum{0.05}\hlstd{),}
-    \hlkwd{numericInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"pboxUpper"}\hlstd{,} \hlkwc{label} \hlstd{=} \hlstr{"P-box Upper Perc."}\hlstd{,}
-                 \hlkwc{value} \hlstd{=} \hlnum{0.95}\hlstd{),}
-    \hlkwd{sliderInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"sliderAlpha"}\hlstd{,} \hlkwc{label} \hlstd{=} \hlstr{"CDF Transparency"}\hlstd{,}
-                \hlkwc{value} \hlstd{=} \hlnum{0.3}\hlstd{,}
-                \hlkwc{min} \hlstd{=} \hlnum{0}\hlstd{,}
-                \hlkwc{max} \hlstd{=} \hlnum{1}\hlstd{,}
-                \hlkwc{step} \hlstd{=} \hlnum{0.1}\hlstd{,}
-                \hlkwc{ticks} \hlstd{=} \hlnum{FALSE}\hlstd{)}
   \hlstd{),}
   \hlkwd{dashboardBody}\hlstd{(}
-    \hlkwd{fluidRow}\hlstd{(}
-      \hlkwd{box}\hlstd{(}
-        \hlkwc{width} \hlstd{=} \hlnum{12}\hlstd{,}
-        \hlkwc{height} \hlstd{=} \hlnum{500}\hlstd{,}
-        \hlcom{# main plot}
-        \hlkwd{plotOutput}\hlstd{(}\hlstr{"uqPlot"}\hlstd{)}
+    \hlkwd{useShinyalert}\hlstd{(),}
+    \hlkwd{tabsetPanel}\hlstd{(}
+      \hlkwd{tabPanel}\hlstd{(}\hlstr{"Data Source"}\hlstd{,}
+               \hlkwd{fluidRow}\hlstd{(}
+                 \hlkwd{column}\hlstd{(}
+                   \hlkwc{width} \hlstd{=} \hlnum{3}\hlstd{,}
+                   \hlkwd{radioButtons}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"radioDataSource"}\hlstd{,}
+                                \hlkwc{label} \hlstd{=} \hlstr{"Data Source"}\hlstd{,}
+                                \hlkwc{choices} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Sample Data"}\hlstd{,}
+                                            \hlstr{"File Upload"}\hlstd{),}
+                                \hlkwc{selected} \hlstd{=} \hlstr{"Sample Data"}\hlstd{),}
+                   \hlkwd{uiOutput}\hlstd{(}\hlkwc{outputId} \hlstd{=} \hlstr{"fileInput"}\hlstd{)}
+                 \hlstd{)}
+               \hlstd{)}
+
+      \hlstd{),}
+      \hlkwd{tabPanel}\hlstd{(}\hlstr{"Visualization Options"}\hlstd{,}
+               \hlkwd{fluidRow}\hlstd{(}
+                 \hlkwd{column}\hlstd{(}
+                   \hlkwc{width} \hlstd{=} \hlnum{2}\hlstd{,}
+                   \hlkwc{offset} \hlstd{=} \hlnum{0}\hlstd{,}
+                   \hlkwd{verticalLayout}\hlstd{(}
+                     \hlkwd{br}\hlstd{(),}
+                     \hlkwd{uiOutput}\hlstd{(}\hlkwc{outputId} \hlstd{=} \hlstr{"pbxBttn"}\hlstd{),}
+                     \hlkwd{br}\hlstd{(),}
+                     \hlkwd{uiOutput}\hlstd{(}\hlkwc{outputId} \hlstd{=} \hlstr{"cdfBttn"}\hlstd{)}
+
+                   \hlstd{)}
+
+                 \hlstd{),}
+                 \hlkwd{column}\hlstd{(}
+                   \hlkwc{width} \hlstd{=} \hlnum{2}\hlstd{,}
+                   \hlkwc{offset} \hlstd{=} \hlnum{0}\hlstd{,}
+                   \hlkwd{numericInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"pboxLower"}\hlstd{,}
+                                \hlkwc{label} \hlstd{=} \hlstr{"Lower P-box Percentile"}\hlstd{,}
+                                \hlkwc{value} \hlstd{=} \hlnum{0.05}\hlstd{,}
+                                \hlkwc{width} \hlstd{=} \hlnum{250}\hlstd{),}
+                   \hlkwd{numericInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"pboxUpper"}\hlstd{,}
+                                \hlkwc{label} \hlstd{=} \hlstr{"Upper P-box Perentile."}\hlstd{,}
+                                \hlkwc{value} \hlstd{=} \hlnum{0.95}\hlstd{,}
+                                \hlkwc{width} \hlstd{=} \hlnum{250}\hlstd{)}
+                 \hlstd{),}
+                 \hlkwd{column}\hlstd{(}
+                   \hlkwc{width} \hlstd{=} \hlnum{3}\hlstd{,}
+                   \hlkwc{offset} \hlstd{=} \hlnum{0}\hlstd{,}
+                   \hlkwd{sliderInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"sliderAlpha"}\hlstd{,}
+                               \hlkwc{label} \hlstd{=} \hlstr{"CDF Transparency"}\hlstd{,}
+                               \hlkwc{value} \hlstd{=} \hlnum{0.2}\hlstd{,}
+                               \hlkwc{min} \hlstd{=} \hlnum{0}\hlstd{,}
+                               \hlkwc{max} \hlstd{=} \hlnum{1}\hlstd{,}
+                               \hlkwc{step} \hlstd{=} \hlnum{0.1}\hlstd{,}
+                               \hlkwc{ticks} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+                 \hlstd{),}
+                 \hlkwd{column}\hlstd{(}
+                   \hlkwc{width} \hlstd{=} \hlnum{1}\hlstd{,}
+                   \hlkwc{offset} \hlstd{=} \hlnum{0}\hlstd{,}
+                   \hlkwd{checkboxInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"extractInt"}\hlstd{,}
+                                 \hlkwc{label} \hlstd{=} \hlstr{"Extract Interval"}\hlstd{,}
+                                 \hlkwc{value} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+
+                 \hlstd{),}
+                 \hlkwd{column}\hlstd{(}
+                   \hlkwc{width} \hlstd{=} \hlnum{2}\hlstd{,}
+                   \hlkwd{uiOutput}\hlstd{(}\hlkwc{outputId} \hlstd{=} \hlstr{"extractTypeInput"}\hlstd{),}
+                   \hlkwd{uiOutput}\hlstd{(}\hlkwc{outputId} \hlstd{=} \hlstr{"valInput"}\hlstd{)}
+                 \hlstd{)}
+               \hlstd{)}
+
+      \hlstd{),}
+      \hlkwd{tabPanel}\hlstd{(}\hlstr{"Labeling"}\hlstd{,}
+               \hlkwd{fluidRow}\hlstd{(}
+                 \hlkwd{column}\hlstd{(}
+                   \hlkwc{width} \hlstd{=} \hlnum{2}\hlstd{,}
+                   \hlkwd{textInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"titleInput"}\hlstd{,}
+                             \hlkwc{label} \hlstd{=} \hlstr{"Title"}\hlstd{,}
+                             \hlkwc{placeholder} \hlstd{=} \hlstr{"Plot Title"}\hlstd{,}
+                             \hlkwc{value} \hlstd{=} \hlstr{""}\hlstd{)}
+                 \hlstd{),}
+                 \hlkwd{column}\hlstd{(}
+                   \hlkwc{width} \hlstd{=} \hlnum{2}\hlstd{,}
+                   \hlkwd{textInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"xaxisInput"}\hlstd{,}
+                             \hlkwc{label} \hlstd{=} \hlstr{"X axis Label"}\hlstd{,}
+                             \hlkwc{placeholder} \hlstd{=} \hlstr{"X-axis"}\hlstd{,}
+                             \hlkwc{value} \hlstd{=} \hlstr{"SRQ"}\hlstd{)} \hlcom{#,}
+                   \hlcom{# textInput(inputId = "yaxisInput", }
+                   \hlcom{#           label = "Y axis Label", }
+                   \hlcom{#           placeholder = "Y-axis", }
+                   \hlcom{#           value = "Probability")}
+                 \hlstd{)}
+               \hlstd{)),}
+      \hlkwd{tabPanel}\hlstd{(}\hlstr{"User Guide"}\hlstd{,}
+               \hlkwd{h3}\hlstd{(}\hlstr{"Overview"}\hlstd{),}
+               \hlkwd{h5}\hlstd{(}\hlstr{"UQViz is an interactive tool that can be used 
+                  to create meaningful visualizations of
+                  '2D Uncertainty Quantification' (for more
+                  information on 2D UQ, see "}\hlstd{,}
+                  \hlstd{tags}\hlopt{$}\hlkwd{a}\hlstd{(}\hlkwc{href} \hlstd{=} \hlstr{"http://verification.asmedigitalcollection.asme.org/article.aspx?articleid=2703289&resultClick=1"}\hlstd{,}
+                         \hlstr{"this article"}\hlstd{,}
+                         \hlkwc{target}\hlstd{=}\hlstr{"_blank"}\hlstd{),}
+                  \hlstr{"). Users can select data source and adjust various 
+                  visual components and labels. The title and axis
+                  label can also be customized, and the visualization 
+                  can be downloaded and saved."}\hlstd{),}
+               \hlkwd{h3}\hlstd{(}\hlstr{"Data Source"}\hlstd{),}
+               \hlstd{tags}\hlopt{$}\hlkwd{p}\hlstd{(}\hlstr{"The 'Data Source' tab contains controls for 
+                      the user to select the source from 
+                      which data for the visualization will be obtained.
+                      If "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{'Sample Data'}\hlstd{),}
+                      \hlstr{"is selected, a small built-in data set is used as 
+                      the data source for the 
+                      visualization. This feature is provided for convenience, 
+                      and can be used for experimentation and 
+                      exploration. If "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{'File Upload'}\hlstd{),} \hlstr{"
+                      is selected, users can upload a "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{code}\hlstd{(}\hlstr{".csv"}\hlstd{),}
+                      \hlstr{"file containing
+                      data to be used in the visualization. This "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{code}\hlstd{(}\hlstr{".csv"}\hlstd{),}
+                      \hlstr{"file should be formatted such that the 'x' values over 
+                      which the CDFs are evaluated 
+                      are in the first column, and the CDFs are 
+                      in the following columns."}
+               \hlstd{),}
+               \hlkwd{h3}\hlstd{(}\hlstr{"Visualization Options"}\hlstd{),}
+               \hlstd{tags}\hlopt{$}\hlkwd{p}\hlstd{(}\hlstr{"Several visualization options are provided to
+                      allow customizable graphics to be
+                      created. The "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Show/Hide P-box"}\hlstd{),} \hlstr{" and the "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Show/Hide CDFs"}\hlstd{),} \hlstr{" buttons toggle
+                      back and forth between showing and 
+                      hiding the red P-box and the black ensemble of CDFs. 
+                      Note that showing the CDF 
+                      ensemble may (depending on the size of the uploaded
+                      file) significantly increase
+                      plot rendering times. If the user wishes to
+                      display the CDFs on the final version
+                      of the plot, it is suggested to adjust all
+                      visualization options and controls 
+                      while the CDFs are hidden, keeping the plot
+                      rendering times to a reasonable
+                      length. Then, as the last step, show the CDF
+                      ensemble. This way, the user will only
+                      have to wait once for the lengthened rendering time."}\hlstd{),}
+               \hlstd{tags}\hlopt{$}\hlkwd{p}\hlstd{(}\hlstr{"The "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Lower P-box Percentile"}\hlstd{),}
+                      \hlstr{" and "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Upper P-box Percentile"}\hlstd{),}
+                      \hlstr{"values can also be adjusted. This will 
+                      shift the boundaries of the P-box on 
+                      the visualization."}\hlstd{),}
+               \hlstd{tags}\hlopt{$}\hlkwd{p}\hlstd{(}\hlstr{"Adjusting the "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"CDF Transparency"}\hlstd{),}
+                      \hlstr{" slider will adjust the 
+                      transparency of each CDF in the CDF ensemble.
+                      A value of 0 corresponds to 
+                      completely transparent, while a value 
+                      of 1 corresponds to completely opaque. 
+                      This control will only affect the visualization 
+                      when the CDFs are being shown.
+                      This feature can be useful when there is a
+                      high degree of overplotting due to 
+                      a large number of CDFs. Allowing transparency
+                      on the CDFs can assist in 
+                      visualizing high-density regions on the plot."}\hlstd{),}
+               \hlstd{tags}\hlopt{$}\hlkwd{p}\hlstd{(}\hlstr{"When the "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Extract Interval"}\hlstd{),}
+                      \hlstr{" box is checked,
+                      several more controls appear. 
+                      Extracting an interval is one way that 
+                      P-boxes can be interpreted in practice.
+                      Users can decide whether to extract an "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"SRQ Interval"}\hlstd{),}
+                      \hlstr{" or a "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Probability Interval"}\hlstd{),}
+                      \hlstr{". If extracting an SRQ interval, users 
+                      will need to select a probablity value; if 
+                      extracting a probability interval, users 
+                      will need to select an SRQ value. 
+                      Labels and dotted lines will be displayed 
+                      on the visualization, showing the 
+                      probability or SRQ value selected and the 
+                      corresponding interval."}\hlstd{),}
+               \hlkwd{h3}\hlstd{(}\hlstr{"Labeling"}\hlstd{),}
+               \hlstd{tags}\hlopt{$}\hlkwd{p}\hlstd{(}\hlstr{"Users also have the capability to choose
+                      a custom "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Title"}\hlstd{),}
+                      \hlstr{" and a custom "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"X axis Label"}\hlstd{),}
+                      \hlstr{"to futher customize the plot to a 
+                      specific context or application. Since this
+                      visualization was designed to always show 
+                      probability on the y axis, the y axis label 
+                      cannot be changed."}\hlstd{),}
+               \hlkwd{h3}\hlstd{(}\hlstr{"Saving a Plot"}\hlstd{),}
+               \hlstd{tags}\hlopt{$}\hlkwd{p}\hlstd{(}\hlstr{"Users can enter a "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"File Name"}\hlstd{),}
+                      \hlstr{" and can click the "} \hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Download"}\hlstd{),}
+                      \hlstr{" button to download and save a "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{code}\hlstd{(}\hlstr{".png"}\hlstd{),}
+                      \hlstr{" file of the current version of the visualization.
+                      These controls are located below the plot.
+                      Note that the chosen
+                      file name should omit the "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{code}\hlstd{(}\hlstr{".png"}\hlstd{),}
+                      \hlstr{" file extension."}\hlstd{)}
+
+      \hlstd{),}
+      \hlkwd{tabPanel}\hlstd{(}\hlstr{"References"}\hlstd{,}
+               \hlstd{tags}\hlopt{$}\hlkwd{h4}\hlstd{(}\hlstr{"The following software packages
+                       were used in development: "}\hlstd{),}
+               \hlstd{tags}\hlopt{$}\hlkwd{div}\hlstd{(tags}\hlopt{$}\hlkwd{ul}\hlstd{(}
+                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}\hlkwc{href} \hlstd{=} \hlstr{"https://www.R-project.org/"}\hlstd{,}
+                                          \hlkwc{target}\hlstd{=}\hlstr{"_blank"}\hlstd{,}
+                                          \hlstr{"R"}\hlstd{))),}
+                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}\hlkwc{href} \hlstd{=} \hlstr{"http://www.rstudio.com/"}\hlstd{,}
+                                          \hlkwc{target}\hlstd{=}\hlstr{"_blank"}\hlstd{,}
+                                          \hlstr{"RStudio"}\hlstd{))),}
+                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
+                   \hlkwc{href} \hlstd{=} \hlstr{"https://cran.r-project.org/web/packages/shiny/index.html"}\hlstd{,}
+                   \hlkwc{target}\hlstd{=}\hlstr{"_blank"}\hlstd{,}
+                   \hlstr{"shiny"}\hlstd{))),}
+                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
+                   \hlkwc{href} \hlstd{=} \hlstr{"https://cran.r-project.org/web/packages/ggplot2/index.html"}\hlstd{,}
+                   \hlkwc{target}\hlstd{=}\hlstr{"_blank"}\hlstd{,}
+                   \hlstr{"ggplot2"}\hlstd{))),}
+                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
+                   \hlkwc{href} \hlstd{=} \hlstr{"https://cran.r-project.org/web/packages/shinyWidgets/index.html"}\hlstd{,}
+                   \hlkwc{target}\hlstd{=}\hlstr{"_blank"}\hlstd{,}
+                   \hlstr{"shinyWidgets"}\hlstd{))),}
+                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
+                   \hlkwc{href} \hlstd{=} \hlstr{"https://cran.r-project.org/web/packages/shinydashboard/index.html"}\hlstd{,}
+                   \hlkwc{target}\hlstd{=}\hlstr{"_blank"}\hlstd{,}
+                   \hlstr{"shinydashboard"}\hlstd{))))}
+               \hlstd{)}
       \hlstd{)}
     \hlstd{),}
     \hlkwd{fluidRow}\hlstd{(}
       \hlkwd{box}\hlstd{(}
-        \hlkwd{splitLayout}\hlstd{(}
-          \hlkwd{downloadButton}\hlstd{(}\hlkwc{outputId} \hlstd{=} \hlstr{'savePng'}\hlstd{),}
-          \hlkwd{textInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"pngName"}\hlstd{,} \hlkwc{value} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{placeholder} \hlstd{=} \hlstr{"file name"}\hlstd{,} \hlkwc{label} \hlstd{=} \hlstr{"File Name (omit file extension)"}\hlstd{)}
+        \hlkwc{width} \hlstd{=} \hlnum{12}\hlstd{,}
+        \hlkwc{height} \hlstd{=} \hlnum{625}\hlstd{,}
+        \hlkwd{plotOutput}\hlstd{(}\hlstr{"uqPlot"}\hlstd{,}
+                   \hlkwc{height} \hlstd{=} \hlnum{475}\hlstd{),}
+        \hlkwd{fluidRow}\hlstd{(}
+          \hlkwd{column}\hlstd{(}
+            \hlkwc{width} \hlstd{=} \hlnum{3}\hlstd{,}
+            \hlkwd{textInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"pngName"}\hlstd{,}
+                      \hlkwc{value} \hlstd{=} \hlstr{""}\hlstd{,}
+                      \hlkwc{placeholder} \hlstd{=} \hlstr{"file name"}\hlstd{,}
+                      \hlkwc{label} \hlstd{=} \hlstr{"File Name (omit file extension)"}\hlstd{,}
+                      \hlkwc{width} \hlstd{=} \hlnum{200}\hlstd{),}
+            \hlkwd{downloadButton}\hlstd{(}\hlkwc{outputId} \hlstd{=} \hlstr{'savePng'}\hlstd{)}
+          \hlstd{)}
         \hlstd{)}
       \hlstd{)}
     \hlstd{)}
@@ -258,47 +492,56 @@ In the next two weeks I plan to fine-tune the visualization tool and produce a p
 \end{alltt}
 \end{kframe}
 \end{knitrout}
+}
 
 \subsection{{\tt server.R}}
-%
+\scriptsize{
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlcom{#}
-\hlcom{# This is the server logic of a Shiny web application. You can run the }
-\hlcom{# application by clicking 'Run App' above.}
-\hlcom{#}
-\hlcom{# Find out more about building applications with Shiny here:}
-\hlcom{# }
-\hlcom{#    http://shiny.rstudio.com/}
-\hlcom{#}
-
+\hlcom{# Load needed packages}
 \hlkwd{library}\hlstd{(shiny)}
 \hlkwd{library}\hlstd{(ggplot2)}
 \hlkwd{library}\hlstd{(plotly)}
-\hlkwd{library}\hlstd{(dplyr)}
+\hlkwd{library}\hlstd{(shinyalert)}
+\hlkwd{library}\hlstd{(shinyWidgets)}
+
+\hlcom{## Increase max file upload size}
+\hlkwd{options}\hlstd{(}\hlkwc{shiny.maxRequestSize} \hlstd{=} \hlnum{15}\hlopt{*}\hlnum{1024}\hlopt{^}\hlnum{2}\hlstd{)}
 
 \hlcom{###############################################}
 \hlcom{# Functions ###################################}
 \hlcom{###############################################}
-\hlstd{plotAllLayers} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{df}\hlstd{)\{}
-  \hlstd{p}\hlkwb{<-}\hlkwd{ggplot}\hlstd{(}\hlkwc{data} \hlstd{= df,} \hlkwd{aes}\hlstd{(df[,}\hlnum{1}\hlstd{]))}
-  \hlkwa{for}\hlstd{(i} \hlkwa{in} \hlkwd{names}\hlstd{(df)[}\hlopt{-}\hlnum{1}\hlstd{])\{}
-    \hlstd{p}\hlkwb{<-}\hlstd{p}\hlopt{+}\hlkwd{geom_line}\hlstd{(}\hlkwd{aes_string}\hlstd{(}\hlkwc{y}\hlstd{=i),} \hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{)}
-  \hlstd{\}}
-  \hlkwd{return}\hlstd{(p)}
+
+\hlcom{# Function to calculate p-box lower and upper bounds}
+\hlstd{calc_pbox} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{data}\hlstd{,} \hlkwc{p_upper}\hlstd{,} \hlkwc{p_lower}\hlstd{)\{}
+  \hlstd{pbox} \hlkwb{<-} \hlkwd{apply}\hlstd{(values}\hlopt{$}\hlstd{data,}
+                \hlnum{1}\hlstd{,}
+                \hlkwc{FUN} \hlstd{= quantile,}
+                \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(p_lower, p_upper))}
+
+  \hlstd{pbox} \hlkwb{<-} \hlkwd{t}\hlstd{(pbox)}
+
+  \hlstd{values}\hlopt{$}\hlstd{pbox} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{x} \hlstd{= values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{],}
+                            \hlkwc{lower} \hlstd{= pbox[,}\hlnum{1}\hlstd{],}
+                            \hlkwc{upper} \hlstd{= pbox[,}\hlnum{2}\hlstd{])}
+  \hlkwd{return}\hlstd{(pbox)}
 \hlstd{\}}
 
-\hlstd{calc_pbox} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{data}\hlstd{,} \hlkwc{p_upper}\hlstd{,} \hlkwc{p_lower}\hlstd{)\{}
-  \hlcom{# for row in np.transpose(cdf_arr): # loop over transposed matrix}
-  \hlcom{#   qlower = np.quantile(row, q = pbox_lower) # calculate lower quantile}
-  \hlcom{#   qupper = np.quantile(row, q = pbox_upper) # calculate upper quantile}
-  \hlcom{#   ql[counter] = qlower # store}
-  \hlcom{#   qu[counter] = qupper # store}
-  \hlcom{#   counter = counter + 1 }
-  \hlstd{pbox} \hlkwb{<-} \hlkwd{apply}\hlstd{(values}\hlopt{$}\hlstd{data,} \hlnum{1}\hlstd{,} \hlkwc{FUN} \hlstd{= quantile,} \hlkwc{probs} \hlstd{=} \hlkwd{c}\hlstd{(p_lower, p_upper))}
-  \hlcom{# pbox <- data_frame(pbox)}
-  \hlkwd{return}\hlstd{(}\hlkwd{t}\hlstd{(pbox))}
+\hlcom{# function to calculate the SRQ value for a given probability level}
+\hlstd{calc_srq} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{prob_in}\hlstd{)\{}
+  \hlstd{srq_l} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{lower} \hlopt{-} \hlstd{prob_in)),]}\hlopt{$}\hlstd{x}
+  \hlstd{srq_u} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{upper} \hlopt{-} \hlstd{prob_in)),]}\hlopt{$}\hlstd{x}
+
+  \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(srq_l, srq_u))}
+\hlstd{\}}
+
+\hlcom{# function to calculate the probability value for a probability level}
+\hlstd{calc_probs} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{srq_in}\hlstd{)\{}
+  \hlstd{prob_l} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{x} \hlopt{-} \hlstd{srq_in)),]}\hlopt{$}\hlstd{lower}
+  \hlstd{prob_u} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{x} \hlopt{-} \hlstd{srq_in)),]}\hlopt{$}\hlstd{upper}
+
+  \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(prob_l, prob_u))}
 \hlstd{\}}
 
 \hlcom{###############################################}
@@ -310,17 +553,86 @@ In the next two weeks I plan to fine-tune the visualization tool and produce a p
 \hlcom{###############################################}
 \hlcom{# Read in Sample Data #########################}
 \hlcom{###############################################}
-\hlstd{cdf_arr} \hlkwb{<-}  \hlkwd{read.csv}\hlstd{(}\hlstr{'data/cdfs.csv'}\hlstd{,} \hlkwc{header} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlstd{cdf_arr} \hlkwb{<-}  \hlkwd{read.csv}\hlstd{(}\hlstr{"data/cdfs.csv"}\hlstd{,} \hlkwc{header} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \hlstd{cdf_arr} \hlkwb{<-}  \hlkwd{t}\hlstd{(cdf_arr)}
 \hlstd{cdf_df} \hlkwb{<-}  \hlkwd{data.frame}\hlstd{(cdf_arr)}
+
+\hlstd{values}\hlopt{$}\hlstd{valmax} \hlkwb{<-} \hlkwd{max}\hlstd{(cdf_df[,}\hlnum{1}\hlstd{])}
+\hlstd{values}\hlopt{$}\hlstd{valmin} \hlkwb{<-} \hlkwd{min}\hlstd{(cdf_df[,}\hlnum{1}\hlstd{])}
+\hlstd{values}\hlopt{$}\hlstd{userin} \hlkwb{<-} \hlkwa{NULL}
+\hlstd{values}\hlopt{$}\hlstd{showcdf} \hlkwb{<-} \hlnum{FALSE}
+\hlstd{values}\hlopt{$}\hlstd{showpbx} \hlkwb{<-} \hlnum{TRUE}
 
 \hlcom{###############################################}
 \hlcom{# Server Logic ################################}
 \hlcom{###############################################}
 \hlkwd{shinyServer}\hlstd{(}\hlkwa{function}\hlstd{(}\hlkwc{input}\hlstd{,} \hlkwc{output}\hlstd{) \{}
 
+  \hlcom{# toggle button to show/hide cdf ensemble}
+  \hlkwd{observeEvent}\hlstd{(input}\hlopt{$}\hlstd{cdfToggle, \{}
+    \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showcdf} \hlopt{==} \hlnum{FALSE}\hlstd{)\{}
+      \hlkwd{shinyalert}\hlstd{(}
+        \hlkwc{title} \hlstd{=} \hlstr{""}\hlstd{,}
+        \hlkwc{callbackR} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)\{}
+          \hlstd{values}\hlopt{$}\hlstd{showcdf} \hlkwb{<-} \hlstd{x}
+        \hlstd{\},}
+        \hlkwc{text} \hlstd{=} \hlkwd{paste}\hlstd{(}\hlstr{"Showing the CDF ensemble on the plot may significantly"}\hlstd{,}
+                     \hlstr{"increase plot render times. Do you want to continue?"}\hlstd{),}
+        \hlkwc{showCancelButton} \hlstd{=} \hlnum{TRUE}\hlstd{,}
+        \hlkwc{confirmButtonText} \hlstd{=} \hlstr{"Show CDFs"}\hlstd{,}
+        \hlkwc{cancelButtonText} \hlstd{=} \hlstr{"Don't Show CDFs"}\hlstd{,}
+        \hlkwc{confirmButtonCol} \hlstd{=} \hlstr{"#52D755"}\hlstd{,}
+        \hlkwc{type} \hlstd{=} \hlstr{"info"}
+      \hlstd{)}
+    \hlstd{\}} \hlkwa{else} \hlstd{\{}
+    \hlstd{values}\hlopt{$}\hlstd{showcdf} \hlkwb{<-} \hlnum{FALSE}
+    \hlstd{\}}
+  \hlstd{\})}
+
+  \hlkwd{observeEvent}\hlstd{(input}\hlopt{$}\hlstd{pbxToggle, \{}
+    \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showpbx} \hlopt{==} \hlnum{FALSE}\hlstd{)\{}
+      \hlstd{values}\hlopt{$}\hlstd{showpbx} \hlkwb{<-} \hlnum{TRUE}
+    \hlstd{\}} \hlkwa{else} \hlstd{\{}
+      \hlstd{values}\hlopt{$}\hlstd{showpbx} \hlkwb{<-} \hlnum{FALSE}
+    \hlstd{\}}
+  \hlstd{\})}
+
+  \hlcom{# toggle button to show/hide p-box}
+  \hlstd{output}\hlopt{$}\hlstd{pbxBttn} \hlkwb{<-} \hlkwd{renderUI}\hlstd{(\{}
+    \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showpbx} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
+      \hlstd{lbl} \hlkwb{=} \hlstr{"Hide P-box"}
+      \hlstd{sty} \hlkwb{=} \hlstr{"bordered"}
+    \hlstd{\}} \hlkwa{else} \hlstd{\{}
+      \hlstd{lbl} \hlkwb{=} \hlstr{"Show P-box"}
+      \hlstd{sty} \hlkwb{=} \hlstr{"simple"}
+    \hlstd{\}}
+
+    \hlkwd{actionBttn}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"pbxToggle"}\hlstd{,}
+               \hlkwc{label} \hlstd{= lbl,}
+               \hlkwc{style} \hlstd{= sty,}
+               \hlkwc{size} \hlstd{=} \hlstr{"sm"}\hlstd{,}
+               \hlkwc{color} \hlstd{=} \hlstr{"primary"}\hlstd{)}
+  \hlstd{\})}
+
+  \hlstd{output}\hlopt{$}\hlstd{cdfBttn} \hlkwb{<-} \hlkwd{renderUI}\hlstd{(\{}
+    \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showcdf} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
+      \hlstd{lbl} \hlkwb{=} \hlstr{"Hide CDFs"}
+      \hlstd{sty} \hlkwb{=} \hlstr{"bordered"}
+    \hlstd{\}} \hlkwa{else} \hlstd{\{}
+      \hlstd{lbl} \hlkwb{=} \hlstr{"Show CDFs"}
+      \hlstd{sty} \hlkwb{=} \hlstr{"simple"}
+    \hlstd{\}}
+
+    \hlkwd{actionBttn}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"cdfToggle"}\hlstd{,}
+               \hlkwc{label} \hlstd{= lbl,}
+               \hlkwc{style} \hlstd{= sty,}
+               \hlkwc{size} \hlstd{=} \hlstr{"sm"}\hlstd{,}
+               \hlkwc{color} \hlstd{=} \hlstr{"primary"}\hlstd{)}
+  \hlstd{\})}
+
   \hlstd{output}\hlopt{$}\hlstd{uqPlot} \hlkwb{<-} \hlkwd{renderPlot}\hlstd{(\{}
-    \hlkwa{if}\hlstd{(input}\hlopt{$}\hlstd{radioDataSource} \hlopt{==} \hlstr{"Sample Data"}\hlstd{)\{}
+    \hlcom{# Use selected data source}
+    \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{radioDataSource} \hlopt{==} \hlstr{"Sample Data"}\hlstd{)\{}
       \hlstd{values}\hlopt{$}\hlstd{data} \hlkwb{<-} \hlstd{cdf_df}
     \hlstd{\}} \hlkwa{else} \hlstd{\{}
       \hlkwd{req}\hlstd{(input}\hlopt{$}\hlstd{fileIn)}
@@ -330,49 +642,217 @@ In the next two weeks I plan to fine-tune the visualization tool and produce a p
       \hlstd{values}\hlopt{$}\hlstd{data} \hlkwb{<-} \hlstd{df}
     \hlstd{\}}
 
+    \hlcom{# set up initial plot}
     \hlkwd{req}\hlstd{(values}\hlopt{$}\hlstd{data)}
-    \hlstd{plt} \hlkwb{<-} \hlkwd{ggplot}\hlstd{(}\hlkwc{data} \hlstd{= values}\hlopt{$}\hlstd{data,} \hlkwd{aes}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]))}
-    \hlkwa{if}\hlstd{(input}\hlopt{$}\hlstd{checkCDFs} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
+    \hlstd{plt} \hlkwb{<-} \hlkwd{ggplot}\hlstd{(}\hlkwc{data} \hlstd{= values}\hlopt{$}\hlstd{data,}
+                  \hlkwd{aes}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]))}
+
+    \hlcom{# plot cdf ensemble if user selects}
+    \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showcdf} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
       \hlkwa{for}\hlstd{(i} \hlkwa{in} \hlkwd{names}\hlstd{(values}\hlopt{$}\hlstd{data)[}\hlopt{-}\hlnum{1}\hlstd{])\{}
-        \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwd{aes_string}\hlstd{(}\hlkwc{y}\hlstd{=i),} \hlkwc{alpha} \hlstd{= input}\hlopt{$}\hlstd{sliderAlpha)}
+        \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
+          \hlkwd{geom_line}\hlstd{(}\hlkwd{aes_string}\hlstd{(}\hlkwc{y} \hlstd{= i,}
+                               \hlkwc{color} \hlstd{=} \hlkwd{shQuote}\hlstd{(}\hlstr{"CDFs"}\hlstd{)),}
+                    \hlkwc{alpha} \hlstd{= input}\hlopt{$}\hlstd{sliderAlpha)}
+      \hlstd{\}}
+      \hlstd{plt} \hlkwb{<-} \hlstd{plt}
+    \hlstd{\}}
+
+    \hlcom{# get nice breaks for x-axis}
+    \hlstd{px} \hlkwb{<-} \hlkwd{pretty}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{])}
+
+    \hlcom{# Labels and additional plot formatting}
+    \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
+      \hlkwd{xlab}\hlstd{(input}\hlopt{$}\hlstd{xaxisInput)} \hlopt{+}
+      \hlcom{# ylab(input$yaxisInput) +}
+      \hlkwd{ylab}\hlstd{(}\hlstr{"Probability"}\hlstd{)} \hlopt{+}
+      \hlkwd{scale_x_continuous}\hlstd{(}\hlkwc{breaks} \hlstd{= px,}
+                         \hlkwc{limits} \hlstd{=} \hlkwd{range}\hlstd{(px))} \hlopt{+}
+      \hlkwd{ggtitle}\hlstd{(input}\hlopt{$}\hlstd{titleInput)} \hlopt{+}
+      \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
+      \hlkwd{theme}\hlstd{(}\hlkwc{plot.title} \hlstd{=} \hlkwd{element_text}\hlstd{(}\hlkwc{hjust} \hlstd{=} \hlnum{0.5}\hlstd{,}
+                                      \hlkwc{size} \hlstd{=} \hlnum{18}\hlstd{,}
+                                      \hlkwc{face} \hlstd{=} \hlstr{"bold"}\hlstd{),}
+            \hlkwc{panel.grid.minor} \hlstd{=} \hlkwd{element_blank}\hlstd{(),}
+            \hlkwc{axis.text} \hlstd{=} \hlkwd{element_text}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{12}\hlstd{),}
+            \hlkwc{axis.title} \hlstd{=} \hlkwd{element_text}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{14}\hlstd{))}
+
+    \hlcom{# show p-box if user selects}
+    \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showpbx} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
+      \hlstd{pbox} \hlkwb{<-} \hlkwd{calc_pbox}\hlstd{(values}\hlopt{$}\hlstd{data,}
+                        \hlstd{(}\hlnum{1} \hlopt{-} \hlstd{input}\hlopt{$}\hlstd{pboxLower),}
+                        \hlstd{(}\hlnum{1} \hlopt{-} \hlstd{input}\hlopt{$}\hlstd{pboxUpper))}
+      \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
+        \hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y} \hlstd{= pbox[,}\hlnum{1}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"Pbox"}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+}
+        \hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y} \hlstd{= pbox[,}\hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"Pbox"}\hlstd{),}  \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+}
+        \hlkwd{scale_colour_manual}\hlstd{(}\hlkwc{name}\hlstd{=}\hlstr{""}\hlstd{,} \hlkwc{values}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"Pbox"}\hlstd{=}\hlstr{"red"}\hlstd{))}
+    \hlstd{\}}
+
+    \hlcom{# Calculate and show extracted interval on plot}
+    \hlcom{# if user selects}
+    \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{extractInt} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
+      \hlkwd{req}\hlstd{(input}\hlopt{$}\hlstd{valIn)}
+
+      \hlcom{# if interval is an SRQ interval}
+      \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{extractType} \hlopt{==} \hlstr{"SRQ Interval"}\hlstd{)\{}
+        \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{valIn} \hlopt{<} \hlnum{0}\hlstd{)\{}
+          \hlstd{values}\hlopt{$}\hlstd{userin} \hlkwb{<-} \hlnum{0}
+        \hlstd{\}} \hlkwa{else if} \hlstd{(input}\hlopt{$}\hlstd{valIn} \hlopt{>} \hlnum{1}\hlstd{) \{}
+          \hlstd{values}\hlopt{$}\hlstd{userin} \hlkwb{<-} \hlnum{1}
+        \hlstd{\}} \hlkwa{else} \hlstd{\{}
+          \hlstd{values}\hlopt{$}\hlstd{userin} \hlkwb{<-} \hlstd{input}\hlopt{$}\hlstd{valIn}
+        \hlstd{\}}
+        \hlstd{srq_vec} \hlkwb{<-} \hlkwd{calc_srq}\hlstd{(values}\hlopt{$}\hlstd{userin)}
+        \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
+          \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{= values}\hlopt{$}\hlstd{userin,} \hlkwc{lty} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_segment}\hlstd{(}\hlkwc{mapping} \hlstd{=} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= srq_vec[}\hlnum{1}\hlstd{],}
+                                     \hlkwc{y} \hlstd{=} \hlnum{0}\hlstd{,}
+                                     \hlkwc{xend} \hlstd{= srq_vec[}\hlnum{1}\hlstd{],}
+                                     \hlkwc{yend} \hlstd{=} \hlnum{1}\hlstd{),}
+                       \hlkwc{lty} \hlstd{=} \hlstr{"longdash"}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_segment}\hlstd{(}\hlkwc{mapping} \hlstd{=} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= srq_vec[}\hlnum{2}\hlstd{],}
+                                     \hlkwc{y} \hlstd{=} \hlnum{0}\hlstd{,}
+                                     \hlkwc{xend} \hlstd{= srq_vec[}\hlnum{2}\hlstd{],}
+                                     \hlkwc{yend} \hlstd{=} \hlnum{1}\hlstd{),}
+                       \hlkwc{lty} \hlstd{=} \hlstr{"longdash"}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(srq_vec[}\hlnum{1}\hlstd{],}\hlnum{0.05}\hlstd{,}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(srq_vec[}\hlnum{1}\hlstd{],}\hlnum{2}\hlstd{),}
+                        \hlkwc{vjust} \hlstd{=} \hlnum{3}\hlstd{,}
+                        \hlkwc{hjust} \hlstd{=} \hlnum{0.5}\hlstd{),}
+                    \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(srq_vec[}\hlnum{2}\hlstd{],}\hlnum{0.05}\hlstd{,}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(srq_vec[}\hlnum{2}\hlstd{],}\hlnum{2}\hlstd{),}
+                        \hlkwc{vjust} \hlstd{=} \hlnum{3}\hlstd{,}
+                        \hlkwc{hjust} \hlstd{=} \hlnum{0.5}\hlstd{),}
+                    \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]),}
+                        \hlstd{values}\hlopt{$}\hlstd{userin,}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(values}\hlopt{$}\hlstd{userin,}\hlnum{2}\hlstd{),}
+                        \hlkwc{vjust} \hlstd{=} \hlopt{-}\hlnum{0.5}\hlstd{,}
+                        \hlkwc{hjust} \hlstd{=} \hlnum{2}\hlstd{),}
+                    \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)}
+      \hlstd{\}} \hlkwa{else} \hlstd{\{}
+        \hlcom{# if interval is a probability interval}
+        \hlkwd{req}\hlstd{(input}\hlopt{$}\hlstd{valIn)}
+        \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{valIn} \hlopt{<} \hlstd{values}\hlopt{$}\hlstd{valmin)\{}
+          \hlstd{values}\hlopt{$}\hlstd{userin} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{valmin}
+        \hlstd{\}} \hlkwa{else if} \hlstd{(input}\hlopt{$}\hlstd{valIn} \hlopt{>} \hlstd{values}\hlopt{$}\hlstd{valmax) \{}
+          \hlstd{values}\hlopt{$}\hlstd{userin} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{valmax}
+        \hlstd{\}} \hlkwa{else} \hlstd{\{}
+          \hlstd{values}\hlopt{$}\hlstd{userin} \hlkwb{<-} \hlstd{input}\hlopt{$}\hlstd{valIn}
+        \hlstd{\}}
+        \hlstd{prob_vec} \hlkwb{<-} \hlkwd{calc_probs}\hlstd{(values}\hlopt{$}\hlstd{userin)}
+        \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
+          \hlkwd{geom_segment}\hlstd{(}\hlkwc{mapping} \hlstd{=} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= values}\hlopt{$}\hlstd{userin,}
+                                     \hlkwc{y} \hlstd{=} \hlnum{0}\hlstd{,}
+                                     \hlkwc{xend} \hlstd{= values}\hlopt{$}\hlstd{userin,}
+                                     \hlkwc{yend} \hlstd{=} \hlnum{1}\hlstd{),}
+                       \hlkwc{lty} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{= prob_vec[}\hlnum{1}\hlstd{],}
+                     \hlkwc{lty} \hlstd{=} \hlstr{"longdash"}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{= prob_vec[}\hlnum{2}\hlstd{],}
+                     \hlkwc{lty} \hlstd{=} \hlstr{"longdash"}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]),}
+                        \hlstd{prob_vec[}\hlnum{1}\hlstd{],}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(prob_vec[}\hlnum{1}\hlstd{],}\hlnum{2}\hlstd{),}
+                        \hlkwc{vjust} \hlstd{=} \hlopt{-}\hlnum{0.5}\hlstd{,}
+                        \hlkwc{hjust} \hlstd{=} \hlnum{2}\hlstd{),}
+                    \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]),}
+                        \hlstd{prob_vec[}\hlnum{2}\hlstd{],}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(prob_vec[}\hlnum{2}\hlstd{],}\hlnum{2}\hlstd{),}
+                        \hlkwc{vjust} \hlstd{=} \hlopt{-}\hlnum{0.5}\hlstd{,}
+                        \hlkwc{hjust} \hlstd{=} \hlnum{2}\hlstd{),}
+                    \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(values}\hlopt{$}\hlstd{userin,}
+                        \hlnum{0.05}\hlstd{,}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(values}\hlopt{$}\hlstd{userin,}\hlnum{2}\hlstd{),}
+                        \hlkwc{vjust} \hlstd{=} \hlnum{3}\hlstd{,}
+                        \hlkwc{hjust} \hlstd{=} \hlnum{0.5}\hlstd{),}
+                    \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)}
       \hlstd{\}}
     \hlstd{\}}
-    \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
-      \hlkwd{xlab}\hlstd{(}\hlstr{"SRQ"}\hlstd{)} \hlopt{+}
-      \hlkwd{ylab}\hlstd{(}\hlstr{"Probability"}\hlstd{)}
 
-    \hlkwa{if}\hlstd{(input}\hlopt{$}\hlstd{checkPbox} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
-      \hlstd{pbox} \hlkwb{<-} \hlkwd{calc_pbox}\hlstd{(values}\hlopt{$}\hlstd{data, (}\hlnum{1} \hlopt{-} \hlstd{input}\hlopt{$}\hlstd{pboxLower), (}\hlnum{1} \hlopt{-} \hlstd{input}\hlopt{$}\hlstd{pboxUpper))}
+    \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showpbx} \hlopt{&&} \hlstd{values}\hlopt{$}\hlstd{showcdf)\{}
       \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
-        \hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y} \hlstd{= pbox[,}\hlnum{1}\hlstd{]),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+}
-        \hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y} \hlstd{= pbox[,}\hlnum{2}\hlstd{]),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)}
+        \hlkwd{scale_color_manual}\hlstd{(}\hlkwc{name} \hlstd{=} \hlstr{""}\hlstd{,}
+                           \hlkwc{values} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"CDFs"} \hlstd{=} \hlstr{"black"}\hlstd{,}
+                                      \hlstr{"Pbox"} \hlstd{=} \hlstr{"red"}\hlstd{))} \hlopt{+}
+        \hlkwd{guides}\hlstd{(}\hlkwc{colour} \hlstd{=}
+                 \hlkwd{guide_legend}\hlstd{(}\hlkwc{override.aes} \hlstd{=}
+                                \hlkwd{list}\hlstd{(}\hlkwc{linetype} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{),}
+                                     \hlkwc{lwd} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.5}\hlstd{,} \hlnum{1}\hlstd{))))} \hlopt{+}
+        \hlkwd{theme}\hlstd{(}\hlkwc{legend.text} \hlstd{=} \hlkwd{element_text}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{12}\hlstd{))}
+    \hlstd{\}} \hlkwa{else if} \hlstd{(values}\hlopt{$}\hlstd{showpbx)\{}
+      \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
+        \hlkwd{scale_color_manual}\hlstd{(}\hlkwc{name} \hlstd{=} \hlstr{""}\hlstd{,}
+                           \hlkwc{values} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Pbox"} \hlstd{=} \hlstr{"red"}\hlstd{))} \hlopt{+}
+        \hlkwd{theme}\hlstd{(}\hlkwc{legend.text} \hlstd{=} \hlkwd{element_text}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{12}\hlstd{))}
+    \hlstd{\}} \hlkwa{else if} \hlstd{(values}\hlopt{$}\hlstd{showcdf)\{}
+      \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
+        \hlkwd{scale_color_manual}\hlstd{(}\hlkwc{name} \hlstd{=} \hlstr{""}\hlstd{,}
+                           \hlkwc{values} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"CDFs"} \hlstd{=} \hlstr{"black"}\hlstd{))} \hlopt{+}
+        \hlkwd{theme}\hlstd{(}\hlkwc{legend.text} \hlstd{=} \hlkwd{element_text}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{12}\hlstd{))}
     \hlstd{\}}
 
     \hlstd{values}\hlopt{$}\hlstd{plot} \hlkwb{<-} \hlstd{plt}
 
     \hlstd{plt}
+   \hlstd{\})}
+
+  \hlstd{output}\hlopt{$}\hlstd{extractTypeInput} \hlkwb{<-} \hlkwd{renderUI}\hlstd{(\{}
+    \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{extractInt} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
+      \hlkwd{radioButtons}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"extractType"}\hlstd{,}
+                   \hlkwc{label} \hlstd{=} \hlstr{"Interval Type: "}\hlstd{,}
+                   \hlkwc{choices} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"SRQ Interval"}\hlstd{,}
+                               \hlstr{"Probability Interval"}\hlstd{))}
+    \hlstd{\}}
   \hlstd{\})}
 
-  \hlcom{# help from https://stackoverflow.com/questions/14810409/save-plots-made-in-a-shiny-app}
+
+  \hlstd{output}\hlopt{$}\hlstd{valInput} \hlkwb{<-} \hlkwd{renderUI}\hlstd{(\{}
+    \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{extractInt} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
+      \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{extractType} \hlopt{==} \hlstr{"Probability Interval"}\hlstd{)\{}
+        \hlstd{lbl} \hlkwb{=} \hlstr{"SRQ Input Value"}
+        \hlstd{val} \hlkwb{=} \hlkwd{round}\hlstd{(}\hlkwd{quantile}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{],} \hlnum{0.1}\hlstd{),} \hlnum{0}\hlstd{)}
+      \hlstd{\}} \hlkwa{else} \hlstd{\{}
+        \hlstd{lbl} \hlkwb{=} \hlstr{"Probability Input Value"}
+        \hlstd{val} \hlkwb{=} \hlnum{0.95}
+      \hlstd{\}}
+      \hlkwd{numericInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"valIn"}\hlstd{,}
+                   \hlkwc{label} \hlstd{= lbl,}
+                   \hlkwc{value} \hlstd{= val)}
+    \hlstd{\}}
+  \hlstd{\})}
+
+  \hlstd{output}\hlopt{$}\hlstd{fileInput} \hlkwb{<-} \hlkwd{renderUI}\hlstd{(\{}
+    \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{radioDataSource} \hlopt{==} \hlstr{"File Upload"}\hlstd{)\{}
+      \hlkwd{fileInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"fileIn"}\hlstd{,}
+                \hlkwc{label} \hlstd{=} \hlstr{"Upload .csv File"}\hlstd{)}
+    \hlstd{\}}
+  \hlstd{\})}
+
+  \hlcom{# help from https://stackoverflow.com/questions}
+  \hlcom{# /14810409/save-plots-made-in-a-shiny-app}
   \hlstd{output}\hlopt{$}\hlstd{savePng} \hlkwb{<-} \hlkwd{downloadHandler}\hlstd{(}
-    \hlkwc{filename} \hlstd{=} \hlkwa{function}\hlstd{() \{} \hlkwd{paste}\hlstd{(input}\hlopt{$}\hlstd{pngName,} \hlstr{'.png'}\hlstd{,} \hlkwc{sep}\hlstd{=}\hlstr{''}\hlstd{) \},}
-    \hlkwc{content} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{file}\hlstd{) \{}
-      \hlkwd{ggsave}\hlstd{(file,} \hlkwc{plot} \hlstd{= values}\hlopt{$}\hlstd{plot,} \hlkwc{device} \hlstd{=} \hlstr{"png"}\hlstd{)}
+    \hlkwc{filename} \hlstd{=} \hlkwa{function}\hlstd{()\{}
+      \hlkwd{paste}\hlstd{(input}\hlopt{$}\hlstd{pngName,}
+            \hlstr{".png"}\hlstd{,}
+            \hlkwc{sep}\hlstd{=}\hlstr{""}\hlstd{)}
+    \hlstd{\},}
+    \hlkwc{content} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{file}\hlstd{)\{}
+      \hlkwd{ggsave}\hlstd{(file,}
+             \hlkwc{plot} \hlstd{= values}\hlopt{$}\hlstd{plot,}
+             \hlkwc{device} \hlstd{=} \hlstr{"png"}\hlstd{,}
+             \hlkwc{width} \hlstd{=} \hlnum{12}\hlstd{)}
     \hlstd{\}}
   \hlstd{)}
-
 \hlstd{\})}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
+}
 
-\newpage
 
-\bibliographystyle{elsarticle-harv}
-% modified to add 
-%     \itemsep=0pt
-% to 2nd line of file paper.bbl
-
-\bibliography{references2}
 
 \end{document}
