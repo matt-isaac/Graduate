@@ -19,6 +19,10 @@ Chang, W., Cheng, J., Allaire, J., Xie, Y., McPherson, J., 2018. shiny: Web
   Application Framework for R. {R package version 1.2.0}
   (\url{https://CRAN.R-project.org/package=shiny}).
 
+\bibitem[{{Der Kiureghian} and Ditlevsen(2009)}]{KD2009}
+{Der Kiureghian}, A.~D., Ditlevsen, O., 2009. {A}leatory or {E}pistemic? {D}oes
+  it {M}atter? Structural Safety 31~(2), 105--112.
+
 \bibitem[{Ewing et~al.(2018)Ewing, Liechty, and Black}]{EW2018}
 Ewing, M., Liechty, B.~C., Black, D., 2018. {A} {G}eneral {M}ethodology for
   {U}ncertainty {Q}uantification in {E}ngineering {A}nalyses {U}sing a
@@ -26,14 +30,8 @@ Ewing, M., Liechty, B.~C., Black, D., 2018. {A} {G}eneral {M}ethodology for
   Uncertainty Quantification 3~(2), \url{https://doi.org/10.1115/1.4041490}.
 
 \bibitem[{Jackson(2008)}]{JA2008}
-Jackson, C.~H., Nov. 2008. Displaying {Uncertainty} {With} {Shading}. The
-  American Statistician 62~(4), 340--347.
-\newline\urlprefix\url{https://doi.org/10.1198/000313008X370843}
-
-\bibitem[{Kiureghian and Ditlevsen(2009)}]{KD2009}
-Kiureghian, A.~D., Ditlevsen, O., 2009. {A}leatory or {E}pistemic? {D}oes it
-  {M}atter? Structural Safety 31~(2),
-  \url{http://www.sciencedirect.com/science/article/pii/S0167473008000556}.
+Jackson, C.~H., 2008. Displaying {Uncertainty} {With} {Shading}. The American
+  Statistician 62~(4), 340--347.
 
 \bibitem[{Perrier et~al.(2019)Perrier, Meyer, and Granjon}]{SWIDGET}
 Perrier, V., Meyer, F., Granjon, D., 2019. shinyWidgets: Custom Inputs Widgets

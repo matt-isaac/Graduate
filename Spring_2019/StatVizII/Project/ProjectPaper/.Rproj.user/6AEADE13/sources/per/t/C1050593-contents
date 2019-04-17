@@ -9,13 +9,13 @@
 }
 
 @article{KD2009,
-  Author = "Kiureghian, A. D. and Ditlevsen, O.",
+  Author = "{Der Kiureghian}, A. D. and Ditlevsen, O.",
   Year = 2009,
   Title = "{A}leatory or {E}pistemic? {D}oes it {M}atter?",
   Journal = "Structural Safety",
   Volume = 31,
   Number = 2,
-  Note = {\url{http://www.sciencedirect.com/science/article/pii/S0167473008000556}}  
+  pages = {105--112}
 }
 
 @manual{DPLYR,
@@ -91,13 +91,10 @@
 	title = {Displaying {Uncertainty} {With} {Shading}},
 	volume = {62},
 	issn = {0003-1305},
-	url = {https://doi.org/10.1198/000313008X370843},
-	doi = {10.1198/000313008X370843},
 	number = {4},
 	urldate = {2019-04-15},
 	journal = {The American Statistician},
 	author = {Jackson, Christopher H.},
-	month = nov,
 	year = {2008},
 	pages = {340--347}
 }

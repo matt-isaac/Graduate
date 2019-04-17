@@ -82,7 +82,7 @@ E-mail: \url{matt.isaac@aggiemail.usu.edu}}
 \maketitle
 
 \begin{abstract}
-Uncertainty quantification is a class of methods used to simulate the ways that variations to inputs of a system can potentially change the end state of that system. This article outlines the implementation of an interactive tool to visualize the results of an uncertainty quantification analysis. The interactive tool is a deployable web application built with the {\tt R Shiny} framework. Users can create, adjust, and save custom visualizations to assist in interpreting and presenting results. 
+The term `uncertainty quantification' refers to a class of methods used to understand the ways that variations to inputs of a system can potentially change the end state of that system. This article outlines the implementation of an interactive tool to visualize the results of a `two-dimensional' uncertainty quantification analysis. The interactive tool is a deployable web application built with the {\tt R Shiny} framework. Users can create, adjust, and save custom visualizations to assist in interpreting and presenting results. 
 \end{abstract}
 
 \begin{keywords} Interactive Visualization; {\tt shiny} R Package
@@ -94,38 +94,38 @@ Uncertainty quantification is a class of methods used to simulate the ways that 
 \label{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-Uncertainty quantification is a methodological framework used with some frequency in engineering analysis \citep{EW2018}. It is used to understand how variability  within the parameters (i.e. inputs) to some system impact the end state of that system. Engineering analysts use uncertainty quantification to assess and find the balance between design sufficiency and design efficiency. This is particularly important in fields where large-scale prototypes, testing, and data collection are extremely expensive. Engineers in these types of applications are increasingly relying on computational simulations to assess system designs.
+Uncertainty quantification is a methodological framework used in engineering analyses \citep{EW2018}. It is used to understand how variability  within the parameters (i.e. inputs) to some system impact the end state of that system. Engineering analysts use uncertainty quantification to assess and find the balance between design sufficiency and design efficiency. This is particularly important in fields where large-scale prototypes, testing, and data collection are extremely expensive. Engineers in these types of applications are increasingly relying on computational simulations to assess system designs.
 
-In the following article, I outline the implementation of an interactive tool to visualize uncertainty quantification results. The outline of this article will proceed as follows: In Section~\ref{UQOverview}, a brief overview of uncertainty quantification is given. In Section~\ref{Methods}, the methods by which the visualization tool was developed are described. In Section~\ref{Results}, features of the resulting web application is described. In Section~\ref{Discussion}, challenges with and future enhancements to the web application are discussed. The code written to generate the {\tt shiny} app is included in the Appendix.
+The following article outlines the implementation of a web application containing an interactive tool to visualize uncertainty quantification results. The visualization tool has been specifically designed to visualize results of a `two-dimensional' (2D) uncertainty quantification analysis, as described by \cite{EW2018}. The outline of this article will proceed as follows: In Section~\ref{UQOverview}, a brief overview of the 2D uncertainty quantification algorithm is given. In Section~\ref{Methods}, the software packages and methods used to create the visualization tool are described. In Section~\ref{Results}, features and capabilities of the resulting web application are described. In Section~\ref{Discussion}, challenges with the current implementation and future enhancements to the web application are discussed. The code written to generate the web application is included in the Appendix.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Uncertainty Quantification Overview}  
 \label{UQOverview}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-The following description of the uncertainty quantification algorithm is adapted from \cite{EW2018}. First, a few terms and definitions will be described. 
+The following description of the uncertainty quantification algorithm is adapted from \cite{EW2018}. First, a few terms and definitions will be described: 
 
 \begin{description}
-\item[system response quantity (SRQ):] A parameter of particular interest directly related to the engineering system in question. The SRQ is the output (i.e. prediction) from the engineering model.
-\item[engineering model:] A mathematical model that defines the relationship between the parameters (model inputs) and SRQ (model output). 
-\item[aleatory uncertainty:] Uncertainty resulting from randomness inherent to a given parameter. Gaining more knowledge about the parameter will not reduce the uncertainty of the parameter. 
-\item[epistemic uncertainty:] Uncertainty resulting from a lack of knowledge about a given parameter. Gaining more knowledge about the parameter could reduce the uncertainty of the parameter. 
+\item[System Response Quantity (SRQ):] A parameter of particular interest directly related to the engineering system in question. The SRQ is the output (i.e. prediction) from the engineering model, and it is this value for which we are performing the uncertainty quantification analysis.
+\item[Engineering Model:] A mathematical model that defines the relationship between the parameters (model inputs) and SRQ (model output). 
+\item[Aleatory Uncertainty:] Uncertainty resulting from randomness inherent to a given parameter. Gaining more knowledge about the parameter will not reduce the uncertainty of the parameter. 
+\item[Epistemic Uncertainty:] Uncertainty resulting from a lack of knowledge about a given parameter. Gaining more knowledge about the parameter could reduce the uncertainty of the parameter. 
 \end{description}
 
-The first step of uncertainty quantification is to identify sources of uncertainty (model parameters) and classify them as either aleatory or epistemic. This classification process has been somewhate debated in literature \citep{KD2009}, and will not be discussed as it is outside the scope of this project. Once these uncertainties related to the model parameters have been identified and classified as aleatory or epistemic, the uncertainty for each parameter must somehow be described. Traditionally, epistemic uncertainties have been described by an interval over which any value in the interval is equally likely, while aleatory uncertainties have been assigned probability distributions. Some more recent publications \citep{EW2018} propose that all uncertainties, aleatory or epistemic, be described using probability distributions. This debate will not be discussed here as it is, again, outside the scope of this project. Once these distributions and/or intervals have all been assigned, they are carried through the model using Monte Carlo techniques.
+The first step of uncertainty quantification is to identify sources of uncertainty (usually associated with model parameters) and classify them as either aleatory or epistemic. This classification process has been somewhat debated in literature \citep{KD2009}, and will not be discussed here as it is outside the scope of this article. Once these uncertainties related to the model parameters have been identified and classified as aleatory or epistemic, the uncertainty for each parameter must be described. Traditionally, epistemic uncertainties have been described by an interval over which any value in the interval is equally likely, while aleatory uncertainties have been assigned probability distributions. \cite{EW2018} proposes that all uncertainties, aleatory or epistemic, be described using probability distributions. This debate will not be discussed here as it is, again, outside the scope of this article. Once these distributions and/or intervals have all been assigned, they are carried through the model using Monte Carlo techniques as described below.
 
-Let $m$ denote the number of iterations of an outer for loop, and let $n$ denote the number of iterations in an inner for loop. In the outer for loop, values for the epistemic uncertainty parameters are selected randomly from the intervals/distributions assigned. Upon entering the inner loop, values for the aleatory uncertainty parameters are randomly chosen from the distributions assigned. The values chosen for the parameters in both the outer loop and the inner loop are then used as inputs in the engineering model to calculate a value for the SRQ. This value is stored and the inner loop continues running for the rest of the $n-1$ iterations. All of the $n$ SRQ values calculated from the $n$ iterations of the inner loop are used to calculate an empirical cumulative distribution function (CDF) of SRQ values and the CDF is stored. The outer loop then begins its second iteration, and new values for the empirical uncertainty parameters are chosen. The inner loop then runs another $n$ iterations, producing another CDF. This process continues until the outer loop has run all of its $m$ iterations. 
+Given a nested `for loop' programming structure with two loops, let $n$ denote the number of iterations of the outer loop, and let $m$ denote the number of iterations of the inner loop. In the outer for loop, values for the epistemic uncertainty parameters are selected randomly from the intervals/distributions assigned. Upon entering the inner loop, values for the aleatory uncertainty parameters are randomly chosen from the distributions assigned. The values chosen for the parameters in both the outer loop and the inner loop are then used as inputs in the engineering model to calculate a value for the SRQ. This value is stored and the inner loop continues running for the rest of the $m-1$ iterations. All of the $m$ SRQ values calculated from the $m$ iterations of the inner loop are used to calculate an empirical cumulative distribution function (CDF) of SRQ values and the CDF is stored. The outer loop then begins its second iteration, and new values for the empirical uncertainty parameters are chosen. The inner loop then runs, sampling values from the aleatory parameter distributions for another $m$ iterations, producing another CDF. This process continues until the outer loop has run all of its $n$ iterations. 
 
-At this point, there will be $m$ empirical CDFs that have been calculated, representing various possible realized values of the SRQ. These CDFs can then be plotted and interpreted. \cite{EW2018} suggests constructing a ``P-box". This P-box is found by calculating a lower percentile (e.g. the 5th percentile) and an upper percentile (e.g. the 95th percentile) of the CDF ensemble. This P-box can then be interpreted in several ways, including (1) selecting a SRQ value and extracting a probability interval, and (2) selecting a probability value and extracting an SRQ interval.
+At this point, there will be $n$ empirical CDFs that have been calculated, representing various possible realized values of the SRQ. This collection of CDFs is often referred to as an `ensemble'.  \cite{EW2018} suggests constructing a probability box, or ``P-box". This P-box is found by calculating a lower percentile (e.g. the 5th percentile) and an upper percentile (e.g. the 95th percentile) of the CDF ensemble. This P-box can then be interpreted in several ways, including (1) selecting a SRQ value and extracting a probability interval, and (2) selecting a probability value and extracting an SRQ interval.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methods}  
 \label{Methods}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-In order to assist analysts in visualizing and interpreting results from an uncertainty quantification analysis as described in Section~\ref{UQOverview}, an interactive visualization tool was developed. Since the actual uncertainty quantification analysis can be carried out with greater speed and computational power elsewhere, this implementation does not include the Monte Carlo portion of the algorithm described in Section~\ref{UQOverview}. The web application was built using the {\tt shiny R} package \citep{SHINY} and the code for this application is contained in two files. The first file, {\tt ui.R} (short for `user interface') contains the code that controls the layout of the various panels and panes in the application, as well as the placement of the user interface elements (i.e. text inputs, sliders, etc.). The {\tt server.R} file contains the computational code that performs calculations, data manipulation, and generates the plots. The source code is included in the Appendix.
+The main objective in developing this interactive visualization tool was to assist analysts in visualizing and interpreting results from an uncertainty quantification analysis. Since the actual uncertainty quantification analysis can be carried out with greater speed and computational power elsewhere, this implementation does not include the Monte Carlo portion of the algorithm described in Section~\ref{UQOverview}. Rather, the visualization tool is designed to receive and visualize data from such a simulation. The web application was built using the {\tt shiny R} package \citep{SHINY} and the code for this application is contained in two files. The first file, {\tt ui.R} (short for `user interface') contains the code that controls the layout of the various panels and panes in the application, as well as the placement of the user interface elements (i.e. text input boxes, sliders, etc.). The {\tt server.R} file contains the computational code that performs calculations, data manipulation, and generates the plots. The source code is included in the Appendix.
 
-\subsection{{\tt R} Packages}
+\subsection{Software Packages}
 The following software packages were used in the development of the web application:
 
 \begin{description}
@@ -134,7 +134,7 @@ The following software packages were used in the development of the web applicat
 
 \item[{\bf RStudio:}] Rstudio \citep{RSTUDIO} is an integrated development environment that was used to both develop and deploy the web application.
 
-\item[{\bf shiny:}] The {\tt shiny} package and framework \citep{SHINY} constitues the backbone of this project. {\tt shiny} provides a way to create and deploy web applications through RStudio \citep{RSTUDIO}. It also contains the implementations for all user-interface components (toggle buttons, check boxes, numeric inputs, sliders, etc.). The {\tt shinydashboard} package \citep{DASH} was also used as an aesthetic wrapper around the {\tt shiny} framework. The {\tt shiny} package was be used to create and will be used to deploy the web application.
+\item[{\bf shiny:}] The {\tt shiny} package and framework \citep{SHINY} constitutes the backbone of this project. This package provides a way to create and deploy web applications through RStudio \citep{RSTUDIO}. It also contains the implementations for all user-interface components (toggle buttons, check boxes, numeric inputs, sliders, etc.). 
 
 \item[{\bf ggplot2:}] The plotting functionality of the {\tt ggplot2} package \citep{GGPLOT} was used to generate the actual visualization and to add, remove, or adjust components on the plot. 
 
@@ -148,24 +148,31 @@ The following software packages were used in the development of the web applicat
 
 \vspace{5mm}
 
-Since the existing {\tt R} packages already implemented most of the tools needed to generate the plot and implement user interface elements, the primary task on this project was to seamlessly combine elements from the packages above (particularly the {\tt shiny}, {\tt ggplot2} packages) to create a user-friendly interactive visualization tool. 
+Since the existing {\tt R} packages already implemented most of the tools needed to generate the plot and implement user interface elements, the primary task on this project was to seamlessly combine elements from the software packages above to create a user-friendly interactive visualization tool. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 \label{Results}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-The resulting web application currently several main features implemented. The web application is currently deployed at \url{https://misaac.shinyapps.io/UQViz/}. The following subsections outlines the basic functionality. 
+The web application is currently deployed at \url{https://misaac.shinyapps.io/UQViz/}. The following subsections outline the basic functionality of the application. 
 
 \subsection{Data Source}
-The `Data Source' tab contains the controls that allow the user to select either a sample data set (provided for convenience) or to upload their own {\tt .csv} file. If data from a file is to be used, the x-values over which the CDFs are evaluated should be the first column, and the CDF y-values in the following columns. 
+The `Data Source' tab contains the controls that allow the user to select either a sample data set (provided for convenience) or to upload their own data in a {\tt .csv} file. If data from a file is to be used, the x-values over which the CDFs are evaluated should be the first column, and the CDF y-values in the following columns. 
 
 \subsection{Visualization Options}
-Several visualization options are provided to allow customizable graphics to be created. The `Show/Hide P-box' and the `Show/Hide CDFs' buttons toggle back and forth between showing and hiding the red P-box and the black ensemble of CDFs. Note that showing the CDF ensemble may (depending on the size of the uploaded file) significantly increase plot rendering times.
+Several visualization options are provided to allow customizable graphics to be created. A screenshot of the visualization option control panel is shown in Figure~\ref{tab_vo}. The `Show/Hide P-box' and the `Show/Hide CDFs' buttons toggle back and forth between showing and hiding the red P-box and the black ensemble of CDFs. Note that showing the CDF ensemble may (depending on the size of the uploaded file) significantly increase plot rendering times.
 
-The P-box lower and upper percentiles default to 0.05 and 0.95. Users can modify this by inputting the desired lower and upper percentile to be used in the visualization. 
+\begin{figure}[t]
+\begin{center} 
+\includegraphics[height=2cm,width=14cm]{figures2/tab_vo.png}
+\end{center} 
+\caption{\label{tab_vo}Screenshot from the web application of the visualization option control panel}
+\end{figure}
 
-Moving the `CDF Transparency' slider will make each individual CDF trace more or less transparent. A slider value of 1 corresponds to completely opaque, while a slider value of 0 corresponds to completely transparent. This mitigates the issue of overplotting that can often arise when hundreds or thousands traces are shown on the same plot. Allowing for some transparency allows the user to visualize the density of regions within the CDF ensemble. Figure~\ref{viz_opt} shows plots with several possible visualization options selected. A screenshot of the visualization option control panel is shown in Figure~\ref{tab_vo}.
+The P-box lower and upper percentiles default to 0.05 and 0.95. Users can modify this by providing the desired lower and upper percentiles to be used in the visualization. 
+
+Moving the `CDF Transparency' slider will make each individual CDF trace more or less transparent. A slider value of `1' corresponds to completely opaque, while a slider value of `0' corresponds to completely transparent. This mitigates the issue of overplotting that can often arise when hundreds or thousands of traces are shown on the same plot. Allowing for some transparency allows the user to visualize the density of regions within the CDF ensemble. Figure~\ref{viz_opt} shows plots with several possible visualization options selected. 
 
 \begin{figure}[t]
 \begin{center} 
@@ -173,18 +180,10 @@ Moving the `CDF Transparency' slider will make each individual CDF trace more or
 \includegraphics[height=4.1cm,width=4.5cm]{figures2/pbx_cdf_d.png}
 \includegraphics[height=4.1cm,width=4.5cm]{figures2/pbx_cdf_l.png} 
 \end{center} 
-\caption{\label{viz_opt}Visualization with P-box shown and CDfs hidden (left); Visualization with P-box and CDFs both shown with high transparency (center) and low transparency (right)}
+\caption{\label{viz_opt}Visualization with P-box shown and CDFs hidden (left); Visualization with P-box and CDFs both shown with high transparency (center) and low transparency (right)}
 \end{figure}
 
-
-\begin{figure}[t]
-\begin{center} 
-\includegraphics[height=2cm,width=14cm]{figures2/tab_vo.png}
-\end{center} 
-\caption{\label{tab_vo}Screenshot from the web application of visualization option control panel}
-\end{figure}
-
-To aid with interpretation, both probability intervals and SRQ intervals can be extracted from the P-box shown in the visualization, as described in \cite{EW2018}. To extract a probability interval, the user selects an SRQ value at which a line is drawn vertically. The intersections of the vertical line with the P-box create the lower and upper endpoints for the probability interval. In a similar process, the user can also extract a SRQ interval by selecting a probability value at which a line is drawn horizontally. The intersections of the horizontal line with the P-box create the SRQ interval. This process is illustrated in Figure~\ref{ext_int}. 
+To aid with interpretation, both probability intervals and SRQ intervals can be extracted from the P-box shown in the visualization, as described in \cite{EW2018}. To extract a probability interval, the user selects an SRQ value at which a line is drawn vertically. The intersections of the vertical line with the P-box create the lower and upper endpoints for the probability interval. In a similar process, the user can also extract an SRQ interval by selecting a probability value at which a line is drawn horizontally. The intersections of the horizontal line with the P-box create the SRQ interval. This process is illustrated in Figure~\ref{ext_int}. 
 
 \begin{figure}[t]
 \begin{center}
@@ -194,7 +193,7 @@ To aid with interpretation, both probability intervals and SRQ intervals can be 
 \caption{\label{ext_int}Extracting a probability interval (left); Extracting an SRQ interval (right)}
 \end{figure}
 
-A title and can be added to the plot and the x-axis label can be changed from the default label of `SRQ'. This allows users to futher customize the visualization to a specific domain or context. 
+A title can be added to the plot and the x-axis label can be changed from the default label of `SRQ'. This allows users to further customize the visualization to a specific domain or context. 
 
 Users can download and save a {\tt .png} version of the current rendering of the visualization by providing a file name and clicking the `Download' button. 
 
@@ -205,11 +204,9 @@ Users can download and save a {\tt .png} version of the current rendering of the
 \label{Discussion}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Challenges}
-One main challenge with this visualization tool is the time that it would takes to render the plot when the CDF ensemble is shown. The nature of uncertainty quantificataion and this kind of visualization leads to there being hundreds or even thousands of traces on a single plot. In addition, the way the interactive features are implemented through the {\tt shiny} package causes the plot to completely re-render when user inputs change. Thus, whenever the user selects a new plotting option and the CDFs are currently shown, he or she must wait several seconds (depending on the size of the data set being used) for the plot to re-render. This leads to a less `interactive' feel for the user. No immediate or direct solution has been found for this issue yet. However, an effective workaround, as described the the User Guide tab on the web application, has been suggested. If the user wishes to display the CDF ensemble on the final version of the plot, it is suggested to adjust all visualization options and controls while the CDFs are hidden, keeping the plot rendering times to a reasonable length. Then, as the last step, show the CDF ensemble. This way, the user will only have to wait once for the long rendering time.
+One main challenge with this visualization tool is the time that it takes to render the plot when the CDF ensemble is shown. The nature of uncertainty quantification and this kind of visualization leads to there being hundreds or even thousands of traces on a single plot. If the CDF ensemble is hidden, plot rendering times are almost immediate. On the other hand, if the CDF ensemble is shown on the plot, the user may have to wait anywhere from 5 to 35 seconds (depending on the size of the data set being used) for the plot to re-render. In addition, due to the way the interactive features are implemented through the {\tt shiny} package, the plot completely re-renders when user inputs change. Thus, when a visualization option is adjusted and the CDFs are currently shown, the user may experience a lengthened rendering time. This leads to a less `interactive' feel for the user. No immediate or direct solution has been found for this issue yet. However, an effective workaround has been suggested: If the user wishes to display the CDF ensemble on the final version of the plot, it may save time to adjust all visualization options and controls while the CDFs are hidden, keeping the plot rendering times to a reasonable length. Then, as the last step, show the CDF ensemble. This way, the user will only have to wait once for the lengthened rendering time.
 
-\subsection{Future Work}
-Further work in developing this visualization tool may involve researching other methods for visualizing uncertainty, such as the methods described in \cite{JA2008}, and implementing several methods for visualization. This would allow users to choose from various visualization methods within the web application to create a graphic that is best suited to a given context. Another extension of this visualization tool could be to use it in a self contained UQ tool, where users could perform the entire UQ algorithm from start to finish. For example, users could define the engineering model to be used, define parameters as aleatory or epistemic, carry out the UQ algorithm, and visualize the results. However, as the web application now stands, it can be used to assist engineers and analysts in visualizing, understanding, and interpreting results from uncertainty quantification analyses. 
+Future work in developing this visualization tool may involve researching other methods for visualizing uncertainty, such as the methods described in \cite{JA2008}, and implementing several methods for visualization. This would allow users to choose from various visualization methods within the web application to create a graphic that is best suited to a given context. Another extension of this visualization tool could be to use it in a self contained UQ tool, where users could perform the entire UQ algorithm from start to finish. For example, users could define the engineering model to be used, define parameters as aleatory or epistemic, carry out the UQ algorithm, and visualize the results. However, as the web application now stands, it can be used to assist engineers and analysts in visualizing, understanding, and interpreting results from uncertainty quantification analyses. 
 
 
 \newpage
@@ -339,7 +336,8 @@ Further work in developing this visualization tool may involve researching other
                    \hlcom{#           placeholder = "Y-axis", }
                    \hlcom{#           value = "Probability")}
                  \hlstd{)}
-               \hlstd{)),}
+               \hlstd{)}
+      \hlstd{),}
       \hlkwd{tabPanel}\hlstd{(}\hlstr{"User Guide"}\hlstd{,}
                \hlkwd{h3}\hlstd{(}\hlstr{"Overview"}\hlstd{),}
                \hlkwd{h5}\hlstd{(}\hlstr{"UQViz is an interactive tool that can be used 
@@ -368,8 +366,8 @@ Further work in developing this visualization tool may involve researching other
                       visualization. This feature is provided for convenience, 
                       and can be used for experimentation and 
                       exploration. If "}\hlstd{,}
-                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{'File Upload'}\hlstd{),} \hlstr{"
-                      is selected, users can upload a "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{'File Upload'}\hlstd{),}
+                      \hlstr{"is selected, users can upload a "}\hlstd{,}
                       \hlstd{tags}\hlopt{$}\hlkwd{code}\hlstd{(}\hlstr{".csv"}\hlstd{),}
                       \hlstr{"file containing
                       data to be used in the visualization. This "}\hlstd{,}
@@ -383,8 +381,10 @@ Further work in developing this visualization tool may involve researching other
                \hlstd{tags}\hlopt{$}\hlkwd{p}\hlstd{(}\hlstr{"Several visualization options are provided to
                       allow customizable graphics to be
                       created. The "}\hlstd{,}
-                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Show/Hide P-box"}\hlstd{),} \hlstr{" and the "}\hlstd{,}
-                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Show/Hide CDFs"}\hlstd{),} \hlstr{" buttons toggle
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Show/Hide P-box"}\hlstd{),}
+                      \hlstr{" and the "}\hlstd{,}
+                      \hlstd{tags}\hlopt{$}\hlkwd{b}\hlstd{(}\hlstr{"Show/Hide CDFs"}\hlstd{),}
+                      \hlstr{" buttons toggle
                       back and forth between showing and 
                       hiding the red P-box and the black ensemble of CDFs. 
                       Note that showing the CDF 
@@ -468,26 +468,28 @@ Further work in developing this visualization tool may involve researching other
                \hlstd{tags}\hlopt{$}\hlkwd{h4}\hlstd{(}\hlstr{"The following software packages
                        were used in development: "}\hlstd{),}
                \hlstd{tags}\hlopt{$}\hlkwd{div}\hlstd{(tags}\hlopt{$}\hlkwd{ul}\hlstd{(}
-                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}\hlkwc{href} \hlstd{=} \hlstr{"https://www.R-project.org/"}\hlstd{,}
-                                          \hlkwc{target} \hlstd{=} \hlstr{"_blank"}\hlstd{,}
-                                          \hlstr{"R"}\hlstd{))),}
-                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}\hlkwc{href} \hlstd{=} \hlstr{"http://www.rstudio.com/"}\hlstd{,}
-                                          \hlkwc{target} \hlstd{=} \hlstr{"_blank"}\hlstd{,}
-                                          \hlstr{"RStudio"}\hlstd{))),}
+                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
+                   \hlkwc{href} \hlstd{=} \hlstr{"https://www.R-project.org/"}\hlstd{,}
+                   \hlkwc{target} \hlstd{=} \hlstr{"_blank"}\hlstd{,}
+                   \hlstr{"R"}\hlstd{))),}
+                 \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
+                   \hlkwc{href} \hlstd{=} \hlstr{"http://www.rstudio.com/"}\hlstd{,}
+                   \hlkwc{target} \hlstd{=} \hlstr{"_blank"}\hlstd{,}
+                   \hlstr{"RStudio"}\hlstd{))),}
                  \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
                    \hlkwc{href} \hlstd{=} \hlkwd{paste0}\hlstd{(cranURL,} \hlstr{"shiny/index.html"}\hlstd{),}
                    \hlkwc{target} \hlstd{=} \hlstr{"_blank"}\hlstd{,}
                    \hlstr{"shiny"}\hlstd{))),}
                  \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
                    \hlkwc{href} \hlstd{=} \hlkwd{paste0}\hlstd{(cranURL,} \hlstr{"ggplot2/index.html"}\hlstd{),}
-                   \hlkwc{target}\hlstd{=}  \hlstr{"_blank"}\hlstd{,}
+                   \hlkwc{target} \hlstd{=} \hlstr{"_blank"}\hlstd{,}
                    \hlstr{"ggplot2"}\hlstd{))),}
                  \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
-                   \hlkwc{href} \hlstd{=} \hlkwd{paste0}\hlstd{(cranURL,}\hlstr{"shinyWidgets/index.html"}\hlstd{),}
+                   \hlkwc{href} \hlstd{=} \hlkwd{paste0}\hlstd{(cranURL,} \hlstr{"shinyWidgets/index.html"}\hlstd{),}
                    \hlkwc{target} \hlstd{=} \hlstr{"_blank"}\hlstd{,}
                    \hlstr{"shinyWidgets"}\hlstd{))),}
                  \hlstd{tags}\hlopt{$}\hlkwd{li}\hlstd{(tags}\hlopt{$}\hlkwd{span}\hlstd{(tags}\hlopt{$}\hlkwd{a}\hlstd{(}
-                   \hlkwc{href} \hlstd{=} \hlkwd{paste0}\hlstd{(cranURL,}\hlstr{"shinydashboard/index.html"}\hlstd{),}
+                   \hlkwc{href} \hlstd{=} \hlkwd{paste0}\hlstd{(cranURL,} \hlstr{"shinydashboard/index.html"}\hlstd{),}
                    \hlkwc{target} \hlstd{=} \hlstr{"_blank"}\hlstd{,}
                    \hlstr{"shinydashboard"}\hlstd{))))}
                \hlstd{)}
@@ -532,7 +534,7 @@ Further work in developing this visualization tool may involve researching other
 \hlkwd{library}\hlstd{(shinyWidgets)}
 
 \hlcom{## Increase max file upload size}
-\hlkwd{options}\hlstd{(}\hlkwc{shiny.maxRequestSize} \hlstd{=} \hlnum{15}\hlopt{*}\hlnum{1024}\hlopt{^}\hlnum{2}\hlstd{)}
+\hlkwd{options}\hlstd{(}\hlkwc{shiny.maxRequestSize} \hlstd{=} \hlnum{15} \hlopt{*} \hlnum{1024} \hlopt{^} \hlnum{2}\hlstd{)}
 
 \hlcom{###############################################}
 \hlcom{# Functions ###################################}
@@ -547,24 +549,24 @@ Further work in developing this visualization tool may involve researching other
 
   \hlstd{pbox} \hlkwb{<-} \hlkwd{t}\hlstd{(pbox)}
 
-  \hlstd{values}\hlopt{$}\hlstd{pbox} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{x} \hlstd{= values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{],}
-                            \hlkwc{lower} \hlstd{= pbox[,}\hlnum{1}\hlstd{],}
-                            \hlkwc{upper} \hlstd{= pbox[,}\hlnum{2}\hlstd{])}
+  \hlstd{values}\hlopt{$}\hlstd{pbox} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{x} \hlstd{= values}\hlopt{$}\hlstd{data[,} \hlnum{1}\hlstd{],}
+                            \hlkwc{lower} \hlstd{= pbox[,} \hlnum{1}\hlstd{],}
+                            \hlkwc{upper} \hlstd{= pbox[,} \hlnum{2}\hlstd{])}
   \hlkwd{return}\hlstd{(pbox)}
 \hlstd{\}}
 
 \hlcom{# function to calculate the SRQ value for a given probability level}
 \hlstd{calc_srq} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{prob_in}\hlstd{)\{}
-  \hlstd{srq_l} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{lower} \hlopt{-} \hlstd{prob_in)),]}\hlopt{$}\hlstd{x}
-  \hlstd{srq_u} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{upper} \hlopt{-} \hlstd{prob_in)),]}\hlopt{$}\hlstd{x}
+  \hlstd{srq_l} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{lower} \hlopt{-} \hlstd{prob_in)), ]}\hlopt{$}\hlstd{x}
+  \hlstd{srq_u} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{upper} \hlopt{-} \hlstd{prob_in)), ]}\hlopt{$}\hlstd{x}
 
   \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(srq_l, srq_u))}
 \hlstd{\}}
 
 \hlcom{# function to calculate the probability value for a probability level}
 \hlstd{calc_probs} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{srq_in}\hlstd{)\{}
-  \hlstd{prob_l} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{x} \hlopt{-} \hlstd{srq_in)),]}\hlopt{$}\hlstd{lower}
-  \hlstd{prob_u} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{x} \hlopt{-} \hlstd{srq_in)),]}\hlopt{$}\hlstd{upper}
+  \hlstd{prob_l} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{x} \hlopt{-} \hlstd{srq_in)), ]}\hlopt{$}\hlstd{lower}
+  \hlstd{prob_u} \hlkwb{<-} \hlstd{values}\hlopt{$}\hlstd{pbox[}\hlkwd{which.min}\hlstd{(}\hlkwd{abs}\hlstd{(values}\hlopt{$}\hlstd{pbox}\hlopt{$}\hlstd{x} \hlopt{-} \hlstd{srq_in)), ]}\hlopt{$}\hlstd{upper}
 
   \hlkwd{return}\hlstd{(}\hlkwd{c}\hlstd{(prob_l, prob_u))}
 \hlstd{\}}
@@ -582,8 +584,8 @@ Further work in developing this visualization tool may involve researching other
 \hlstd{cdf_arr} \hlkwb{<-}  \hlkwd{t}\hlstd{(cdf_arr)}
 \hlstd{cdf_df} \hlkwb{<-}  \hlkwd{data.frame}\hlstd{(cdf_arr)}
 
-\hlstd{values}\hlopt{$}\hlstd{valmax} \hlkwb{<-} \hlkwd{max}\hlstd{(cdf_df[,}\hlnum{1}\hlstd{])}
-\hlstd{values}\hlopt{$}\hlstd{valmin} \hlkwb{<-} \hlkwd{min}\hlstd{(cdf_df[,}\hlnum{1}\hlstd{])}
+\hlstd{values}\hlopt{$}\hlstd{valmax} \hlkwb{<-} \hlkwd{max}\hlstd{(cdf_df[,} \hlnum{1}\hlstd{])}
+\hlstd{values}\hlopt{$}\hlstd{valmin} \hlkwb{<-} \hlkwd{min}\hlstd{(cdf_df[,} \hlnum{1}\hlstd{])}
 \hlstd{values}\hlopt{$}\hlstd{userin} \hlkwb{<-} \hlkwa{NULL}
 \hlstd{values}\hlopt{$}\hlstd{showcdf} \hlkwb{<-} \hlnum{FALSE}
 \hlstd{values}\hlopt{$}\hlstd{showpbx} \hlkwb{<-} \hlnum{TRUE}
@@ -625,11 +627,11 @@ Further work in developing this visualization tool may involve researching other
   \hlcom{# toggle button to show/hide p-box}
   \hlstd{output}\hlopt{$}\hlstd{pbxBttn} \hlkwb{<-} \hlkwd{renderUI}\hlstd{(\{}
     \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showpbx} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
-      \hlstd{lbl} \hlkwb{=} \hlstr{"Hide P-box"}
-      \hlstd{sty} \hlkwb{=} \hlstr{"bordered"}
+      \hlstd{lbl} \hlkwb{<-} \hlstr{"Hide P-box"}
+      \hlstd{sty} \hlkwb{<-} \hlstr{"bordered"}
     \hlstd{\}} \hlkwa{else} \hlstd{\{}
-      \hlstd{lbl} \hlkwb{=} \hlstr{"Show P-box"}
-      \hlstd{sty} \hlkwb{=} \hlstr{"simple"}
+      \hlstd{lbl} \hlkwb{<-} \hlstr{"Show P-box"}
+      \hlstd{sty} \hlkwb{<-} \hlstr{"simple"}
     \hlstd{\}}
 
     \hlkwd{actionBttn}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"pbxToggle"}\hlstd{,}
@@ -641,11 +643,11 @@ Further work in developing this visualization tool may involve researching other
 
   \hlstd{output}\hlopt{$}\hlstd{cdfBttn} \hlkwb{<-} \hlkwd{renderUI}\hlstd{(\{}
     \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showcdf} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
-      \hlstd{lbl} \hlkwb{=} \hlstr{"Hide CDFs"}
-      \hlstd{sty} \hlkwb{=} \hlstr{"bordered"}
+      \hlstd{lbl} \hlkwb{<-} \hlstr{"Hide CDFs"}
+      \hlstd{sty} \hlkwb{<-} \hlstr{"bordered"}
     \hlstd{\}} \hlkwa{else} \hlstd{\{}
-      \hlstd{lbl} \hlkwb{=} \hlstr{"Show CDFs"}
-      \hlstd{sty} \hlkwb{=} \hlstr{"simple"}
+      \hlstd{lbl} \hlkwb{<-} \hlstr{"Show CDFs"}
+      \hlstd{sty} \hlkwb{<-} \hlstr{"simple"}
     \hlstd{\}}
 
     \hlkwd{actionBttn}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"cdfToggle"}\hlstd{,}
@@ -670,11 +672,11 @@ Further work in developing this visualization tool may involve researching other
     \hlcom{# set up initial plot}
     \hlkwd{req}\hlstd{(values}\hlopt{$}\hlstd{data)}
     \hlstd{plt} \hlkwb{<-} \hlkwd{ggplot}\hlstd{(}\hlkwc{data} \hlstd{= values}\hlopt{$}\hlstd{data,}
-                  \hlkwd{aes}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]))}
+                  \hlkwd{aes}\hlstd{(values}\hlopt{$}\hlstd{data[,} \hlnum{1}\hlstd{]))}
 
     \hlcom{# plot cdf ensemble if user selects}
     \hlkwa{if} \hlstd{(values}\hlopt{$}\hlstd{showcdf} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
-      \hlkwa{for}\hlstd{(i} \hlkwa{in} \hlkwd{names}\hlstd{(values}\hlopt{$}\hlstd{data)[}\hlopt{-}\hlnum{1}\hlstd{])\{}
+      \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlkwd{names}\hlstd{(values}\hlopt{$}\hlstd{data)[}\hlopt{-}\hlnum{1}\hlstd{]) \{}
         \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
           \hlkwd{geom_line}\hlstd{(}\hlkwd{aes_string}\hlstd{(}\hlkwc{y} \hlstd{= i,}
                                \hlkwc{color} \hlstd{=} \hlkwd{shQuote}\hlstd{(}\hlstr{"CDFs"}\hlstd{)),}
@@ -684,7 +686,7 @@ Further work in developing this visualization tool may involve researching other
     \hlstd{\}}
 
     \hlcom{# get nice breaks for x-axis}
-    \hlstd{px} \hlkwb{<-} \hlkwd{pretty}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{])}
+    \hlstd{px} \hlkwb{<-} \hlkwd{pretty}\hlstd{(values}\hlopt{$}\hlstd{data[,} \hlnum{1}\hlstd{])}
 
     \hlcom{# Labels and additional plot formatting}
     \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
@@ -708,9 +710,9 @@ Further work in developing this visualization tool may involve researching other
                         \hlstd{(}\hlnum{1} \hlopt{-} \hlstd{input}\hlopt{$}\hlstd{pboxLower),}
                         \hlstd{(}\hlnum{1} \hlopt{-} \hlstd{input}\hlopt{$}\hlstd{pboxUpper))}
       \hlstd{plt} \hlkwb{<-} \hlstd{plt} \hlopt{+}
-        \hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y} \hlstd{= pbox[,}\hlnum{1}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"Pbox"}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+}
-        \hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y} \hlstd{= pbox[,}\hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"Pbox"}\hlstd{),}  \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+}
-        \hlkwd{scale_colour_manual}\hlstd{(}\hlkwc{name}\hlstd{=}\hlstr{""}\hlstd{,} \hlkwc{values}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"Pbox"}\hlstd{=}\hlstr{"red"}\hlstd{))}
+        \hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y} \hlstd{= pbox[,} \hlnum{1}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"Pbox"}\hlstd{),} \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+}
+        \hlkwd{geom_line}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y} \hlstd{= pbox[,} \hlnum{2}\hlstd{],} \hlkwc{col} \hlstd{=} \hlstr{"Pbox"}\hlstd{),}  \hlkwc{lwd} \hlstd{=} \hlnum{1}\hlstd{)} \hlopt{+}
+        \hlkwd{scale_colour_manual}\hlstd{(}\hlkwc{name} \hlstd{=} \hlstr{""}\hlstd{,} \hlkwc{values} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Pbox"} \hlstd{=} \hlstr{"red"}\hlstd{))}
     \hlstd{\}}
 
     \hlcom{# Calculate and show extracted interval on plot}
@@ -740,19 +742,19 @@ Further work in developing this visualization tool may involve researching other
                                      \hlkwc{xend} \hlstd{= srq_vec[}\hlnum{2}\hlstd{],}
                                      \hlkwc{yend} \hlstd{=} \hlnum{1}\hlstd{),}
                        \hlkwc{lty} \hlstd{=} \hlstr{"longdash"}\hlstd{)} \hlopt{+}
-          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(srq_vec[}\hlnum{1}\hlstd{],}\hlnum{0.05}\hlstd{,}
-                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(srq_vec[}\hlnum{1}\hlstd{],}\hlnum{2}\hlstd{),}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(srq_vec[}\hlnum{1}\hlstd{],} \hlnum{0.05}\hlstd{,}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(srq_vec[}\hlnum{1}\hlstd{],} \hlnum{2}\hlstd{),}
                         \hlkwc{vjust} \hlstd{=} \hlnum{3}\hlstd{,}
                         \hlkwc{hjust} \hlstd{=} \hlnum{0.5}\hlstd{),}
                     \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+}
-          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(srq_vec[}\hlnum{2}\hlstd{],}\hlnum{0.05}\hlstd{,}
-                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(srq_vec[}\hlnum{2}\hlstd{],}\hlnum{2}\hlstd{),}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(srq_vec[}\hlnum{2}\hlstd{],} \hlnum{0.05}\hlstd{,}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(srq_vec[}\hlnum{2}\hlstd{],} \hlnum{2}\hlstd{),}
                         \hlkwc{vjust} \hlstd{=} \hlnum{3}\hlstd{,}
                         \hlkwc{hjust} \hlstd{=} \hlnum{0.5}\hlstd{),}
                     \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+}
-          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]),}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,} \hlnum{1}\hlstd{]),}
                         \hlstd{values}\hlopt{$}\hlstd{userin,}
-                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(values}\hlopt{$}\hlstd{userin,}\hlnum{2}\hlstd{),}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(values}\hlopt{$}\hlstd{userin,} \hlnum{2}\hlstd{),}
                         \hlkwc{vjust} \hlstd{=} \hlopt{-}\hlnum{0.5}\hlstd{,}
                         \hlkwc{hjust} \hlstd{=} \hlnum{2}\hlstd{),}
                     \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)}
@@ -777,21 +779,21 @@ Further work in developing this visualization tool may involve researching other
                      \hlkwc{lty} \hlstd{=} \hlstr{"longdash"}\hlstd{)} \hlopt{+}
           \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept} \hlstd{= prob_vec[}\hlnum{2}\hlstd{],}
                      \hlkwc{lty} \hlstd{=} \hlstr{"longdash"}\hlstd{)} \hlopt{+}
-          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]),}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,} \hlnum{1}\hlstd{]),}
                         \hlstd{prob_vec[}\hlnum{1}\hlstd{],}
-                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(prob_vec[}\hlnum{1}\hlstd{],}\hlnum{2}\hlstd{),}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(prob_vec[}\hlnum{1}\hlstd{],} \hlnum{2}\hlstd{),}
                         \hlkwc{vjust} \hlstd{=} \hlopt{-}\hlnum{0.5}\hlstd{,}
                         \hlkwc{hjust} \hlstd{=} \hlnum{2}\hlstd{),}
                     \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+}
-          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{]),}
+          \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwd{min}\hlstd{(values}\hlopt{$}\hlstd{data[,} \hlnum{1}\hlstd{]),}
                         \hlstd{prob_vec[}\hlnum{2}\hlstd{],}
-                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(prob_vec[}\hlnum{2}\hlstd{],}\hlnum{2}\hlstd{),}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(prob_vec[}\hlnum{2}\hlstd{],} \hlnum{2}\hlstd{),}
                         \hlkwc{vjust} \hlstd{=} \hlopt{-}\hlnum{0.5}\hlstd{,}
                         \hlkwc{hjust} \hlstd{=} \hlnum{2}\hlstd{),}
                     \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+}
           \hlkwd{geom_text}\hlstd{(}\hlkwd{aes}\hlstd{(values}\hlopt{$}\hlstd{userin,}
                         \hlnum{0.05}\hlstd{,}
-                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(values}\hlopt{$}\hlstd{userin,}\hlnum{2}\hlstd{),}
+                        \hlkwc{label} \hlstd{=} \hlkwd{round}\hlstd{(values}\hlopt{$}\hlstd{userin,} \hlnum{2}\hlstd{),}
                         \hlkwc{vjust} \hlstd{=} \hlnum{3}\hlstd{,}
                         \hlkwc{hjust} \hlstd{=} \hlnum{0.5}\hlstd{),}
                     \hlkwc{size} \hlstd{=} \hlnum{5}\hlstd{)}
@@ -838,11 +840,11 @@ Further work in developing this visualization tool may involve researching other
   \hlstd{output}\hlopt{$}\hlstd{valInput} \hlkwb{<-} \hlkwd{renderUI}\hlstd{(\{}
     \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{extractInt} \hlopt{==} \hlnum{TRUE}\hlstd{)\{}
       \hlkwa{if} \hlstd{(input}\hlopt{$}\hlstd{extractType} \hlopt{==} \hlstr{"Probability Interval"}\hlstd{)\{}
-        \hlstd{lbl} \hlkwb{=} \hlstr{"SRQ Input Value"}
-        \hlstd{val} \hlkwb{=} \hlkwd{round}\hlstd{(}\hlkwd{quantile}\hlstd{(values}\hlopt{$}\hlstd{data[,}\hlnum{1}\hlstd{],} \hlnum{0.1}\hlstd{),} \hlnum{0}\hlstd{)}
+        \hlstd{lbl} \hlkwb{<-}  \hlstr{"SRQ Input Value"}
+        \hlstd{val} \hlkwb{<-}  \hlkwd{round}\hlstd{(}\hlkwd{quantile}\hlstd{(values}\hlopt{$}\hlstd{data[,} \hlnum{1}\hlstd{],} \hlnum{0.1}\hlstd{),} \hlnum{0}\hlstd{)}
       \hlstd{\}} \hlkwa{else} \hlstd{\{}
-        \hlstd{lbl} \hlkwb{=} \hlstr{"Probability Input Value"}
-        \hlstd{val} \hlkwb{=} \hlnum{0.95}
+        \hlstd{lbl} \hlkwb{<-} \hlstr{"Probability Input Value"}
+        \hlstd{val} \hlkwb{<-} \hlnum{0.95}
       \hlstd{\}}
       \hlkwd{numericInput}\hlstd{(}\hlkwc{inputId} \hlstd{=} \hlstr{"valIn"}\hlstd{,}
                    \hlkwc{label} \hlstd{= lbl,}
@@ -863,7 +865,7 @@ Further work in developing this visualization tool may involve researching other
     \hlkwc{filename} \hlstd{=} \hlkwa{function}\hlstd{()\{}
       \hlkwd{paste}\hlstd{(input}\hlopt{$}\hlstd{pngName,}
             \hlstr{".png"}\hlstd{,}
-            \hlkwc{sep}\hlstd{=}\hlstr{""}\hlstd{)}
+            \hlkwc{sep} \hlstd{=} \hlstr{""}\hlstd{)}
     \hlstd{\},}
     \hlkwc{content} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{file}\hlstd{)\{}
       \hlkwd{ggsave}\hlstd{(file,}
